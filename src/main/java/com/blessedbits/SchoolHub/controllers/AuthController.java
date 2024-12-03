@@ -95,7 +95,7 @@ public class AuthController {
             verificationToken.setExpiryDate(LocalDateTime.now().plusMinutes(15)); 
             tokenRepository.save(verificationToken);
             try{
-                emailService.sendEmail(request.getEmail(),"Please verify your email", emailService.buildEmail(user.getUsername(), token));
+                emailService.sendEmail(request.getEmail(),"Please verify your email", emailService.buildVerificationEmail(user.getUsername(), token));
             } catch (Exception e) {
                 return new ResponseEntity<>(("Failed to send verification token\n" + e), HttpStatus.CONFLICT);
             }

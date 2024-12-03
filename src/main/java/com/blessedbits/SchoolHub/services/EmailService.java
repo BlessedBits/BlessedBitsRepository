@@ -6,14 +6,14 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class EmailService {
-    private String email = "schoolhub.educ.platform@gmail.com";
+    private final String email = "schoolhub.educ.platform@gmail.com";
     private final JavaMailSender mailSender;
 
     public EmailService(JavaMailSender mailSender) {
         this.mailSender = mailSender;
     }
 
-    public String buildEmail(String username, String token) {
+    public String buildVerificationEmail(String username, String token) {
         return "Hello " + username + ",\n\nPlease confirm your email by clicking the link below:\n" +
                "http://localhost:8080/api/auth/confirm?token=" + token;
     }
