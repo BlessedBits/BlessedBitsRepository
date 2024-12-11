@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class EmailService {
-    private final String email = "schoolhub.educ.platform@gmail.com";
+    private String email = "schoolhub.educ.platform@gmail.com";
     private final JavaMailSender mailSender;
 
     public EmailService(JavaMailSender mailSender) {
@@ -17,7 +17,12 @@ public class EmailService {
         return "Hello " + username + ",\n\nPlease confirm your email by clicking the link below:\n" +
                "http://localhost:8080/api/auth/confirm?token=" + token;
     }
-    
+
+    public String buildResetPasswordEmail(String username, String token) {
+        return "Hello " + username + ",\n\nWe received a request to reset your password. Please click the link below to reset it:\n" +
+               "http://localhost:8080/api/auth/reset-password?token=" + token;
+    }
+
     public void sendEmail(String to, String subject, String content) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(to);

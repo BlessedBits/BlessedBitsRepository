@@ -3,6 +3,7 @@ package com.blessedbits.SchoolHub.controllers;
 import com.blessedbits.SchoolHub.dto.AuthResponseDto;
 import com.blessedbits.SchoolHub.dto.LoginDto;
 import com.blessedbits.SchoolHub.dto.RegisterDto;
+import com.blessedbits.SchoolHub.dto.UsernameDto;
 import com.blessedbits.SchoolHub.models.Role;
 import com.blessedbits.SchoolHub.models.UserEntity;
 import com.blessedbits.SchoolHub.models.VerificationToken;
@@ -126,6 +127,61 @@ public class AuthController {
         tokenRepository.delete(verificationToken);
         return new ResponseEntity<>("Email verified successfully!", HttpStatus.OK);
 }
+
+    @PostMapping("reset-password-request")
+    public ResponseEntity<String> resetPasswordRequest(@RequestBody UsernameDto usernameDto) {
+        Optional<UserEntity> userOptional = userRepository.findByUsername(usernameDto.getUsername());
+        if (!userOptional.isPresent()) 
+        {
+            return new ResponseEntity<>("User not found!", HttpStatus.NOT_FOUND);
+        }
+        UserEntity user = userOptional.get();
+        if (user.getEmail() == null || user.getEmail().isEmpty()) 
+        {
+            return new ResponseEntity<>("Please add an email to your profile to reset your password.", HttpStatus.BAD_REQUEST);
+        }
+        if (!user.getIsConfirmed())
+        {
+            return new ResponseEntity<>("Please verify your email.", HttpStatus.CONFLICT);
+        }
+        String token = UUID.randomUUID().toString();
+        VerificationToken resetToken = new VerificationToken();
+        resetToken.setToken(token);
+        resetToken.setUser(user);
+        resetToken.setExpiryDate(LocalDateTime.now().plusMinutes(15)); 
+        tokenRepository.save(resetToken);
+        try {
+            emailService.sendEmail(user.getEmail(), "Password Reset Request", 
+                emailService.buildResetPasswordEmail(user.getUsername(), token)); 
+        } catch (Exception e) {
+            return new ResponseEntity<>("Failed to send reset password email", HttpStatus.CONFLICT);
+        }
+
+        return new ResponseEntity<>("Password reset email has been sent.", HttpStatus.OK);
+    }
+
+    @PostMapping("reset-password")
+    public ResponseEntity<String> resetPassword(@RequestParam("token") String token, 
+                                                @RequestParam("newPassword") String newPassword) {
+        Optional<VerificationToken> resetTokenOptional = tokenRepository.findByToken(token);
+        if (resetTokenOptional.isEmpty()) {
+            return new ResponseEntity<>("Invalid or expired token", HttpStatus.BAD_REQUEST);
+        }
+
+        VerificationToken resetToken = resetTokenOptional.get();
+        if (resetToken.getExpiryDate().isBefore(LocalDateTime.now())) {
+            tokenRepository.delete(resetToken); 
+            return new ResponseEntity<>("Token has expired", HttpStatus.BAD_REQUEST);
+        }
+
+        UserEntity user = resetToken.getUser();
+        user.setPassword(passwordEncoder.encode(newPassword));  
+        userRepository.save(user);
+        
+        tokenRepository.delete(resetToken);  
+
+        return new ResponseEntity<>("Password has been successfully reset", HttpStatus.OK);
+    }
 
     @GetMapping("test")
     public String hello()
