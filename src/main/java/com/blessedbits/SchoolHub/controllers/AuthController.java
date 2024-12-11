@@ -4,6 +4,7 @@ import com.blessedbits.SchoolHub.dto.AuthResponseDto;
 import com.blessedbits.SchoolHub.dto.LoginDto;
 import com.blessedbits.SchoolHub.dto.RegisterDto;
 import com.blessedbits.SchoolHub.dto.UsernameDto;
+import com.blessedbits.SchoolHub.dto.ChangePasswordDto;
 import com.blessedbits.SchoolHub.models.Role;
 import com.blessedbits.SchoolHub.models.UserEntity;
 import com.blessedbits.SchoolHub.models.VerificationToken;
@@ -28,6 +29,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -181,6 +183,35 @@ public class AuthController {
         tokenRepository.delete(resetToken);  
 
         return new ResponseEntity<>("Password has been successfully reset", HttpStatus.OK);
+    }
+
+    @PostMapping("change-password")
+    public ResponseEntity<String> changePassword(@RequestHeader("Authorization") String authorizationHeader, @RequestBody ChangePasswordDto changePasswordDto) 
+    {
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) 
+        {
+            return new ResponseEntity<>("Authorization header is missing or invalid", HttpStatus.UNAUTHORIZED);
+        }
+        String token = authorizationHeader.substring(7);
+        String username = jwtGenerator.getUsernameFromJWT(token);
+        Optional<UserEntity> userOptional = userRepository.findByUsername(username);
+        if (userOptional.isEmpty()) 
+        {
+            return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
+        }
+        UserEntity user = userOptional.get();
+        if (!passwordEncoder.matches(changePasswordDto.getOldPassword(), user.getPassword())) 
+        {
+            return new ResponseEntity<>("Old password is incorrect", HttpStatus.BAD_REQUEST);
+        }
+        if (!changePasswordDto.getNewPassword().equals(changePasswordDto.getConfirmPassword())) 
+        {
+            return new ResponseEntity<>("New passwords do not match", HttpStatus.BAD_REQUEST);
+        }
+        user.setPassword(passwordEncoder.encode(changePasswordDto.getNewPassword()));
+        userRepository.save(user);
+
+        return new ResponseEntity<>("Password changed successfully", HttpStatus.OK);
     }
 
     @GetMapping("test")
