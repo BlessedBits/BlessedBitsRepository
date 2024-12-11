@@ -13,11 +13,11 @@ public class EmailService {
         this.mailSender = mailSender;
     }
 
-    public String buildVerificationEmail(String username, String token) {
+    public String buildConfirmEmail(String username, String token) {
         return "Hello " + username + ",\n\nPlease confirm your email by clicking the link below:\n" +
                "http://localhost:8080/api/auth/confirm?token=" + token;
     }
-
+    
     public void sendEmail(String to, String subject, String content) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(to);

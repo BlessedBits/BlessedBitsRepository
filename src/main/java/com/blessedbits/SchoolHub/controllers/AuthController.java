@@ -71,23 +71,24 @@ public class AuthController {
 
     @PostMapping("register")
     public ResponseEntity<String> register(@RequestBody RegisterDto request) {
-        if (userRepository.existsByUsername(request.getUsername())) {
+        if (userRepository.existsByUsername(request.getUsername())) 
+        {
             return new ResponseEntity<>("Username already taken!", HttpStatus.BAD_REQUEST);
             
         }
-        if (userRepository.existsByEmail(request.getEmail())) {
-            return new ResponseEntity<>("Email already taken!", HttpStatus.BAD_REQUEST);
-            
+        if ((request.getEmail() != null && !request.getEmail().isEmpty()) && userRepository.existsByEmail(request.getEmail())) 
+        {
+            return new ResponseEntity<>("Email already taken!", HttpStatus.BAD_REQUEST); 
         }
         UserEntity user = new UserEntity();
         user.setUsername(request.getUsername());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         Role roles = roleRepository.findByName("USER").get();
         user.setRoles(Collections.singletonList(roles));
-    
-        userRepository.save(user);
-        if(!request.getEmail().isEmpty())
+        if(!request.getEmail().isEmpty() && request.getEmail() != null)
         {
+            user.setEmail(request.getEmail());
+            userRepository.save(user);
             String token = UUID.randomUUID().toString();
             VerificationToken verificationToken = new VerificationToken();
             verificationToken.setToken(token);
@@ -95,12 +96,13 @@ public class AuthController {
             verificationToken.setExpiryDate(LocalDateTime.now().plusMinutes(15)); 
             tokenRepository.save(verificationToken);
             try{
-                emailService.sendEmail(request.getEmail(),"Please verify your email", emailService.buildVerificationEmail(user.getUsername(), token));
+                emailService.sendEmail(request.getEmail(),"Please verify your email", emailService.buildConfirmEmail(user.getUsername(), token));
             } catch (Exception e) {
                 return new ResponseEntity<>(("Failed to send verification token\n" + e), HttpStatus.CONFLICT);
             }
             return new ResponseEntity<>("User registered successfully! Please check your email for verification.", HttpStatus.CREATED);
         }
+        userRepository.save(user);
         return new ResponseEntity<>("User registered successfully!", HttpStatus.CREATED);
     }
 
@@ -118,7 +120,7 @@ public class AuthController {
         }
     
         UserEntity user = verificationToken.getUser();
-        user.setEmail(verificationToken.getEmail());
+        user.setIsConfirmed(true);
         userRepository.save(user);
     
         tokenRepository.delete(verificationToken);

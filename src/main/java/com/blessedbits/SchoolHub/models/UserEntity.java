@@ -21,6 +21,7 @@ public class UserEntity {
 
     @Column(unique = true)
     private String email;
+    private Boolean isConfirmed = false;
     
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(name = "user_roles",
