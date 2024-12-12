@@ -19,6 +19,4 @@ public class VerificationToken {
 
     private LocalDateTime expiryDate;
 
-    private String email;
-
 }
