@@ -5,7 +5,8 @@ import io.jsonwebtoken.security.Keys;
 import java.security.Key;
 
 public class SecurityConstants {
-    public static final long JWT_TOKEN_VALIDITY = 86400;
+    public static final long ACCESS_TOKEN_VALIDITY = 600;
+    public static final long REFRESH_TOKEN_VALIDITY = 2592000;
     public static final String JWT_SECRET = "5pcGFBfkSBNpFrtgPNAl3FzpGygSwdDaLtwUQWPt";
     public static final Key SIGNING_KEY = Keys.hmacShaKeyFor(JWT_SECRET.getBytes());
 }

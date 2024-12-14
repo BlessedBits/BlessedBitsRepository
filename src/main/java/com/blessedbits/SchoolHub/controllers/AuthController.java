@@ -19,20 +19,16 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import com.blessedbits.SchoolHub.services.EmailService;
 
 
@@ -68,8 +64,29 @@ public class AuthController {
                 new UsernamePasswordAuthenticationToken(loginDto.getUsername(),
                         loginDto.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        String token = jwtGenerator.generateJWT(authentication);
-        return new ResponseEntity<>(new AuthResponseDto(token), HttpStatus.OK);
+
+        String accessToken = jwtGenerator.generateAccessJWT(authentication.getName());
+        String refreshToken = jwtGenerator.generateRefreshJWT(authentication.getName());
+
+        ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken)
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .build();
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .body(new AuthResponseDto(accessToken));
+    }
+
+    @GetMapping("token/refresh")
+    public ResponseEntity<AuthResponseDto> refreshJWT(@CookieValue(name = "refreshToken") String refreshToken) {
+        if (refreshToken == null || !jwtGenerator.validateJWT(refreshToken)) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+        String username = jwtGenerator.getUsernameFromJWT(refreshToken);
+        String accessToken = jwtGenerator.generateAccessJWT(username);
+        return new ResponseEntity<>(new AuthResponseDto(accessToken), HttpStatus.OK);
     }
 
     @PostMapping("register")

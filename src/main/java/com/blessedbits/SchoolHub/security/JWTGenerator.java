@@ -2,17 +2,28 @@ package com.blessedbits.SchoolHub.security;
 
 import io.jsonwebtoken.*;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
 
 @Component
 public class JWTGenerator {
-    public String generateJWT(Authentication auth) {
-        String username = auth.getName();
+    public String generateAccessJWT(String username) {
         Date currentDate = new Date();
-        Date expirationDate = new Date(currentDate.getTime() + SecurityConstants.JWT_TOKEN_VALIDITY * 1000);
+        Date expirationDate = new Date(currentDate.getTime() + SecurityConstants.ACCESS_TOKEN_VALIDITY);
+
+        String token = Jwts.builder()
+                .subject(username)
+                .issuedAt(currentDate)
+                .expiration(expirationDate)
+                .signWith(SecurityConstants.SIGNING_KEY)
+                .compact();
+        return token;
+    }
+
+    public String generateRefreshJWT(String username) {
+        Date currentDate = new Date();
+        Date expirationDate = new Date(currentDate.getTime() + SecurityConstants.REFRESH_TOKEN_VALIDITY);
 
         String token = Jwts.builder()
                 .subject(username)
