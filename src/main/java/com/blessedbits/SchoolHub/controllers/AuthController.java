@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.blessedbits.SchoolHub.security.SecurityConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -59,7 +60,7 @@ public class AuthController {
     }
 
     @PostMapping("login")
-    public ResponseEntity<AuthResponseDto> login(@RequestBody LoginDto loginDto) {
+    public ResponseEntity<AuthResponseDto> login(@RequestBody LoginDto loginDto, @RequestParam(required = false, defaultValue = "false") Boolean remember) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginDto.getUsername(),
                         loginDto.getPassword()));
@@ -68,11 +69,25 @@ public class AuthController {
         String accessToken = jwtGenerator.generateAccessJWT(authentication.getName());
         String refreshToken = jwtGenerator.generateRefreshJWT(authentication.getName());
 
-        ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken)
-                .httpOnly(true)
-                .secure(true)
-                .path("/")
-                .build();
+        ResponseCookie cookie;
+
+        if (remember) {
+            cookie = ResponseCookie.from("refreshToken", refreshToken)
+                    .maxAge(SecurityConstants.REFRESH_TOKEN_VALIDITY/1000)
+                    .httpOnly(true)
+                    .secure(true)
+                    .path("/")
+                    .sameSite("Strict")
+                    .build();
+        }
+        else {
+            cookie = ResponseCookie.from("refreshToken", refreshToken)
+                    .httpOnly(true)
+                    .secure(true)
+                    .path("/")
+                    .sameSite("Strict")
+                    .build();
+        }
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
