@@ -30,4 +30,7 @@ public class UserEntity {
     )
     private List<Role> roles = new ArrayList<>();
 
+    @ManyToOne
+    @JoinColumn(name = "class_id")
+    private ClassEntity userClass;
 }

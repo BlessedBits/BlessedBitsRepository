@@ -15,7 +15,7 @@ import java.io.IOException;
 
 public class JWTAuthenticationFilter extends OncePerRequestFilter {
     @Autowired
-    private JWTGenerator jwtGenerator;
+    private JWTUtils jwtUtils;
     @Autowired
     private CustomUserDetailsService customUserDetailsService;
 
@@ -24,8 +24,8 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
         String token = getJWTFromRequest(request);
-        if (token != null && jwtGenerator.validateJWT(token)) {
-            String username = jwtGenerator.getUsernameFromJWT(token);
+        if (token != null && jwtUtils.validateJWT(token)) {
+            String username = jwtUtils.getUsernameFromJWT(token);
 
             UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
             UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(

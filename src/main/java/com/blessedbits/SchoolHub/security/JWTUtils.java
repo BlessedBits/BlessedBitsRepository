@@ -1,13 +1,15 @@
 package com.blessedbits.SchoolHub.security;
 
 import io.jsonwebtoken.*;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.stereotype.Component;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Date;
 
 @Component
-public class JWTGenerator {
+public class JWTUtils {
     public String generateAccessJWT(String username) {
         Date currentDate = new Date();
         Date expirationDate = new Date(currentDate.getTime() + SecurityConstants.ACCESS_TOKEN_VALIDITY);
@@ -56,5 +58,13 @@ public class JWTGenerator {
             System.err.println("Invalid JWT: " + e.getMessage());
             throw new AuthenticationCredentialsNotFoundException("JWT is incorrect", e);
         }
+    }
+
+    public String getJwtFromHeader(String header) {
+        if (header == null || !header.startsWith("Bearer "))
+        {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "JWT header is incorrect");
+        }
+        return header.substring(7);
     }
 }
