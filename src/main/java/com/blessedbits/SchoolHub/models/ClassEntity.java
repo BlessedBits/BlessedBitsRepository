@@ -25,7 +25,7 @@ public class ClassEntity {
     @JoinColumn(name = "school_id")
     private School school;
 
-    @OneToMany(mappedBy = "classes", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "userClass", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserEntity> students;
 
     @ManyToMany
