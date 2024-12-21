@@ -17,14 +17,12 @@ import java.util.List;
 @RequestMapping("/courses")
 public class CourseController {
     private CourseRepository courseRepository;
-    private UserRepository userRepository;
     private UserService userService;
 
     @Autowired
     public CourseController(CourseRepository courseRepository,
-                            UserService userService, UserRepository userRepository) {
+                            UserService userService) {
         this.courseRepository = courseRepository;
-        this.userRepository = userRepository;
         this.userService = userService;
     }
 

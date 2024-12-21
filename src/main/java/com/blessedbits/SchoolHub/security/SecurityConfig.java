@@ -20,11 +20,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private JwtAuthEntryPoint authEntryPoint;
-    private CustomUserDetailsService userDetailsService;
 
     @Autowired
-    public SecurityConfig(CustomUserDetailsService userDetailsService, JwtAuthEntryPoint authEntryPoint) {
-        this.userDetailsService = userDetailsService;
+    public SecurityConfig(JwtAuthEntryPoint authEntryPoint) {
         this.authEntryPoint = authEntryPoint;
     }
 
@@ -39,9 +37,13 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/home").hasRole("USER")
-                        .requestMatchers("/api/home/admin").hasRole("ADMIN")
+                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/courses/**").hasAnyRole("USER", "TEACHER", "ADMIN")
+                        .requestMatchers("/courses/new").hasAnyRole("TEACHER", "ADMIN")
+                        .requestMatchers("/classes/**").hasAnyRole("USER", "TEACHER", "ADMIN")
+                        .requestMatchers("/classes/new").hasRole("ADMIN")
+                        .requestMatchers("/schools/**").hasAnyRole("USER", "TEACHER", "ADMIN")
+                        .requestMatchers("/schools/new").hasRole("ADMIN")
                         .requestMatchers("/actuator/**").permitAll()
                 )
                 .httpBasic(Customizer.withDefaults());
