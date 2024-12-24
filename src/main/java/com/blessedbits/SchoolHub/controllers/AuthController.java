@@ -120,7 +120,7 @@ public class AuthController {
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         Role roles = roleRepository.findByName("USER").get();
         user.setRoles(Collections.singletonList(roles));
-        if(!request.getEmail().isEmpty() && request.getEmail() != null)
+        if(request.getEmail() != null && !request.getEmail().isEmpty())
         {
             user.setEmail(request.getEmail());
             userRepository.save(user);

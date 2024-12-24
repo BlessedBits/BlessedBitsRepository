@@ -50,6 +50,7 @@ public class ClassesController {
         if (school.isEmpty()) {
             return new ResponseEntity<>("No school found with specified name", HttpStatus.NOT_FOUND);
         }
+        classEntity.setSchool(school.get());
 
         try {
             classRepository.save(classEntity);

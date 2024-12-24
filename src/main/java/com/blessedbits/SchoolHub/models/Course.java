@@ -1,5 +1,6 @@
 package com.blessedbits.SchoolHub.models;
 
+import com.blessedbits.SchoolHub.misc.JsonReferenceAsId;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,10 +18,12 @@ public class Course {
 
     private String name;
 
+    @JsonReferenceAsId
     @ManyToOne
     @JoinColumn(name = "school_id")
     private School school;
 
+    @JsonReferenceAsId
     @ManyToMany(mappedBy = "courses")
     private List<ClassEntity> classes;
 }
