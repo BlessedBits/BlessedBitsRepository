@@ -1,5 +1,6 @@
 package com.blessedbits.SchoolHub.models;
 
+import com.blessedbits.SchoolHub.misc.JsonReferenceAsId;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -30,4 +31,8 @@ public class UserEntity {
     )
     private List<Role> roles = new ArrayList<>();
 
+    @JsonReferenceAsId
+    @ManyToOne
+    @JoinColumn(name = "class_id")
+    private ClassEntity userClass;
 }

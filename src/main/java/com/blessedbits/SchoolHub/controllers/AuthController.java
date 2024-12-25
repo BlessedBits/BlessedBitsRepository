@@ -11,7 +11,7 @@ import com.blessedbits.SchoolHub.models.VerificationToken;
 import com.blessedbits.SchoolHub.repositories.RoleRepository;
 import com.blessedbits.SchoolHub.repositories.UserRepository;
 import com.blessedbits.SchoolHub.repositories.VerificationTokenRepository;
-import com.blessedbits.SchoolHub.security.JWTGenerator;
+import com.blessedbits.SchoolHub.security.JWTUtils;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -35,25 +35,25 @@ import com.blessedbits.SchoolHub.services.EmailService;
 
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/auth")
 public class AuthController {
     private AuthenticationManager authenticationManager;
     private UserRepository userRepository;
     private VerificationTokenRepository tokenRepository;
-    private JWTGenerator jwtGenerator;
+    private JWTUtils jwtUtils;
     private EmailService emailService;
     private RoleRepository roleRepository;
     private PasswordEncoder passwordEncoder;
 
     @Autowired
     public AuthController(AuthenticationManager authenticationManager, UserRepository userRepository,
-                          VerificationTokenRepository tokenRepository, JWTGenerator jwtGenerator,
+                          VerificationTokenRepository tokenRepository, JWTUtils jwtUtils,
                           EmailService emailService, RoleRepository roleRepository,
                           PasswordEncoder passwordEncoder) {
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
         this.tokenRepository = tokenRepository;
-        this.jwtGenerator = jwtGenerator;
+        this.jwtUtils = jwtUtils;
         this.emailService = emailService;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
@@ -66,8 +66,8 @@ public class AuthController {
                         loginDto.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        String accessToken = jwtGenerator.generateAccessJWT(authentication.getName());
-        String refreshToken = jwtGenerator.generateRefreshJWT(authentication.getName());
+        String accessToken = jwtUtils.generateAccessJWT(authentication.getName());
+        String refreshToken = jwtUtils.generateRefreshJWT(authentication.getName());
 
         ResponseCookie cookie;
 
@@ -96,11 +96,11 @@ public class AuthController {
 
     @GetMapping("token/refresh")
     public ResponseEntity<AuthResponseDto> refreshJWT(@CookieValue(name = "refreshToken") String refreshToken) {
-        if (refreshToken == null || !jwtGenerator.validateJWT(refreshToken)) {
+        if (refreshToken == null || !jwtUtils.validateJWT(refreshToken)) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
-        String username = jwtGenerator.getUsernameFromJWT(refreshToken);
-        String accessToken = jwtGenerator.generateAccessJWT(username);
+        String username = jwtUtils.getUsernameFromJWT(refreshToken);
+        String accessToken = jwtUtils.generateAccessJWT(username);
         return new ResponseEntity<>(new AuthResponseDto(accessToken), HttpStatus.OK);
     }
 
@@ -120,7 +120,7 @@ public class AuthController {
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         Role roles = roleRepository.findByName("USER").get();
         user.setRoles(Collections.singletonList(roles));
-        if(!request.getEmail().isEmpty() && request.getEmail() != null)
+        if(request.getEmail() != null && !request.getEmail().isEmpty())
         {
             user.setEmail(request.getEmail());
             userRepository.save(user);
@@ -225,7 +225,7 @@ public class AuthController {
             return new ResponseEntity<>("Authorization header is missing or invalid", HttpStatus.UNAUTHORIZED);
         }
         String token = authorizationHeader.substring(7);
-        String username = jwtGenerator.getUsernameFromJWT(token);
+        String username = jwtUtils.getUsernameFromJWT(token);
         Optional<UserEntity> userOptional = userRepository.findByUsername(username);
         if (userOptional.isEmpty()) 
         {
