@@ -4,9 +4,11 @@ import com.blessedbits.SchoolHub.dto.AuthResponseDto;
 import com.blessedbits.SchoolHub.dto.LoginDto;
 import com.blessedbits.SchoolHub.dto.RegisterDto;
 import com.blessedbits.SchoolHub.dto.UsernameDto;
+import com.blessedbits.SchoolHub.misc.CloudFolder;
 import com.blessedbits.SchoolHub.dto.ChangePasswordDto;
 import com.blessedbits.SchoolHub.dto.UpdateInfoDto;
 import com.blessedbits.SchoolHub.models.Role;
+import com.blessedbits.SchoolHub.models.School;
 import com.blessedbits.SchoolHub.models.UserEntity;
 import com.blessedbits.SchoolHub.models.VerificationToken;
 import com.blessedbits.SchoolHub.repositories.RoleRepository;
@@ -31,13 +33,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.blessedbits.SchoolHub.services.StorageService;
 import com.blessedbits.SchoolHub.services.EmailService;
 import com.blessedbits.SchoolHub.services.UserService;
 
 import jakarta.validation.Valid;
-
-
-
 
 @RestController
 @RequestMapping("/auth")
@@ -50,12 +52,14 @@ public class AuthController {
     private UserService userService;
     private RoleRepository roleRepository;
     private PasswordEncoder passwordEncoder;
+    private StorageService storageService;
 
     @Autowired
     public AuthController(AuthenticationManager authenticationManager, UserRepository userRepository,
                           VerificationTokenRepository tokenRepository, JWTUtils jwtUtils,
                           EmailService emailService, RoleRepository roleRepository,
-                          PasswordEncoder passwordEncoder, UserService userService) {
+                          PasswordEncoder passwordEncoder, UserService userService, StorageService storageService) 
+    {
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
         this.tokenRepository = tokenRepository;
@@ -64,9 +68,10 @@ public class AuthController {
         this.userService = userService;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
+        this.storageService = storageService;
     }
 
-    @PostMapping("login")
+    @PostMapping("/login")
     public ResponseEntity<AuthResponseDto> login(@RequestBody LoginDto loginDto, @RequestParam(required = false, defaultValue = "false") Boolean remember) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginDto.getUsername(),
@@ -101,7 +106,7 @@ public class AuthController {
                 .body(new AuthResponseDto(accessToken));
     }
 
-    @GetMapping("token/refresh")
+    @GetMapping("/token/refresh")
     public ResponseEntity<AuthResponseDto> refreshJWT(@CookieValue(name = "refreshToken") String refreshToken) {
         if (refreshToken == null || !jwtUtils.validateJWT(refreshToken)) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
@@ -111,7 +116,7 @@ public class AuthController {
         return new ResponseEntity<>(new AuthResponseDto(accessToken), HttpStatus.OK);
     }
 
-    @PostMapping("register")
+    @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody @Valid RegisterDto request) {
         if (userRepository.existsByUsername(request.getUsername())) 
         {
@@ -147,7 +152,7 @@ public class AuthController {
         return new ResponseEntity<>("User registered successfully!", HttpStatus.CREATED);
     }
 
-    @GetMapping("confirm")
+    @GetMapping("/confirm")
     public ResponseEntity<String> confirmEmail(@RequestParam("token") String token) {
         Optional<VerificationToken> verificationTokenOptional = tokenRepository.findByToken(token);
         if (!verificationTokenOptional.isPresent())
@@ -168,7 +173,7 @@ public class AuthController {
         return new ResponseEntity<>("Email verified successfully!", HttpStatus.OK);
 }
 
-    @PostMapping("reset-password-request")
+    @PostMapping("/resetPasswordRequest")
     public ResponseEntity<String> resetPasswordRequest(@RequestBody UsernameDto usernameDto) {
         Optional<UserEntity> userOptional = userRepository.findByUsername(usernameDto.getUsername());
         if (!userOptional.isPresent()) 
@@ -200,7 +205,7 @@ public class AuthController {
         return new ResponseEntity<>("Password reset email has been sent.", HttpStatus.OK);
     }
 
-    @PostMapping("reset-password")
+    @PostMapping("/resetPassword")
     public ResponseEntity<String> resetPassword(@RequestParam("token") String token, 
                                                 @RequestParam("newPassword") String newPassword) {
         Optional<VerificationToken> resetTokenOptional = tokenRepository.findByToken(token);
@@ -223,7 +228,7 @@ public class AuthController {
         return new ResponseEntity<>("Password has been successfully reset", HttpStatus.OK);
     }
 
-    @PostMapping("change-password")
+    @PostMapping("/changePassword")
     public ResponseEntity<String> changePassword(@RequestHeader("Authorization") String authorizationHeader, @RequestBody ChangePasswordDto changePasswordDto) 
     {
         if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) 
@@ -252,7 +257,7 @@ public class AuthController {
         return new ResponseEntity<>("Password changed successfully", HttpStatus.OK);
     }
 
-    @PostMapping("change-user-info")
+    @PostMapping("/changeUserInfo")
     public ResponseEntity<String> changeUserInfo(@RequestHeader("Authorization") String authorizationHeader, @RequestBody @Valid UpdateInfoDto updateInfoDto) 
     {
         UserEntity user = userService.getUserFromHeader(authorizationHeader);
@@ -289,7 +294,21 @@ public class AuthController {
         userRepository.save(user);
         return new ResponseEntity<>("User info was updated successfully!", HttpStatus.CREATED);
     }
-    
+
+    @PostMapping("/updateLogo")
+    public ResponseEntity<String> updateLogo(@RequestParam MultipartFile logo,
+                                             @RequestHeader("Authorization") String authorizationHeader) {
+        UserEntity user = userService.getUserFromHeader(authorizationHeader);
+        try {
+            String url = storageService.uploadFile(logo, CloudFolder.SCHOOL_IMAGES);
+            user.setLogo(url);
+            userRepository.save(user);
+            return new ResponseEntity<>("Image updated", HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @GetMapping("test")
     public String hello()
     {
