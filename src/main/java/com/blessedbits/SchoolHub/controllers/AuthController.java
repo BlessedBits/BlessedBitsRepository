@@ -5,6 +5,7 @@ import com.blessedbits.SchoolHub.dto.LoginDto;
 import com.blessedbits.SchoolHub.dto.RegisterDto;
 import com.blessedbits.SchoolHub.dto.UsernameDto;
 import com.blessedbits.SchoolHub.dto.ChangePasswordDto;
+import com.blessedbits.SchoolHub.dto.UpdateInfoDto;
 import com.blessedbits.SchoolHub.models.Role;
 import com.blessedbits.SchoolHub.models.UserEntity;
 import com.blessedbits.SchoolHub.models.VerificationToken;
@@ -31,6 +32,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import com.blessedbits.SchoolHub.services.EmailService;
+import com.blessedbits.SchoolHub.services.UserService;
+
+import jakarta.validation.Valid;
+
 
 
 
@@ -42,6 +47,7 @@ public class AuthController {
     private VerificationTokenRepository tokenRepository;
     private JWTUtils jwtUtils;
     private EmailService emailService;
+    private UserService userService;
     private RoleRepository roleRepository;
     private PasswordEncoder passwordEncoder;
 
@@ -49,12 +55,13 @@ public class AuthController {
     public AuthController(AuthenticationManager authenticationManager, UserRepository userRepository,
                           VerificationTokenRepository tokenRepository, JWTUtils jwtUtils,
                           EmailService emailService, RoleRepository roleRepository,
-                          PasswordEncoder passwordEncoder) {
+                          PasswordEncoder passwordEncoder, UserService userService) {
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
         this.tokenRepository = tokenRepository;
         this.jwtUtils = jwtUtils;
         this.emailService = emailService;
+        this.userService = userService;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
     }
@@ -105,11 +112,10 @@ public class AuthController {
     }
 
     @PostMapping("register")
-    public ResponseEntity<String> register(@RequestBody RegisterDto request) {
+    public ResponseEntity<String> register(@RequestBody @Valid RegisterDto request) {
         if (userRepository.existsByUsername(request.getUsername())) 
         {
-            return new ResponseEntity<>("Username already taken!", HttpStatus.BAD_REQUEST);
-            
+            return new ResponseEntity<>("Username already taken!", HttpStatus.BAD_REQUEST);  
         }
         if ((request.getEmail() != null && !request.getEmail().isEmpty()) && userRepository.existsByEmail(request.getEmail())) 
         {
@@ -133,7 +139,7 @@ public class AuthController {
             try{
                 emailService.sendEmail(request.getEmail(),"Please verify your email", emailService.buildConfirmEmail(user.getUsername(), token));
             } catch (Exception e) {
-                return new ResponseEntity<>(("Failed to send verification token\n" + e), HttpStatus.CONFLICT);
+                return new ResponseEntity<>(("Failed to send verification token\n" + e), HttpStatus.INTERNAL_SERVER_ERROR);
             }
             return new ResponseEntity<>("User registered successfully! Please check your email for verification.", HttpStatus.CREATED);
         }
@@ -246,6 +252,44 @@ public class AuthController {
         return new ResponseEntity<>("Password changed successfully", HttpStatus.OK);
     }
 
+    @PostMapping("change-user-info")
+    public ResponseEntity<String> changeUserInfo(@RequestHeader("Authorization") String authorizationHeader, @RequestBody @Valid UpdateInfoDto updateInfoDto) 
+    {
+        UserEntity user = userService.getUserFromHeader(authorizationHeader);
+        String email = updateInfoDto.getEmail();
+        String username = updateInfoDto.getUsername();
+        if(username != null && !username.isEmpty())
+        {
+            if (userRepository.existsByUsername(username)) 
+            {
+                return new ResponseEntity<>("Username already taken!", HttpStatus.BAD_REQUEST);  
+            }
+            user.setUsername(username);
+        }
+        if(email != null && !email.isEmpty())
+        {
+            if(userRepository.existsByEmail(email))
+            {
+                return new ResponseEntity<>("Email already taken!", HttpStatus.BAD_REQUEST); 
+            }
+            user.setEmail(email);
+            String token = UUID.randomUUID().toString();
+            VerificationToken verificationToken = new VerificationToken();
+            verificationToken.setToken(token);
+            verificationToken.setUser(user);
+            verificationToken.setExpiryDate(LocalDateTime.now().plusMinutes(15)); 
+            tokenRepository.save(verificationToken);
+            try{
+                emailService.sendEmail(email,"Please verify your email", emailService.buildConfirmEmail(user.getUsername(), token));
+            } catch (Exception e) {
+                return new ResponseEntity<>(("Failed to send verification token\n" + e), HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+            return new ResponseEntity<>("User info was updated successfully! Please check your email for verification.", HttpStatus.CREATED);
+        }
+        userRepository.save(user);
+        return new ResponseEntity<>("User info was updated successfully!", HttpStatus.CREATED);
+    }
+    
     @GetMapping("test")
     public String hello()
     {

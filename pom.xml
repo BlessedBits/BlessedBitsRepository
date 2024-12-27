@@ -82,6 +82,11 @@
 			<artifactId>cloudinary</artifactId>
 			<version>1.0.14</version>
 		</dependency>
+		<!-- Email validation -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-validation</artifactId>
+		</dependency>
 	</dependencies>
 
 	<build>
