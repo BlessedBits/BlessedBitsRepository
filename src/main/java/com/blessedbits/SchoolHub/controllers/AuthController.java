@@ -71,7 +71,7 @@ public class AuthController {
         this.storageService = storageService;
     }
 
-    @PostMapping("login")
+    @PostMapping("/login")
     public ResponseEntity<AuthResponseDto> login(@RequestBody LoginDto loginDto, @RequestParam(required = false, defaultValue = "false") Boolean remember) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginDto.getUsername(),
@@ -106,7 +106,7 @@ public class AuthController {
                 .body(new AuthResponseDto(accessToken));
     }
 
-    @GetMapping("token/refresh")
+    @GetMapping("/token/refresh")
     public ResponseEntity<AuthResponseDto> refreshJWT(@CookieValue(name = "refreshToken") String refreshToken) {
         if (refreshToken == null || !jwtUtils.validateJWT(refreshToken)) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
@@ -116,7 +116,7 @@ public class AuthController {
         return new ResponseEntity<>(new AuthResponseDto(accessToken), HttpStatus.OK);
     }
 
-    @PostMapping("register")
+    @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody @Valid RegisterDto request) {
         if (userRepository.existsByUsername(request.getUsername())) 
         {
@@ -152,7 +152,7 @@ public class AuthController {
         return new ResponseEntity<>("User registered successfully!", HttpStatus.CREATED);
     }
 
-    @GetMapping("confirm")
+    @GetMapping("/confirm")
     public ResponseEntity<String> confirmEmail(@RequestParam("token") String token) {
         Optional<VerificationToken> verificationTokenOptional = tokenRepository.findByToken(token);
         if (!verificationTokenOptional.isPresent())
@@ -173,7 +173,7 @@ public class AuthController {
         return new ResponseEntity<>("Email verified successfully!", HttpStatus.OK);
 }
 
-    @PostMapping("reset-password-request")
+    @PostMapping("/resetPasswordRequest")
     public ResponseEntity<String> resetPasswordRequest(@RequestBody UsernameDto usernameDto) {
         Optional<UserEntity> userOptional = userRepository.findByUsername(usernameDto.getUsername());
         if (!userOptional.isPresent()) 
@@ -205,7 +205,7 @@ public class AuthController {
         return new ResponseEntity<>("Password reset email has been sent.", HttpStatus.OK);
     }
 
-    @PostMapping("reset-password")
+    @PostMapping("/resetPassword")
     public ResponseEntity<String> resetPassword(@RequestParam("token") String token, 
                                                 @RequestParam("newPassword") String newPassword) {
         Optional<VerificationToken> resetTokenOptional = tokenRepository.findByToken(token);
@@ -228,7 +228,7 @@ public class AuthController {
         return new ResponseEntity<>("Password has been successfully reset", HttpStatus.OK);
     }
 
-    @PostMapping("change-password")
+    @PostMapping("/changePassword")
     public ResponseEntity<String> changePassword(@RequestHeader("Authorization") String authorizationHeader, @RequestBody ChangePasswordDto changePasswordDto) 
     {
         if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) 
@@ -257,7 +257,7 @@ public class AuthController {
         return new ResponseEntity<>("Password changed successfully", HttpStatus.OK);
     }
 
-    @PostMapping("change-user-info")
+    @PostMapping("/changeUserInfo")
     public ResponseEntity<String> changeUserInfo(@RequestHeader("Authorization") String authorizationHeader, @RequestBody @Valid UpdateInfoDto updateInfoDto) 
     {
         UserEntity user = userService.getUserFromHeader(authorizationHeader);
