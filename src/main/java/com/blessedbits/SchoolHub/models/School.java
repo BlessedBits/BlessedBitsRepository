@@ -23,6 +23,7 @@ public class School {
     private String name;
 
     private String address;
+    private String logo;
 
     @JsonReferenceAsId
     @OneToMany(mappedBy = "school", cascade = CascadeType.ALL, orphanRemoval = true)

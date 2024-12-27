@@ -5,8 +5,8 @@ import com.blessedbits.SchoolHub.models.ClassEntity;
 import com.blessedbits.SchoolHub.models.School;
 import com.blessedbits.SchoolHub.models.UserEntity;
 import com.blessedbits.SchoolHub.repositories.ClassRepository;
-import com.blessedbits.SchoolHub.repositories.SchoolRepository;
 import com.blessedbits.SchoolHub.repositories.UserRepository;
+import com.blessedbits.SchoolHub.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,14 +20,14 @@ import java.util.Optional;
 public class ClassesController {
     private ClassRepository classRepository;
     private UserRepository userRepository;
-    private SchoolRepository schoolRepository;
+    private UserService userService;
 
     @Autowired
     public ClassesController(ClassRepository classRepository, UserRepository userRepository,
-                             SchoolRepository schoolRepository) {
+                             UserService userService) {
         this.classRepository = classRepository;
         this.userRepository = userRepository;
-        this.schoolRepository = schoolRepository;
+        this.userService = userService;
     }
 
     @GetMapping("/")
@@ -36,7 +36,8 @@ public class ClassesController {
     }
 
     @PostMapping("/new")
-    public ResponseEntity<String> createClass(@RequestBody CreateClassDto classDto) {
+    public ResponseEntity<String> createClass(@RequestBody CreateClassDto classDto,
+                                              @RequestHeader("Authorization") String authorizationHeader) {
         ClassEntity classEntity = new ClassEntity();
         classEntity.setName(classDto.getName());
 
@@ -46,11 +47,8 @@ public class ClassesController {
         }
         classEntity.setHomeroomTeacher(teacher.get());
 
-        Optional<School> school = schoolRepository.findByName(classDto.getSchoolName());
-        if (school.isEmpty()) {
-            return new ResponseEntity<>("No school found with specified name", HttpStatus.NOT_FOUND);
-        }
-        classEntity.setSchool(school.get());
+        School school = userService.getUserFromHeader(authorizationHeader).getUserClass().getSchool();
+        classEntity.setSchool(school);
 
         try {
             classRepository.save(classEntity);
