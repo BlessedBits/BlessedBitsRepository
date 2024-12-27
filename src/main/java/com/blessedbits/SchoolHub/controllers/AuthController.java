@@ -4,9 +4,7 @@ import com.blessedbits.SchoolHub.dto.AuthResponseDto;
 import com.blessedbits.SchoolHub.dto.LoginDto;
 import com.blessedbits.SchoolHub.dto.RegisterDto;
 import com.blessedbits.SchoolHub.dto.UsernameDto;
-import com.blessedbits.SchoolHub.misc.CloudFolder;
 import com.blessedbits.SchoolHub.dto.ChangePasswordDto;
-import com.blessedbits.SchoolHub.dto.UpdateInfoDto;
 import com.blessedbits.SchoolHub.models.Role;
 import com.blessedbits.SchoolHub.models.UserEntity;
 import com.blessedbits.SchoolHub.models.VerificationToken;
@@ -32,7 +30,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import com.blessedbits.SchoolHub.services.StorageService;
 import com.blessedbits.SchoolHub.services.EmailService;

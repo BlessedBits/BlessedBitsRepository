@@ -4,7 +4,6 @@ import com.blessedbits.SchoolHub.dto.CreateCourseDto;
 import com.blessedbits.SchoolHub.models.Course;
 import com.blessedbits.SchoolHub.models.UserEntity;
 import com.blessedbits.SchoolHub.repositories.CourseRepository;
-import com.blessedbits.SchoolHub.repositories.UserRepository;
 import com.blessedbits.SchoolHub.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
