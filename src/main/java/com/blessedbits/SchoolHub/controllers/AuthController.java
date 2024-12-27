@@ -4,9 +4,11 @@ import com.blessedbits.SchoolHub.dto.AuthResponseDto;
 import com.blessedbits.SchoolHub.dto.LoginDto;
 import com.blessedbits.SchoolHub.dto.RegisterDto;
 import com.blessedbits.SchoolHub.dto.UsernameDto;
+import com.blessedbits.SchoolHub.misc.CloudFolder;
 import com.blessedbits.SchoolHub.dto.ChangePasswordDto;
 import com.blessedbits.SchoolHub.dto.UpdateInfoDto;
 import com.blessedbits.SchoolHub.models.Role;
+import com.blessedbits.SchoolHub.models.School;
 import com.blessedbits.SchoolHub.models.UserEntity;
 import com.blessedbits.SchoolHub.models.VerificationToken;
 import com.blessedbits.SchoolHub.repositories.RoleRepository;
@@ -31,13 +33,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.blessedbits.SchoolHub.services.StorageService;
 import com.blessedbits.SchoolHub.services.EmailService;
 import com.blessedbits.SchoolHub.services.UserService;
 
 import jakarta.validation.Valid;
-
-
-
 
 @RestController
 @RequestMapping("/auth")
@@ -50,12 +52,14 @@ public class AuthController {
     private UserService userService;
     private RoleRepository roleRepository;
     private PasswordEncoder passwordEncoder;
+    private StorageService storageService;
 
     @Autowired
     public AuthController(AuthenticationManager authenticationManager, UserRepository userRepository,
                           VerificationTokenRepository tokenRepository, JWTUtils jwtUtils,
                           EmailService emailService, RoleRepository roleRepository,
-                          PasswordEncoder passwordEncoder, UserService userService) {
+                          PasswordEncoder passwordEncoder, UserService userService, StorageService storageService) 
+    {
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
         this.tokenRepository = tokenRepository;
@@ -64,6 +68,7 @@ public class AuthController {
         this.userService = userService;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
+        this.storageService = storageService;
     }
 
     @PostMapping("login")
@@ -289,7 +294,21 @@ public class AuthController {
         userRepository.save(user);
         return new ResponseEntity<>("User info was updated successfully!", HttpStatus.CREATED);
     }
-    
+
+    @PostMapping("/updateLogo")
+    public ResponseEntity<String> updateLogo(@RequestParam MultipartFile logo,
+                                             @RequestHeader("Authorization") String authorizationHeader) {
+        UserEntity user = userService.getUserFromHeader(authorizationHeader);
+        try {
+            String url = storageService.uploadFile(logo, CloudFolder.SCHOOL_IMAGES);
+            user.setLogo(url);
+            userRepository.save(user);
+            return new ResponseEntity<>("Image updated", HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @GetMapping("test")
     public String hello()
     {
