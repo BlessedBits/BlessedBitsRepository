@@ -300,7 +300,7 @@ public class AuthController {
                                              @RequestHeader("Authorization") String authorizationHeader) {
         UserEntity user = userService.getUserFromHeader(authorizationHeader);
         try {
-            String url = storageService.uploadFile(logo, CloudFolder.SCHOOL_IMAGES);
+            String url = storageService.uploadFile(logo, CloudFolder.PROFILE_IMAGES);
             user.setLogo(url);
             userRepository.save(user);
             return new ResponseEntity<>("Image updated", HttpStatus.OK);
