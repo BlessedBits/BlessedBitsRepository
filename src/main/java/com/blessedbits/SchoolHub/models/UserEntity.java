@@ -24,7 +24,7 @@ public class UserEntity {
     private String email;
     private Boolean isConfirmed = false;
 
-    private String logo;
+    private String profileImage;
     
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(name = "user_roles",

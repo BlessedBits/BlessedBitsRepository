@@ -4,11 +4,8 @@ import com.blessedbits.SchoolHub.dto.AuthResponseDto;
 import com.blessedbits.SchoolHub.dto.LoginDto;
 import com.blessedbits.SchoolHub.dto.RegisterDto;
 import com.blessedbits.SchoolHub.dto.UsernameDto;
-import com.blessedbits.SchoolHub.misc.CloudFolder;
 import com.blessedbits.SchoolHub.dto.ChangePasswordDto;
-import com.blessedbits.SchoolHub.dto.UpdateInfoDto;
 import com.blessedbits.SchoolHub.models.Role;
-import com.blessedbits.SchoolHub.models.School;
 import com.blessedbits.SchoolHub.models.UserEntity;
 import com.blessedbits.SchoolHub.models.VerificationToken;
 import com.blessedbits.SchoolHub.repositories.RoleRepository;
@@ -33,7 +30,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import com.blessedbits.SchoolHub.services.StorageService;
 import com.blessedbits.SchoolHub.services.EmailService;
@@ -173,7 +169,7 @@ public class AuthController {
         return new ResponseEntity<>("Email verified successfully!", HttpStatus.OK);
 }
 
-    @PostMapping("/resetPasswordRequest")
+    @PostMapping("/reset-password-request")
     public ResponseEntity<String> resetPasswordRequest(@RequestBody UsernameDto usernameDto) {
         Optional<UserEntity> userOptional = userRepository.findByUsername(usernameDto.getUsername());
         if (!userOptional.isPresent()) 
@@ -205,7 +201,7 @@ public class AuthController {
         return new ResponseEntity<>("Password reset email has been sent.", HttpStatus.OK);
     }
 
-    @PostMapping("/resetPassword")
+    @PostMapping("/reset-password")
     public ResponseEntity<String> resetPassword(@RequestParam("token") String token, 
                                                 @RequestParam("newPassword") String newPassword) {
         Optional<VerificationToken> resetTokenOptional = tokenRepository.findByToken(token);
@@ -228,21 +224,10 @@ public class AuthController {
         return new ResponseEntity<>("Password has been successfully reset", HttpStatus.OK);
     }
 
-    @PostMapping("/changePassword")
+    @PostMapping("/change-password")
     public ResponseEntity<String> changePassword(@RequestHeader("Authorization") String authorizationHeader, @RequestBody ChangePasswordDto changePasswordDto) 
     {
-        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) 
-        {
-            return new ResponseEntity<>("Authorization header is missing or invalid", HttpStatus.UNAUTHORIZED);
-        }
-        String token = authorizationHeader.substring(7);
-        String username = jwtUtils.getUsernameFromJWT(token);
-        Optional<UserEntity> userOptional = userRepository.findByUsername(username);
-        if (userOptional.isEmpty()) 
-        {
-            return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
-        }
-        UserEntity user = userOptional.get();
+        UserEntity user = userService.getUserFromHeader(authorizationHeader);
         if (!passwordEncoder.matches(changePasswordDto.getOldPassword(), user.getPassword())) 
         {
             return new ResponseEntity<>("Old password is incorrect", HttpStatus.BAD_REQUEST);
@@ -255,63 +240,5 @@ public class AuthController {
         userRepository.save(user);
 
         return new ResponseEntity<>("Password changed successfully", HttpStatus.OK);
-    }
-
-    @PostMapping("/changeUserInfo")
-    public ResponseEntity<String> changeUserInfo(@RequestHeader("Authorization") String authorizationHeader, @RequestBody @Valid UpdateInfoDto updateInfoDto) 
-    {
-        UserEntity user = userService.getUserFromHeader(authorizationHeader);
-        String email = updateInfoDto.getEmail();
-        String username = updateInfoDto.getUsername();
-        if(username != null && !username.isEmpty())
-        {
-            if (userRepository.existsByUsername(username)) 
-            {
-                return new ResponseEntity<>("Username already taken!", HttpStatus.BAD_REQUEST);  
-            }
-            user.setUsername(username);
-        }
-        if(email != null && !email.isEmpty())
-        {
-            if(userRepository.existsByEmail(email))
-            {
-                return new ResponseEntity<>("Email already taken!", HttpStatus.BAD_REQUEST); 
-            }
-            user.setEmail(email);
-            String token = UUID.randomUUID().toString();
-            VerificationToken verificationToken = new VerificationToken();
-            verificationToken.setToken(token);
-            verificationToken.setUser(user);
-            verificationToken.setExpiryDate(LocalDateTime.now().plusMinutes(15)); 
-            tokenRepository.save(verificationToken);
-            try{
-                emailService.sendEmail(email,"Please verify your email", emailService.buildConfirmEmail(user.getUsername(), token));
-            } catch (Exception e) {
-                return new ResponseEntity<>(("Failed to send verification token\n" + e), HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-            return new ResponseEntity<>("User info was updated successfully! Please check your email for verification.", HttpStatus.CREATED);
-        }
-        userRepository.save(user);
-        return new ResponseEntity<>("User info was updated successfully!", HttpStatus.CREATED);
-    }
-
-    @PostMapping("/updateLogo")
-    public ResponseEntity<String> updateLogo(@RequestParam MultipartFile logo,
-                                             @RequestHeader("Authorization") String authorizationHeader) {
-        UserEntity user = userService.getUserFromHeader(authorizationHeader);
-        try {
-            String url = storageService.uploadFile(logo, CloudFolder.PROFILE_IMAGES);
-            user.setLogo(url);
-            userRepository.save(user);
-            return new ResponseEntity<>("Image updated", HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @GetMapping("test")
-    public String hello()
-    {
-        return "hello";
     }
 }
