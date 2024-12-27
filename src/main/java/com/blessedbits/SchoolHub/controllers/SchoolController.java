@@ -55,7 +55,7 @@ public class SchoolController {
         }
     }
 
-    @PostMapping("/updateInfo")
+    @PostMapping("/update-info")
     public ResponseEntity<String> updateInfo(@RequestBody CreateSchoolDto schoolDto,
                                              @RequestHeader("Authorization") String authorizationHeader) {
         School school = userService.getUserFromHeader(authorizationHeader).getUserClass().getSchool();
@@ -75,7 +75,7 @@ public class SchoolController {
         return new ResponseEntity<>("Data updated", HttpStatus.OK);
     }
 
-    @PostMapping("/updateLogo")
+    @PostMapping("/update-logo")
     public ResponseEntity<String> updateLogo(@RequestParam MultipartFile logo,
                                              @RequestHeader("Authorization") String authorizationHeader) {
         School school = userService.getUserFromHeader(authorizationHeader).getUserClass().getSchool();
@@ -90,7 +90,7 @@ public class SchoolController {
     }
 
     // For test purposes, needs to change functionality.
-    @PostMapping("/addGalleryImage")
+    @PostMapping("/add-gallery-image")
     public ResponseEntity<String> addGalleryImage(@RequestParam("file") MultipartFile file) {
         try {
             String url = storageService.uploadFile(file, CloudFolder.SCHOOL_GALLERIES);

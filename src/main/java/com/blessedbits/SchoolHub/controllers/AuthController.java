@@ -173,7 +173,7 @@ public class AuthController {
         return new ResponseEntity<>("Email verified successfully!", HttpStatus.OK);
 }
 
-    @PostMapping("/resetPasswordRequest")
+    @PostMapping("/reset-password-request")
     public ResponseEntity<String> resetPasswordRequest(@RequestBody UsernameDto usernameDto) {
         Optional<UserEntity> userOptional = userRepository.findByUsername(usernameDto.getUsername());
         if (!userOptional.isPresent()) 
@@ -205,7 +205,7 @@ public class AuthController {
         return new ResponseEntity<>("Password reset email has been sent.", HttpStatus.OK);
     }
 
-    @PostMapping("/resetPassword")
+    @PostMapping("/reset-password")
     public ResponseEntity<String> resetPassword(@RequestParam("token") String token, 
                                                 @RequestParam("newPassword") String newPassword) {
         Optional<VerificationToken> resetTokenOptional = tokenRepository.findByToken(token);
@@ -228,7 +228,7 @@ public class AuthController {
         return new ResponseEntity<>("Password has been successfully reset", HttpStatus.OK);
     }
 
-    @PostMapping("/changePassword")
+    @PostMapping("/change-password")
     public ResponseEntity<String> changePassword(@RequestHeader("Authorization") String authorizationHeader, @RequestBody ChangePasswordDto changePasswordDto) 
     {
         if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) 
@@ -257,7 +257,7 @@ public class AuthController {
         return new ResponseEntity<>("Password changed successfully", HttpStatus.OK);
     }
 
-    @PostMapping("/changeUserInfo")
+    @PostMapping("/change-user-info")
     public ResponseEntity<String> changeUserInfo(@RequestHeader("Authorization") String authorizationHeader, @RequestBody @Valid UpdateInfoDto updateInfoDto) 
     {
         UserEntity user = userService.getUserFromHeader(authorizationHeader);
@@ -295,7 +295,7 @@ public class AuthController {
         return new ResponseEntity<>("User info was updated successfully!", HttpStatus.CREATED);
     }
 
-    @PostMapping("/updateLogo")
+    @PostMapping("/update-logo")
     public ResponseEntity<String> updateLogo(@RequestParam MultipartFile logo,
                                              @RequestHeader("Authorization") String authorizationHeader) {
         UserEntity user = userService.getUserFromHeader(authorizationHeader);
@@ -307,11 +307,5 @@ public class AuthController {
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
-    }
-
-    @GetMapping("test")
-    public String hello()
-    {
-        return "hello";
     }
 }
