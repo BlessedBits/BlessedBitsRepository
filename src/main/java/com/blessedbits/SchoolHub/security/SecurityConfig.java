@@ -44,6 +44,7 @@ public class SecurityConfig {
                         .requestMatchers("/classes/new").hasRole("ADMIN")
                         .requestMatchers("/schools/**").hasAnyRole("USER", "TEACHER", "ADMIN")
                         .requestMatchers("/schools/new").hasRole("ADMIN")
+                        .requestMatchers("/users/**").hasAnyRole("USER", "TEACHER", "ADMIN")
                         .requestMatchers("/actuator/**").permitAll()
                 )
                 .httpBasic(Customizer.withDefaults());
