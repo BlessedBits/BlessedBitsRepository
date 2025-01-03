@@ -40,7 +40,9 @@ public class UserController {
     }
 
     @PostMapping("/update-info")
-    public ResponseEntity<String> updateUserInfo(@RequestHeader("Authorization") String authorizationHeader, @RequestBody @Valid UpdateInfoDto updateInfoDto)
+    public ResponseEntity<String> updateUserInfo(
+            @RequestHeader("Authorization") String authorizationHeader,
+            @RequestBody @Valid UpdateInfoDto updateInfoDto)
     {
         UserEntity user = userService.getUserFromHeader(authorizationHeader);
         String email = updateInfoDto.getEmail();

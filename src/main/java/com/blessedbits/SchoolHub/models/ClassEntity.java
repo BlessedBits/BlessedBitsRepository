@@ -39,4 +39,14 @@ public class ClassEntity {
             inverseJoinColumns = @JoinColumn(name = "course_id")
     )
     private List<Course> courses;
+
+    public void addCourse(Course course) {
+        this.courses.add(course);
+        course.getClasses().add(this);
+    }
+
+    public void addStudent(UserEntity user) {
+        this.students.add(user);
+        user.setUserClass(this);
+    }
 }
