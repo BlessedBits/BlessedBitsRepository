@@ -1,20 +1,15 @@
 package com.blessedbits.SchoolHub.controllers;
 
-import com.blessedbits.SchoolHub.dto.CreateAssignmentDto;
-import com.blessedbits.SchoolHub.dto.CreateCourseDto;
-import com.blessedbits.SchoolHub.dto.CreateMaterialDto;
-import com.blessedbits.SchoolHub.dto.CreateModuleDto;
+import com.blessedbits.SchoolHub.dto.*;
 import com.blessedbits.SchoolHub.models.*;
-import com.blessedbits.SchoolHub.repositories.AssignmentRepository;
-import com.blessedbits.SchoolHub.repositories.CourseRepository;
-import com.blessedbits.SchoolHub.repositories.MaterialRepository;
-import com.blessedbits.SchoolHub.repositories.ModuleRepository;
+import com.blessedbits.SchoolHub.repositories.*;
 import com.blessedbits.SchoolHub.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,16 +21,18 @@ public class CourseController {
     private final ModuleRepository moduleRepository;
     private final MaterialRepository materialRepository;
     private final AssignmentRepository assignmentRepository;
+    private final SubmissionRepository submissionRepository;
 
     @Autowired
     public CourseController(CourseRepository courseRepository,
                             UserService userService, ModuleRepository moduleRepository,
-                            MaterialRepository materialRepository, AssignmentRepository assignmentRepository) {
+                            MaterialRepository materialRepository, AssignmentRepository assignmentRepository, SubmissionRepository submissionRepository) {
         this.courseRepository = courseRepository;
         this.userService = userService;
         this.moduleRepository = moduleRepository;
         this.materialRepository = materialRepository;
         this.assignmentRepository = assignmentRepository;
+        this.submissionRepository = submissionRepository;
     }
 
     @GetMapping("/")
@@ -90,7 +87,7 @@ public class CourseController {
         }
     }
 
-    @PostMapping("/{courseName}/modules/{moduleName}/new-material")
+    @PostMapping("/{courseName}/modules/{moduleName}/materials/new")
     public ResponseEntity<String> createMaterial(
             @PathVariable String courseName,
             @PathVariable String moduleName,
@@ -118,7 +115,7 @@ public class CourseController {
         }
     }
 
-    @PostMapping("/{courseName}/modules/{moduleName}/new-assignment")
+    @PostMapping("/{courseName}/modules/{moduleName}/assignments/new")
     public ResponseEntity<String> createAssignment(
             @PathVariable String courseName,
             @PathVariable String moduleName,
@@ -146,6 +143,66 @@ public class CourseController {
         } catch (Exception e) {
             return new ResponseEntity<>("Couldn't create assignment",
                     HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping("/{courseName}/modules/{moduleName}/assignments/{assignmentTitle}/new-submission")
+    public ResponseEntity<String> createSubmission(
+            @PathVariable String courseName,
+            @PathVariable String moduleName,
+            @PathVariable String assignmentTitle,
+            @RequestBody CreateSubmissionDto submissionDto,
+            @RequestHeader("Authorization") String authorizationHeader) {
+        UserEntity user = userService.getUserFromHeader(authorizationHeader);
+        Submission submission = new Submission();
+        submission.setUrl(submissionDto.getUrl());
+        submission.setSubmittedAt(LocalDateTime.now());
+        Optional<ModuleEntity> moduleOptional = moduleRepository.findByNameAndCourseNameAndCourse_SchoolId(
+                moduleName, courseName, user.getSchool().getId()
+        );
+        if (moduleOptional.isEmpty()) {
+            return new ResponseEntity<>("Module for given course was not found," +
+                    " or course with that name was not found in your school", HttpStatus.NOT_FOUND);
+        }
+        ModuleEntity module = moduleOptional.get();
+        Optional<Assignment> assignmentOptional = assignmentRepository.findByTitleAndModuleId(
+                assignmentTitle, module.getId()
+        );
+        if (assignmentOptional.isEmpty()) {
+            return new ResponseEntity<>("Assignment for given course was not found",
+                    HttpStatus.NOT_FOUND);
+        }
+        Assignment assignment = assignmentOptional.get();
+        submission.setAssignment(assignment);
+        try {
+            submissionRepository.save(submission);
+            return new ResponseEntity<>("Submission created", HttpStatus.CREATED);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Couldn't create submission",
+                    HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping("/{courseName}/modules/{moduleName}/assignments/{assignmentTitle}/grade-submission")
+    public ResponseEntity<String> gradeSubmission(
+            @RequestBody GradeSubmissionDto gradeSubmissionDto,
+            @RequestHeader("Authorization") String authorizationHeader
+    ) {
+        UserEntity teacher = userService.getUserFromHeader(authorizationHeader);
+        Optional<Submission> submissionOptional = submissionRepository.findById(
+                gradeSubmissionDto.getId());
+        if (submissionOptional.isEmpty()) {
+            return new ResponseEntity<>("Submission not found", HttpStatus.NOT_FOUND);
+        }
+        Submission submission = submissionOptional.get();
+        submission.setGrade(gradeSubmissionDto.getGrade());
+        submission.setTeacher(teacher);
+        submission.setGradedAt(LocalDateTime.now());
+        try {
+            submissionRepository.save(submission);
+            return new ResponseEntity<>("Submission created", HttpStatus.CREATED);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Couldn't grade submission", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
