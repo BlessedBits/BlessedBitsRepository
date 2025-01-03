@@ -25,11 +25,11 @@ public class Schedule {
     private Integer scheduleId;
 
     @ManyToOne
-    @JoinColumn(name = "class_id", nullable = true)
+    @JoinColumn(name = "class_id", nullable = false)
     private ClassEntity classEntity;
 
     @ManyToOne
-    @JoinColumn(name = "course_id", nullable = true)
+    @JoinColumn(name = "course_id", nullable = false)
     private Course course;
 
     public static enum DayOfWeek {
