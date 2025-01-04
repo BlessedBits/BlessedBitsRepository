@@ -17,8 +17,11 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/schools")
@@ -118,6 +121,19 @@ public class SchoolController {
             return new ResponseEntity<>("Couldn't add user to specified school",
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    @GetMapping("/rating")
+    public ResponseEntity<List<Map<String, Object>>> getRating() {
+        List<Object[]> results = schoolRepository.findSchoolsWithAverageMarks();
+        return new ResponseEntity<>(
+                results.stream().map(row -> {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("schoolName", row[0]);
+                    map.put("averageGrade", row[1]);
+                    return map;
+                }).collect(Collectors.toList()), HttpStatus.OK
+        );
     }
 
     // For test purposes, needs to change functionality.
