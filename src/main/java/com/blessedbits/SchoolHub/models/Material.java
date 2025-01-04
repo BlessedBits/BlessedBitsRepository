@@ -6,7 +6,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table
+@Table(
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"title", "module_id"})
+        }
+)
 @Data
 @NoArgsConstructor
 public class Material {
@@ -14,6 +18,7 @@ public class Material {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private long id;
 
+    @Column(nullable = false)
     private String title;
     private String description;
     private String url;

@@ -8,7 +8,13 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 
 @Entity
-@Table(name = "classes")
+@Table(
+        name = "classes",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"name", "school_id"}),
+                @UniqueConstraint(columnNames = {"homeroom_teacher_id", "school_id"})
+        }
+)
 @Data
 @NoArgsConstructor
 public class ClassEntity {
@@ -16,6 +22,7 @@ public class ClassEntity {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private int id;
 
+    @Column(nullable = false)
     private String name;
 
     @JsonReferenceAsId

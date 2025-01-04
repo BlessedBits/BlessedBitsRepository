@@ -23,6 +23,11 @@ public class Submission {
 
     @JsonReferenceAsId
     @ManyToOne
+    @JoinColumn(name = "student_id")
+    private UserEntity student;
+
+    @JsonReferenceAsId
+    @ManyToOne
     @JoinColumn(name = "teacher_id")
     private UserEntity teacher;
 

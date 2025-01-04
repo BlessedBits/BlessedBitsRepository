@@ -9,7 +9,11 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
-@Table
+@Table(
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"title", "module_id"})
+        }
+)
 @Data
 @NoArgsConstructor
 public class Assignment {
@@ -17,6 +21,7 @@ public class Assignment {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private long id;
 
+    @Column(nullable = false)
     private String title;
     private String description;
     private String url;

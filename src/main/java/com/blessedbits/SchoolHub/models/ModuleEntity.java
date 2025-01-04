@@ -8,7 +8,12 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 
 @Entity
-@Table(name = "modules")
+@Table(
+        name = "modules",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"name", "course_id"})
+        }
+)
 @Data
 @NoArgsConstructor
 public class ModuleEntity {
@@ -16,6 +21,7 @@ public class ModuleEntity {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private long id;
 
+    @Column(nullable = false)
     private String name;
     private Boolean isVisible = true;
 

@@ -157,6 +157,7 @@ public class CourseController {
         Submission submission = new Submission();
         submission.setUrl(submissionDto.getUrl());
         submission.setSubmittedAt(LocalDateTime.now());
+        submission.setStudent(user);
         Optional<ModuleEntity> moduleOptional = moduleRepository.findByNameAndCourseNameAndCourse_SchoolId(
                 moduleName, courseName, user.getSchool().getId()
         );
