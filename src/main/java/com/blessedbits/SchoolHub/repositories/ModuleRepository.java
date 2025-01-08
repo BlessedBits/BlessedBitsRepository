@@ -8,5 +8,5 @@ import java.util.Optional;
 
 @Repository
 public interface ModuleRepository extends JpaRepository<ModuleEntity, Long> {
-    Optional<ModuleEntity> findByNameAndCourseNameAndCourse_SchoolId(String name, String courseName, Integer schoolId);
+    Optional<ModuleEntity> findByNameAndCourseId(String name, Integer courseId);
 }
