@@ -16,7 +16,7 @@ public class School {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private int id;
 
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
     private String name;
 
     private String address;
@@ -29,4 +29,8 @@ public class School {
     @JsonReferenceAsId
     @OneToMany(mappedBy = "school", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Course> courses;
+
+    @JsonReferenceAsId
+    @OneToMany(mappedBy = "school", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserEntity> users;
 }

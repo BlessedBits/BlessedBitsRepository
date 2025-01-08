@@ -17,11 +17,14 @@ public class UserEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    @Column(unique=true)
     private String username;
+
     private String password;
 
     @Column(unique = true)
     private String email;
+
     private Boolean isConfirmed = false;
 
     private String profileImage;
@@ -37,4 +40,9 @@ public class UserEntity {
     @ManyToOne
     @JoinColumn(name = "class_id")
     private ClassEntity userClass;
+
+    @JsonReferenceAsId
+    @ManyToOne
+    @JoinColumn(name = "school_id")
+    private School school;
 }

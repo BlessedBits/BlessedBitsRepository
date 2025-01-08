@@ -1,9 +1,12 @@
 package com.blessedbits.SchoolHub.controllers;
 
+import com.blessedbits.SchoolHub.dto.AddSchoolUserDto;
 import com.blessedbits.SchoolHub.dto.CreateSchoolDto;
 import com.blessedbits.SchoolHub.misc.CloudFolder;
 import com.blessedbits.SchoolHub.models.School;
+import com.blessedbits.SchoolHub.models.UserEntity;
 import com.blessedbits.SchoolHub.repositories.SchoolRepository;
+import com.blessedbits.SchoolHub.repositories.UserRepository;
 import com.blessedbits.SchoolHub.services.StorageService;
 import com.blessedbits.SchoolHub.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,10 +14,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/schools")
@@ -22,12 +29,14 @@ public class SchoolController {
     private final SchoolRepository schoolRepository;
     private final StorageService storageService;
     private final UserService userService;
+    private final UserRepository userRepository;
 
     @Autowired
-    public SchoolController(SchoolRepository schoolRepository, StorageService storageService, UserService userService) {
+    public SchoolController(SchoolRepository schoolRepository, StorageService storageService, UserService userService, UserRepository userRepository) {
         this.schoolRepository = schoolRepository;
         this.storageService = storageService;
         this.userService = userService;
+        this.userRepository = userRepository;
     }
 
     @GetMapping("/")
@@ -57,7 +66,7 @@ public class SchoolController {
     @PostMapping("/update-info")
     public ResponseEntity<String> updateInfo(@RequestBody CreateSchoolDto schoolDto,
                                              @RequestHeader("Authorization") String authorizationHeader) {
-        School school = userService.getUserFromHeader(authorizationHeader).getUserClass().getSchool();
+        School school = userService.getUserFromHeader(authorizationHeader).getSchool();
         String name = schoolDto.getName();
         if (name != null && !name.isEmpty()) {
             school.setName(name);
@@ -77,7 +86,7 @@ public class SchoolController {
     @PostMapping("/update-logo")
     public ResponseEntity<String> updateLogo(@RequestParam MultipartFile logo,
                                              @RequestHeader("Authorization") String authorizationHeader) {
-        School school = userService.getUserFromHeader(authorizationHeader).getUserClass().getSchool();
+        School school = userService.getUserFromHeader(authorizationHeader).getSchool();
         try {
             String url = storageService.uploadFile(logo, CloudFolder.SCHOOL_IMAGES);
             school.setLogo(url);
@@ -86,6 +95,45 @@ public class SchoolController {
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    @PostMapping("/add-user")
+    public ResponseEntity<String> addUser(@RequestBody AddSchoolUserDto addSchoolUserDto,
+                                          @RequestHeader("Authorization") String authorizationHeader) {
+        UserEntity user = userService.getUserFromHeader(authorizationHeader);
+        School school;
+        String schoolName = addSchoolUserDto.getSchoolName();
+        if (schoolName == null || schoolName.isEmpty()) {
+            school = user.getSchool();
+        } else {
+            Optional<School> schoolOptional = schoolRepository.findByName(schoolName);
+            if (schoolOptional.isEmpty()) {
+                return new ResponseEntity<>("School with specified name not found",
+                        HttpStatus.NOT_FOUND);
+            }
+            school = schoolOptional.get();
+        }
+        user.setSchool(school);
+        try {
+            userRepository.save(user);
+            return new ResponseEntity<>("User added", HttpStatus.CREATED);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Couldn't add user to specified school",
+                    HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/rating")
+    public ResponseEntity<List<Map<String, Object>>> getRating() {
+        List<Object[]> results = schoolRepository.findSchoolsWithAverageMarks();
+        return new ResponseEntity<>(
+                results.stream().map(row -> {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("schoolName", row[0]);
+                    map.put("averageGrade", row[1]);
+                    return map;
+                }).collect(Collectors.toList()), HttpStatus.OK
+        );
     }
 
     // For test purposes, needs to change functionality.
