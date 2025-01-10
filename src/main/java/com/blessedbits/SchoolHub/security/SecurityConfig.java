@@ -38,13 +38,18 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/courses/**").hasAnyRole("USER", "TEACHER", "ADMIN")
-                        .requestMatchers("/courses/new").hasAnyRole("TEACHER", "ADMIN")
-                        .requestMatchers("/classes/**").hasAnyRole("USER", "TEACHER", "ADMIN")
-                        .requestMatchers("/classes/new").hasRole("ADMIN")
-                        .requestMatchers("/schools/**").hasAnyRole("USER", "TEACHER", "ADMIN")
-                        .requestMatchers("/schools/new").hasRole("ADMIN")
-                        .requestMatchers("/users/**").hasAnyRole("USER", "TEACHER", "ADMIN")
+                        .requestMatchers("/courses/**").hasAnyRole(
+                                "STUDENT", "TEACHER", "SCHOOL_ADMIN")
+                        .requestMatchers("/courses/new").hasAnyRole(
+                                "TEACHER", "SCHOOL_ADMIN")
+                        .requestMatchers("/classes/**").hasAnyRole(
+                                "STUDENT", "TEACHER", "SCHOOL_ADMIN")
+                        .requestMatchers("/classes/new").hasRole("SCHOOL_ADMIN")
+                        .requestMatchers("/schools/**").hasAnyRole(
+                                "USER", "STUDENT", "TEACHER", "SCHOOL_ADMIN", "PLATFORM_ADMIN")
+                        .requestMatchers("/schools/new").hasRole("PLATFORM_ADMIN")
+                        .requestMatchers("/users/**").hasAnyRole(
+                                "USER", "STUDENT", "TEACHER", "SCHOOL_ADMIN", "PLATFORM_ADMIN")
                         .requestMatchers("/actuator/**").permitAll()
                 )
                 .httpBasic(Customizer.withDefaults());
