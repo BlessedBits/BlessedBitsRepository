@@ -22,7 +22,7 @@ public class Schedule {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer scheduleId;
+    private Integer id;
 
     @ManyToOne
     @JoinColumn(name = "class_id", nullable = false)
@@ -47,5 +47,5 @@ public class Schedule {
     private LocalTime endTime;
 
     @Column(nullable = false, length = 20)
-    private String roomNumber;
+    private String room;
 }

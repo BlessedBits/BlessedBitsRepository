@@ -43,7 +43,7 @@ public class ScheduleService {
         schedule.setDayOfWeek(Schedule.DayOfWeek.valueOf(scheduleDTO.getDayOfWeek()));
         schedule.setStartTime(scheduleDTO.getStartTime());
         schedule.setEndTime(scheduleDTO.getEndTime());
-        schedule.setRoomNumber(scheduleDTO.getRoomNumber());
+        schedule.setRoom(scheduleDTO.getRoomNumber());
 
         return scheduleRepository.save(schedule);
     }
@@ -72,7 +72,7 @@ public class ScheduleService {
         schedule.setDayOfWeek(Schedule.DayOfWeek.valueOf(scheduleDTO.getDayOfWeek()));
         schedule.setStartTime(scheduleDTO.getStartTime());
         schedule.setEndTime(scheduleDTO.getEndTime());
-        schedule.setRoomNumber(scheduleDTO.getRoomNumber());
+        schedule.setRoom(scheduleDTO.getRoomNumber());
 
         return scheduleRepository.save(schedule);
     }
