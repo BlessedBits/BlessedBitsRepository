@@ -22,17 +22,17 @@ public class Submission {
     private LocalDateTime gradedAt;
 
     @JsonReferenceAsId
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "student_id")
     private UserEntity student;
 
     @JsonReferenceAsId
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "teacher_id")
     private UserEntity teacher;
 
     @JsonReferenceAsId
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "assignment_id")
     private Assignment assignment;
 }
