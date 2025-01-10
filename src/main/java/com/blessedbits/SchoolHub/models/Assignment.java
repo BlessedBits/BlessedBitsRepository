@@ -5,34 +5,34 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
 @Table(
         uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"name", "school_id"})
+                @UniqueConstraint(columnNames = {"title", "module_id"})
         }
 )
 @Data
 @NoArgsConstructor
-public class Course {
+public class Assignment {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private int id;
+    private long id;
 
     @Column(nullable = false)
-    private String name;
-
-    @JsonReferenceAsId
-    @OneToMany(mappedBy = "course")
-    private List<ModuleEntity> modules;
+    private String title;
+    private String description;
+    private String url;
+    private LocalDateTime dueDate;
 
     @JsonReferenceAsId
     @ManyToOne
-    @JoinColumn(name = "school_id")
-    private School school;
+    @JoinColumn(name = "module_id")
+    private ModuleEntity module;
 
     @JsonReferenceAsId
-    @ManyToMany(mappedBy = "courses")
-    private List<ClassEntity> classes;
+    @OneToMany(mappedBy = "assignment")
+    private List<Submission> submissions;
 }

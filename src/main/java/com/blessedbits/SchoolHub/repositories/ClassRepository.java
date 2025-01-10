@@ -10,5 +10,6 @@ import java.util.Optional;
 public interface ClassRepository extends JpaRepository<ClassEntity, Integer> 
 {
     Optional<ClassEntity> findById(Integer id);
+    Optional<ClassEntity> findClassEntityByNameAndSchoolId(String name, Integer schoolId);
 }
 

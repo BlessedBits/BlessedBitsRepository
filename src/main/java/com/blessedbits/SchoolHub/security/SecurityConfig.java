@@ -39,18 +39,25 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/courses/**").hasAnyRole("USER", "TEACHER", "ADMIN")
-                        .requestMatchers("/courses/new").hasAnyRole("TEACHER", "ADMIN")
-                        .requestMatchers("/classes/**").hasAnyRole("USER", "TEACHER", "ADMIN")
-                        .requestMatchers("/classes/new").hasRole("ADMIN")
-                        .requestMatchers("/schools/**").hasAnyRole("USER", "TEACHER", "ADMIN")
-                        .requestMatchers("/schools/new").hasRole("ADMIN")
-                        .requestMatchers("/schedules").hasAnyRole("ADMIN")
-                        .requestMatchers("/schedules/new").hasAnyRole("ADMIN")  
-                        .requestMatchers("/schedules/{id}").hasAnyRole("USER", "TEACHER", "ADMIN")  
-                        .requestMatchers(HttpMethod.PUT, "/schedules/{id}").hasAnyRole("ADMIN")  
-                        .requestMatchers(HttpMethod.DELETE, "/schedules/{id}").hasRole("ADMIN")  
-                        .requestMatchers("/actuator/**").permitAll()
+                        .requestMatchers("/courses/**").hasAnyRole(
+                                "STUDENT", "TEACHER", "SCHOOL_ADMIN")
+                        .requestMatchers("/courses/new").hasAnyRole(
+                                "TEACHER", "SCHOOL_ADMIN")
+                        .requestMatchers("/classes/**").hasAnyRole(
+                                "STUDENT", "TEACHER", "SCHOOL_ADMIN")
+                        .requestMatchers("/classes/new").hasRole("SCHOOL_ADMIN")
+                        .requestMatchers("/schools/**").hasAnyRole(
+                                "USER", "STUDENT", "TEACHER", "SCHOOL_ADMIN", "PLATFORM_ADMIN")
+                        .requestMatchers("/schools/new").hasRole("PLATFORM_ADMIN")
+                        .requestMatchers("/users/**").hasAnyRole(
+                                "USER", "STUDENT", "TEACHER", "SCHOOL_ADMIN", "PLATFORM_ADMIN")
+                        .requestMatchers("/schedules/**").hasAnyRole(
+                                "STUDENT", "TEACHER", "SCHOOL_ADMIN")
+                        .requestMatchers("/schedules/new").hasRole("SCHOOL_ADMIN")  
+                        .requestMatchers("/schedules/{id}").hasAnyRole(
+                                "STUDENT", "TEACHER", "SCHOOL_ADMIN")  
+                        .requestMatchers(HttpMethod.PUT, "/schedules/{id}").hasRole("SCHOOL_ADMIN")  
+                        .requestMatchers(HttpMethod.DELETE, "/schedules/{id}").hasRole("SCHOOL_ADMIN")  
                 )
                 .httpBasic(Customizer.withDefaults());
         http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
