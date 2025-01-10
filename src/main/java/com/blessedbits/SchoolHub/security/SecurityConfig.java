@@ -3,6 +3,7 @@ package com.blessedbits.SchoolHub.security;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -50,7 +51,13 @@ public class SecurityConfig {
                         .requestMatchers("/schools/new").hasRole("PLATFORM_ADMIN")
                         .requestMatchers("/users/**").hasAnyRole(
                                 "USER", "STUDENT", "TEACHER", "SCHOOL_ADMIN", "PLATFORM_ADMIN")
-                        .requestMatchers("/actuator/**").permitAll()
+                        .requestMatchers("/schedules/**").hasAnyRole(
+                                "STUDENT", "TEACHER", "SCHOOL_ADMIN")
+                        .requestMatchers("/schedules/new").hasRole("SCHOOL_ADMIN")  
+                        .requestMatchers("/schedules/{id}").hasAnyRole(
+                                "STUDENT", "TEACHER", "SCHOOL_ADMIN")  
+                        .requestMatchers(HttpMethod.PUT, "/schedules/{id}").hasRole("SCHOOL_ADMIN")  
+                        .requestMatchers(HttpMethod.DELETE, "/schedules/{id}").hasRole("SCHOOL_ADMIN")  
                 )
                 .httpBasic(Customizer.withDefaults());
         http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
