@@ -39,6 +39,7 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers("/actuator/**").permitAll()
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/courses/**").hasAnyRole(
                                 "STUDENT", "TEACHER", "SCHOOL_ADMIN")
@@ -56,7 +57,7 @@ public class SecurityConfig {
                                 "STUDENT", "TEACHER", "SCHOOL_ADMIN")
                         .requestMatchers("/schedules/new").hasRole("SCHOOL_ADMIN")  
                         .requestMatchers("/schedules/{id}").hasAnyRole(
-                                "STUDENT", "TEACHER", "SCHOOL_ADMIN")  
+                                "STUDENT", "TEACHER", "SCHOOL_ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/schedules/{id}").hasRole("SCHOOL_ADMIN")  
                         .requestMatchers(HttpMethod.DELETE, "/schedules/{id}").hasRole("SCHOOL_ADMIN")  
                 )
