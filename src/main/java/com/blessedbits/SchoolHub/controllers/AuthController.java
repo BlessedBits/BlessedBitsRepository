@@ -85,7 +85,7 @@ public class AuthController {
                     .httpOnly(true)
                     .secure(true)
                     .path("/")
-                    .sameSite("Lax")
+                    .sameSite("None")
                     .build();
         }
         else {
@@ -93,7 +93,7 @@ public class AuthController {
                     .httpOnly(true)
                     .secure(true)
                     .path("/")
-                    .sameSite("Lax")
+                    .sameSite("None")
                     .build();
         }
 
