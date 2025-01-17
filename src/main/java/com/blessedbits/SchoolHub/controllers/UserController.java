@@ -12,6 +12,7 @@ import com.blessedbits.SchoolHub.services.EmailService;
 import com.blessedbits.SchoolHub.services.StorageService;
 import com.blessedbits.SchoolHub.services.UserService;
 import jakarta.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -22,7 +23,15 @@ import org.springframework.web.multipart.MultipartFile;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+
 
 @RestController
 @RequestMapping("/users")
@@ -115,6 +124,44 @@ public class UserController {
         } catch (Exception e) {
             System.out.println(e.getMessage());
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/")
+    public ResponseEntity<List<UserEntity>> getAllUsers() 
+    {
+        return new ResponseEntity<>(userRepository.findAll(), HttpStatus.OK);
+    }
+    
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getUserById(@PathVariable Integer id) 
+    {
+        Optional<UserEntity> userOpt = userRepository.findById(id);
+        if(userOpt.isEmpty())
+        {
+            return new ResponseEntity<>("Error: User is not found by provided ID.", HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(userOpt.get(), HttpStatus.OK);
+    }
+
+    @PutMapping("/set-duty/{id}")
+    public ResponseEntity<String> setUsersDuty(@PathVariable Integer id, @RequestBody String duty) 
+    {
+        Optional<UserEntity> userOpt = userRepository.findById(id);
+        if(userOpt.isEmpty())
+        {
+            return new ResponseEntity<>("Error: User is not found by provided ID.", HttpStatus.NOT_FOUND);
+        }
+        UserEntity user = userOpt.get();
+        user.setDuty(duty);
+        try 
+        {
+            userRepository.save(user);
+            return new ResponseEntity<>("User's duty was successfully updated.", HttpStatus.OK);
+        }
+        catch(Exception e)
+        {
+            return new ResponseEntity<>(("Error: User's duty was not updated." + e), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }
