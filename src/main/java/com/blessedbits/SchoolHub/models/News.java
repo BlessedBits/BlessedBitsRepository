@@ -32,7 +32,7 @@ public class News
     @NotBlank
     private String category;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false) 
+    @ManyToOne(fetch = FetchType.EAGER, optional = false) 
     @JoinColumn(name = "school_id", nullable = false) 
     @NotNull
     private School school;
