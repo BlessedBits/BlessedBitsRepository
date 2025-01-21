@@ -127,23 +127,6 @@ public class UserController {
         }
     }
 
-    @GetMapping("/")
-    public ResponseEntity<List<UserEntity>> getAllUsers() 
-    {
-        return new ResponseEntity<>(userRepository.findAll(), HttpStatus.OK);
-    }
-    
-    @GetMapping("/{id}")
-    public ResponseEntity<?> getUserById(@PathVariable Integer id) 
-    {
-        Optional<UserEntity> userOpt = userRepository.findById(id);
-        if(userOpt.isEmpty())
-        {
-            return new ResponseEntity<>("Error: User is not found by provided ID.", HttpStatus.NOT_FOUND);
-        }
-        return new ResponseEntity<>(userOpt.get(), HttpStatus.OK);
-    }
-
     @PutMapping("/set-duty/{id}")
     public ResponseEntity<String> setUsersDuty(@PathVariable Integer id, @RequestBody String duty) 
     {
