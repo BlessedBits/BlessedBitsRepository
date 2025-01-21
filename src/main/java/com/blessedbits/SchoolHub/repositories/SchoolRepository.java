@@ -12,6 +12,8 @@ import java.util.Optional;
 public interface SchoolRepository extends JpaRepository<School, Integer> {
     Optional<School> findByName(String name);
 
+    Optional<School> findById(Integer id);
+
     @Query("SELECT s.name AS schoolName, AVG(sub.grade) AS averageGrade " +
             "FROM School s " +
             "JOIN s.users u " +
