@@ -13,6 +13,16 @@ import java.io.IOException;
 public class JwtAuthEntryPoint implements AuthenticationEntryPoint {
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
-        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, authException.getMessage());
+        String message = (String) request.getAttribute("exception");
+        if (message == null) {
+            message = authException.getMessage();
+        }
+        String jsonResponse = String.format("{\"message\": \"%s\"}", message);
+
+        response.resetBuffer();
+        response.setContentType("application/json");
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.getOutputStream().print(jsonResponse);
+        response.flushBuffer();
     }
 }

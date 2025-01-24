@@ -51,9 +51,9 @@ public class SecurityConfig {
                                 "STUDENT", "TEACHER", "SCHOOL_ADMIN")
                         .requestMatchers("/classes/new").hasRole("SCHOOL_ADMIN")
 
+                        .requestMatchers("/schools/new").hasRole("PLATFORM_ADMIN")
                         .requestMatchers("/schools/**").hasAnyRole(
                                 "USER", "STUDENT", "TEACHER", "SCHOOL_ADMIN", "PLATFORM_ADMIN")
-                        .requestMatchers("/schools/new").hasRole("PLATFORM_ADMIN")
 
                         .requestMatchers("/users/**").hasAnyRole(
                                 "USER", "STUDENT", "TEACHER", "SCHOOL_ADMIN", "PLATFORM_ADMIN")
