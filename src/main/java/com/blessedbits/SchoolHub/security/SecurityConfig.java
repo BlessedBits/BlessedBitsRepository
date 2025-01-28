@@ -45,15 +45,38 @@ public class SecurityConfig {
                         .requestMatchers("/actuator/**").permitAll()
                         .requestMatchers("/auth/**").permitAll()
 
+                        // CourseController
                         .requestMatchers("/courses/new").hasAnyRole(
                                 "TEACHER", "SCHOOL_ADMIN")
                         .requestMatchers("/courses/**").hasAnyRole(
                                 "STUDENT", "TEACHER", "SCHOOL_ADMIN")
 
-                        .requestMatchers("/classes/new").hasRole("SCHOOL_ADMIN")
+                        // ClassController
+                        .requestMatchers(HttpMethod.GET, "/classes").hasRole("PLATFORM_ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/classes").hasAnyRole(
+                                "PLATFORM_ADMIN", "SCHOOL_ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/classes/{id}").hasAnyRole(
+                                "PLATFORM_ADMIN", "SCHOOL_ADMIN", "TEACHER", "STUDENT")
+                        .requestMatchers(HttpMethod.PUT, "/classes/{id}").hasAnyRole(
+                                "PLATFORM_ADMIN", "SCHOOL_ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/classes/{id}").hasAnyRole(
+                                "PLATFORM_ADMIN", "SCHOOL_ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/classes/{id}/courses").hasAnyRole(
+                                "PLATFORM_ADMIN", "SCHOOL_ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/classes/{id}/courses").hasAnyRole(
+                                "PLATFORM_ADMIN", "SCHOOL_ADMIN", "TEACHER", "STUDENT")
+                        .requestMatchers(HttpMethod.DELETE, "/classes/{id}/courses").hasAnyRole(
+                                "PLATFORM_ADMIN", "SCHOOL_ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/classes/{id}/students").hasAnyRole(
+                                "PLATFORM_ADMIN", "SCHOOL_ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/classes/{id}/students").hasAnyRole(
+                                "PLATFORM_ADMIN", "SCHOOL_ADMIN", "TEACHER", "STUDENT")
+                        .requestMatchers(HttpMethod.DELETE, "/classes/{id}/students").hasAnyRole(
+                                "PLATFORM_ADMIN", "SCHOOL_ADMIN")
                         .requestMatchers("/classes/**").hasAnyRole(
                                 "STUDENT", "TEACHER", "SCHOOL_ADMIN")
 
+                        // SchoolController
                         .requestMatchers("/schools/new").hasRole("PLATFORM_ADMIN")
                         .requestMatchers("/schools/**").hasAnyRole(
                                 "USER", "STUDENT", "TEACHER", "SCHOOL_ADMIN", "PLATFORM_ADMIN")
@@ -63,6 +86,7 @@ public class SecurityConfig {
                         .requestMatchers("/users/**").hasAnyRole(
                                 "USER", "STUDENT", "TEACHER", "SCHOOL_ADMIN", "PLATFORM_ADMIN")
 
+                        // ScheduleController
                         .requestMatchers("/schedules/new").hasRole("SCHOOL_ADMIN")
                         .requestMatchers(HttpMethod.GET, "/schedules/{id}").hasAnyRole("STUDENT", "TEACHER", "SCHOOL_ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/schedules/{id}").hasRole("SCHOOL_ADMIN")
@@ -70,6 +94,7 @@ public class SecurityConfig {
                         .requestMatchers("/schedules/**").hasAnyRole(
                                 "STUDENT", "TEACHER", "SCHOOL_ADMIN")
 
+                        // NewsController
                         .requestMatchers("/news/new").hasRole("SCHOOL_ADMIN")
                         .requestMatchers(HttpMethod.GET, "/news/{id}").hasRole("SCHOOL_ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/news/{id}").hasRole("SCHOOL_ADMIN")

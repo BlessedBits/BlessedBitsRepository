@@ -6,4 +6,5 @@ import lombok.Data;
 public class CreateClassDto {
     private String name;
     private String homeroomTeacher;
+    private Integer schoolId;
 }

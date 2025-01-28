@@ -52,8 +52,18 @@ public class ClassEntity {
         course.getClasses().add(this);
     }
 
+    public void removeCourse(Course course) {
+        this.courses.remove(course);
+        course.getClasses().remove(this);
+    }
+
     public void addStudent(UserEntity user) {
         this.students.add(user);
         user.setUserClass(this);
+    }
+
+    public void removeStudent(UserEntity user) {
+        this.students.remove(user);
+        user.setUserClass(null);
     }
 }

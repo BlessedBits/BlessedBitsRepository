@@ -12,8 +12,8 @@ import java.util.Optional;
 
 @Service
 public class UserService {
-    private UserRepository userRepository;
-    private JWTUtils jwtUtils;
+    private final UserRepository userRepository;
+    private final JWTUtils jwtUtils;
 
     @Autowired
     public UserService(UserRepository userRepository, JWTUtils jwtUtils) {
@@ -24,11 +24,12 @@ public class UserService {
     public UserEntity getUserFromHeader(String authHeader) {
         String accessToken = jwtUtils.getJwtFromHeader(authHeader);
         String username = jwtUtils.getUsernameFromJWT(accessToken);
-        Optional<UserEntity> userOptional = userRepository.findByUsername(username);
-        if (userOptional.isEmpty())
-        {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
-        }
-        return userOptional.get();
+        return getByUsername(username);
+    }
+
+    public UserEntity getByUsername(String username) {
+        return userRepository.findByUsername(username).orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "User with given username not found")
+        );
     }
 }

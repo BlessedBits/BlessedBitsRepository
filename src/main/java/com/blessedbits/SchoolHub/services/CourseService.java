@@ -25,13 +25,10 @@ public class CourseService {
         this.submissionRepository = submissionRepository;
     }
 
-    public Course getCourseById(Integer courseId) {
-        Optional<Course> courseOptional = courseRepository.findById(courseId);
-        if (courseOptional.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-                    "Specified course does not exist");
-        }
-        return courseOptional.get();
+    public Course getById(Integer id) {
+        return courseRepository.findById(id).orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Course with given id not found")
+        );
     }
 
     public ModuleEntity getModuleById(Long moduleId) {
@@ -93,7 +90,7 @@ public class CourseService {
 
     public Course getCourseByNameOrIdAndSchoolId(Integer courseId, String courseName, Integer schoolId) {
         if (courseId != null) {
-            return getCourseById(courseId);
+            return getById(courseId);
         } else if (courseName != null) {
             return getCourseByNameAndSchoolId(courseName, schoolId);
         } else {

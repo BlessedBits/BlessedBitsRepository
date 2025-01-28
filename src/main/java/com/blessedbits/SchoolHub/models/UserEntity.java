@@ -1,6 +1,7 @@
 package com.blessedbits.SchoolHub.models;
 
 import com.blessedbits.SchoolHub.misc.JsonReferenceAsId;
+import com.blessedbits.SchoolHub.misc.RoleType;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -47,4 +48,8 @@ public class UserEntity {
     @ManyToOne
     @JoinColumn(name = "school_id")
     private School school;
+
+    public boolean hasRole(RoleType role) {
+        return roles.stream().anyMatch(r -> r.getName().equals(role.name()));
+    }
 }
