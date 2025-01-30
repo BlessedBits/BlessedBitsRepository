@@ -2,6 +2,7 @@ package com.blessedbits.SchoolHub.controllers;
 
 import com.blessedbits.SchoolHub.dto.UpdateInfoDto;
 import com.blessedbits.SchoolHub.dto.UpdateNameDto;
+import com.blessedbits.SchoolHub.dto.UserProfileDto;
 import com.blessedbits.SchoolHub.misc.CloudFolder;
 import com.blessedbits.SchoolHub.models.Submission;
 import com.blessedbits.SchoolHub.models.UserEntity;
@@ -14,6 +15,7 @@ import com.blessedbits.SchoolHub.services.StorageService;
 import com.blessedbits.SchoolHub.services.UserService;
 import jakarta.validation.Valid;
 
+import org.apache.http.protocol.HTTP;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -169,5 +171,12 @@ public class UserController {
         {
             return new ResponseEntity<>(("Error: User's duty was not updated." + e), HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    @GetMapping("/profile")
+    public ResponseEntity<UserProfileDto> getUserProfileInfo(@RequestHeader("Authorization") String authorizationHeader)
+    {
+        UserEntity user = userService.getUserFromHeader(authorizationHeader);
+        return new ResponseEntity<UserProfileDto>(userService.getUserProfileInfo(user), HttpStatus.OK);
     }
 }
