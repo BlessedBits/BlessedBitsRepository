@@ -1,0 +1,26 @@
+package com.blessedbits.SchoolHub.models;
+
+import jakarta.persistence.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Entity
+@Table(name = "school_contacts")
+@Data
+@NoArgsConstructor
+public class SchoolContacts {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
+
+    @OneToOne
+    @JoinColumn(name = "school_id", referencedColumnName = "id")
+    private School school;
+
+    private String phoneNumber;
+    private String email;
+    private String youtubeLink;
+    private String facebookLink;
+    private String instagramLink;
+    private String tiktokLink;
+}
