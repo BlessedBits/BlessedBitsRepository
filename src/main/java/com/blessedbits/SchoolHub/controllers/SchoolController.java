@@ -2,13 +2,16 @@ package com.blessedbits.SchoolHub.controllers;
 
 import com.blessedbits.SchoolHub.dto.AddSchoolUserDto;
 import com.blessedbits.SchoolHub.dto.CreateSchoolDto;
+import com.blessedbits.SchoolHub.dto.SchoolContactsDto;
 import com.blessedbits.SchoolHub.misc.CloudFolder;
 import com.blessedbits.SchoolHub.models.School;
+import com.blessedbits.SchoolHub.models.SchoolContacts;
 import com.blessedbits.SchoolHub.models.UserEntity;
 import com.blessedbits.SchoolHub.repositories.SchoolRepository;
 import com.blessedbits.SchoolHub.repositories.UserRepository;
 import com.blessedbits.SchoolHub.services.StorageService;
 import com.blessedbits.SchoolHub.services.UserService;
+import com.blessedbits.SchoolHub.services.SchoolService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +26,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+
+
 @RestController
 @RequestMapping("/schools")
 public class SchoolController {
@@ -30,13 +35,15 @@ public class SchoolController {
     private final StorageService storageService;
     private final UserService userService;
     private final UserRepository userRepository;
+    private final SchoolService schoolService;
 
     @Autowired
-    public SchoolController(SchoolRepository schoolRepository, StorageService storageService, UserService userService, UserRepository userRepository) {
+    public SchoolController(SchoolService schoolService, SchoolRepository schoolRepository, StorageService storageService, UserService userService, UserRepository userRepository) {
         this.schoolRepository = schoolRepository;
         this.storageService = storageService;
         this.userService = userService;
         this.userRepository = userRepository;
+        this.schoolService = schoolService;
     }
 
     @GetMapping("/")
@@ -55,6 +62,9 @@ public class SchoolController {
         School school = new School();
         school.setName(schoolDto.getName());
         school.setAddress(schoolDto.getAddress());
+        SchoolContacts contacts = new SchoolContacts();
+        contacts.setSchool(school);
+        school.setContacts(contacts);
         try {
             schoolRepository.save(school);
             return new ResponseEntity<>(schoolDto.toString(), HttpStatus.CREATED);
@@ -146,4 +156,31 @@ public class SchoolController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @GetMapping("/{id}/contacts")
+    public ResponseEntity<?> getSchoolContacts(@PathVariable Integer id) {
+        try {
+            SchoolContactsDto schoolContactsDto = schoolService.getSchoolContacts(id);
+            return new ResponseEntity<>(schoolContactsDto, HttpStatus.OK);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND); 
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); 
+        }
+    }
+
+    @PutMapping("/{id}/update-contacts")
+    public ResponseEntity<?> updateSchoolContacts(@PathVariable Integer id, @RequestBody SchoolContactsDto schoolContactsDto) 
+    {
+        try{
+            schoolService.updateSchoolContacts(id, schoolContactsDto);
+            return new ResponseEntity<>(schoolContactsDto, HttpStatus.OK);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND); 
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); 
+        }
+    }
+    
+    
 }

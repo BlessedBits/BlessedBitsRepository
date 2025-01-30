@@ -38,4 +38,6 @@ public class School {
     @OneToMany(mappedBy = "school", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<News> news;
 
+    @OneToOne(mappedBy = "school", cascade = CascadeType.ALL, orphanRemoval = true)
+    private SchoolContacts contacts;
 }
