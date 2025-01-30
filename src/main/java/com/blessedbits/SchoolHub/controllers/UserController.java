@@ -1,6 +1,7 @@
 package com.blessedbits.SchoolHub.controllers;
 
 import com.blessedbits.SchoolHub.dto.UpdateInfoDto;
+import com.blessedbits.SchoolHub.dto.UpdateNameDto;
 import com.blessedbits.SchoolHub.misc.CloudFolder;
 import com.blessedbits.SchoolHub.models.Submission;
 import com.blessedbits.SchoolHub.models.UserEntity;
@@ -107,6 +108,28 @@ public class UserController {
             return new ResponseEntity<>("Image updated", HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PutMapping("/update-name/{id}")
+    public ResponseEntity<String> updateName(@PathVariable Integer id, @RequestBody UpdateNameDto updateNameDto) 
+    {
+        Optional<UserEntity> userOpt = userRepository.findById(id);
+        if(userOpt.isEmpty())
+        {
+            return new ResponseEntity<>("Error: User is not found by provided ID.", HttpStatus.NOT_FOUND);
+        }
+        UserEntity user = userOpt.get(); 
+        user.setFirstName(updateNameDto.getFirstName());
+        user.setLastName(updateNameDto.getLastName());  
+        try 
+        {
+            userRepository.save(user);
+            return new ResponseEntity<>("User's name was successfully updated.", HttpStatus.OK);
+        }
+        catch(Exception e)
+        {
+            return new ResponseEntity<>(("Error: User's name was not updated." + e), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
