@@ -8,6 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.blessedbits.SchoolHub.dto.UserProfileDto;
+
 import java.util.Optional;
 
 @Service
@@ -30,5 +32,19 @@ public class UserService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
         }
         return userOptional.get();
+    }
+
+    public UserProfileDto getUserProfileInfo(UserEntity user)
+    {
+        UserProfileDto userProfileDto = new UserProfileDto();
+        userProfileDto.setFirstName(user.getFirstName());
+        userProfileDto.setLastName(user.getLastName());
+        userProfileDto.setUsername(user.getUsername());
+        userProfileDto.setEmail(user.getEmail());
+        userProfileDto.setRole(user.getRoles().isEmpty() ? "No role" : user.getRoles().get(0).getName());
+        userProfileDto.setDuty(user.getDuty());
+        userProfileDto.setProfileImage(user.getProfileImage());
+        userProfileDto.setSchool(user.getSchool() != null ? user.getSchool().getName() : "No school");
+        return userProfileDto;
     }
 }
