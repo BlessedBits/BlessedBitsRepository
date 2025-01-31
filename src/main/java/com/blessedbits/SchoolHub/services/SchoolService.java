@@ -2,11 +2,15 @@ package com.blessedbits.SchoolHub.services;
 
 import com.blessedbits.SchoolHub.dto.SchoolContactsDto;
 import com.blessedbits.SchoolHub.dto.SchoolInfoDto;
+import com.blessedbits.SchoolHub.dto.TeacherInfoDto;
 import com.blessedbits.SchoolHub.models.School;
 import com.blessedbits.SchoolHub.models.SchoolContacts;
+import com.blessedbits.SchoolHub.models.UserEntity;
 import com.blessedbits.SchoolHub.repositories.SchoolContactsRepository;
 import com.blessedbits.SchoolHub.repositories.SchoolRepository;
 import com.blessedbits.SchoolHub.repositories.UserRepository;
+
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -75,4 +79,19 @@ public class SchoolService {
         return dto;
     }
 
+    public List<UserEntity> getTeachersBySchool(Integer schoolId) {
+        return userRepository.findTeachersBySchoolId(schoolId);
+    }
+
+    public TeacherInfoDto getTeacherInfo(int teacherId) {
+        UserEntity teacher = userRepository.findTeacherById(teacherId)
+                .orElseThrow(() -> new RuntimeException("Teacher not found"));
+
+        TeacherInfoDto dto = new TeacherInfoDto();
+        dto.setFirstName(teacher.getFirstName());
+        dto.setLastName(teacher.getLastName());
+        dto.setDuty(teacher.getDuty());
+        dto.setProfileImage(teacher.getProfileImage());
+        return dto;
+    }
 }
