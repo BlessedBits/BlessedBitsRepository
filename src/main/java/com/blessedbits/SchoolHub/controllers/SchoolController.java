@@ -3,6 +3,7 @@ package com.blessedbits.SchoolHub.controllers;
 import com.blessedbits.SchoolHub.dto.AddSchoolUserDto;
 import com.blessedbits.SchoolHub.dto.CreateSchoolDto;
 import com.blessedbits.SchoolHub.dto.SchoolContactsDto;
+import com.blessedbits.SchoolHub.dto.SchoolInfoDto;
 import com.blessedbits.SchoolHub.misc.CloudFolder;
 import com.blessedbits.SchoolHub.models.School;
 import com.blessedbits.SchoolHub.models.SchoolContacts;
@@ -182,5 +183,16 @@ public class SchoolController {
         }
     }
     
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getSchoolInfo(@PathVariable Integer id) {
+        try{
+            return new ResponseEntity<>(schoolService.getSchoolInfo(id), HttpStatus.OK);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND); 
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); 
+        }
+        
+    }
     
 }
