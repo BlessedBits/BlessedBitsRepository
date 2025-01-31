@@ -26,6 +26,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 
 
@@ -195,4 +198,28 @@ public class SchoolController {
         
     }
     
+    @GetMapping("/{id}/teachers")
+    public ResponseEntity<?> getTeachersList(@PathVariable Integer id) {
+        try{
+            return new ResponseEntity<>(schoolService.getTeachersBySchool(id), HttpStatus.OK);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND); 
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); 
+        }
+        
+    }
+
+    @GetMapping("/teachers/{id}")
+    public ResponseEntity<?> getTeacherInfo(@PathVariable Integer id) {
+        try{
+            return new ResponseEntity<>(schoolService.getTeacherInfo(id), HttpStatus.OK);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND); 
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); 
+        }
+    }
+    
+
 }
