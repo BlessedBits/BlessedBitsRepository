@@ -45,6 +45,10 @@ public class SecurityConfig {
                         .requestMatchers("/actuator/**").permitAll()
                         .requestMatchers("/auth/**").permitAll()
 
+                        // UserController
+                        .requestMatchers("/users/").permitAll()
+                        .requestMatchers("/users/{id}").permitAll()
+
                         // CourseController
                         .requestMatchers("/courses/new").hasAnyRole(
                                 "TEACHER", "SCHOOL_ADMIN")

@@ -5,6 +5,7 @@ import com.blessedbits.SchoolHub.misc.CloudFolder;
 import com.blessedbits.SchoolHub.models.Submission;
 import com.blessedbits.SchoolHub.models.UserEntity;
 import com.blessedbits.SchoolHub.models.VerificationToken;
+import com.blessedbits.SchoolHub.projections.UserProjection;
 import com.blessedbits.SchoolHub.repositories.SubmissionRepository;
 import com.blessedbits.SchoolHub.repositories.UserRepository;
 import com.blessedbits.SchoolHub.repositories.VerificationTokenRepository;
@@ -56,7 +57,20 @@ public class UserController {
         this.submissionRepository = submissionRepository;
     }
 
-    @PostMapping("/update-info")
+    @GetMapping("/{id}")
+    public ResponseEntity<UserEntity> getUser(@PathVariable Integer id) {
+        return new ResponseEntity<>(userService.getById(id), HttpStatus.OK);
+    }
+
+    @GetMapping("/")
+    public ResponseEntity<UserProjection> getUser(@RequestParam(required = false) String username) {
+        if (username != null) {
+            return new ResponseEntity<>(userService.getByUsername(username, UserProjection.class), HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
+
+    @PutMapping("/update-info")
     public ResponseEntity<String> updateUserInfo(
             @RequestHeader("Authorization") String authorizationHeader,
             @RequestBody @Valid UpdateInfoDto updateInfoDto)
@@ -96,7 +110,7 @@ public class UserController {
         return new ResponseEntity<>("User info was updated successfully!", HttpStatus.CREATED);
     }
 
-    @PostMapping("/update-profile-image")
+    @PutMapping("/update-profile-image")
     public ResponseEntity<String> updateProfileImage(@RequestParam MultipartFile profileImage,
                                                      @RequestHeader("Authorization") String authorizationHeader) {
         UserEntity user = userService.getUserFromHeader(authorizationHeader);

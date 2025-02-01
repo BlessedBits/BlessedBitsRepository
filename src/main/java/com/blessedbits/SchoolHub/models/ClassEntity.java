@@ -26,12 +26,12 @@ public class ClassEntity {
     private String name;
 
     @JsonReferenceAsId
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "homeroom_teacher_id")
     private UserEntity homeroomTeacher;
 
     @JsonReferenceAsId
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "school_id")
     private School school;
 

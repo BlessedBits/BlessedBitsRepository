@@ -27,9 +27,23 @@ public class UserService {
         return getByUsername(username);
     }
 
+    public UserEntity getById(Integer id) {
+        return userRepository.findById(id).orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "User with given id not found")
+        );
+    }
+
     public UserEntity getByUsername(String username) {
         return userRepository.findByUsername(username).orElseThrow(
                 () -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "User with given username not found")
         );
+    }
+
+    public <T> T getByUsername(String username, Class<T> clazz) {
+        T user = userRepository.findByUsername(username, clazz);
+        if (user == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User with given username not found");
+        }
+        return user;
     }
 }
