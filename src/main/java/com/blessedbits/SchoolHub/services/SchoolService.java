@@ -3,17 +3,22 @@ package com.blessedbits.SchoolHub.services;
 import com.blessedbits.SchoolHub.dto.SchoolContactsDto;
 import com.blessedbits.SchoolHub.dto.SchoolInfoDto;
 import com.blessedbits.SchoolHub.dto.TeacherInfoDto;
+import com.blessedbits.SchoolHub.misc.CloudFolder;
+import com.blessedbits.SchoolHub.dto.AchievementDto;
+import com.blessedbits.SchoolHub.models.Achievement;
 import com.blessedbits.SchoolHub.models.School;
 import com.blessedbits.SchoolHub.models.SchoolContacts;
 import com.blessedbits.SchoolHub.models.UserEntity;
 import com.blessedbits.SchoolHub.repositories.SchoolContactsRepository;
 import com.blessedbits.SchoolHub.repositories.SchoolRepository;
 import com.blessedbits.SchoolHub.repositories.UserRepository;
+import com.blessedbits.SchoolHub.repositories.AchievementRepository;
 
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class SchoolService {
@@ -24,6 +29,10 @@ public class SchoolService {
     private SchoolRepository schoolRepository;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private AchievementRepository achievementRepository;
+    @Autowired
+    private StorageService storageService;
 
     public SchoolContactsDto getSchoolContacts(Integer schoolId) {
         SchoolContacts schoolContacts = schoolContactsRepository.findBySchoolId(schoolId)
@@ -83,7 +92,7 @@ public class SchoolService {
         return userRepository.findTeachersBySchoolId(schoolId);
     }
 
-    public TeacherInfoDto getTeacherInfo(int teacherId) {
+    public TeacherInfoDto getTeacherInfo(Integer teacherId) {
         UserEntity teacher = userRepository.findTeacherById(teacherId)
                 .orElseThrow(() -> new RuntimeException("Teacher not found"));
 
@@ -94,4 +103,26 @@ public class SchoolService {
         dto.setProfileImage(teacher.getProfileImage());
         return dto;
     }
+
+    public Achievement createAchievement(Integer schoolId, MultipartFile image, AchievementDto achievementDto)
+    {
+        School school = schoolRepository.findById(schoolId)
+                .orElseThrow(() -> new RuntimeException("School not found"));
+        Achievement achievement = new Achievement();
+        achievement.setTitle(achievementDto.getTitle());
+        achievement.setDescription(achievementDto.getDescription());
+        achievement.setSchool(school);
+        try {
+            String url = storageService.uploadFile(image, CloudFolder.ACHIEVEMENT_IMAGES);
+            achievement.setImage(url);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to upload image: " + e.getMessage(), e);
+        }
+        return achievementRepository.save(achievement);
+    }
+
+    public List<Achievement> getAchievementsBySchool(int schoolId) {
+        return achievementRepository.findBySchoolId(schoolId);
+    }
+
 }
