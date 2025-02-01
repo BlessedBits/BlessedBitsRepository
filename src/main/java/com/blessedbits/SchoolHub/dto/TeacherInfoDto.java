@@ -8,4 +8,5 @@ public class TeacherInfoDto {
     private String lastName;
     private String profileImage;
     private String duty;
+    private String role;
 }
