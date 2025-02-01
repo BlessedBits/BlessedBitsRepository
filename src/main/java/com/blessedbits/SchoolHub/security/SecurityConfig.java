@@ -67,7 +67,7 @@ public class SecurityConfig {
                                 "USER", "STUDENT", "TEACHER", "SCHOOL_ADMIN", "PLATFORM_ADMIN")
                         .requestMatchers(HttpMethod.GET, "schools/teachers/{id}").hasAnyRole(
                                 "USER", "STUDENT", "TEACHER", "SCHOOL_ADMIN", "PLATFORM_ADMIN")    
-                        .requestMatchers(HttpMethod.POST, "schools/{id}/create-achievement").hasAnyRole(
+                        .requestMatchers(HttpMethod.POST, "schools/{id}/achievements/create").hasAnyRole(
                                 "SCHOOL_ADMIN", "PLATFORM_ADMIN")  
                         .requestMatchers(HttpMethod.GET, "schools/{id}/achievements").hasAnyRole(
                                         "USER", "STUDENT", "TEACHER", "SCHOOL_ADMIN", "PLATFORM_ADMIN")  
