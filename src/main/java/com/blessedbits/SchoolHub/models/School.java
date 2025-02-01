@@ -1,6 +1,8 @@
 package com.blessedbits.SchoolHub.models;
 
 import com.blessedbits.SchoolHub.misc.JsonReferenceAsId;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -38,6 +40,11 @@ public class School {
     @OneToMany(mappedBy = "school", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<News> news;
 
+    @JsonReferenceAsId
+    @OneToMany(mappedBy = "school", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Achievement> achievements;
+
+    @JsonManagedReference
     @OneToOne(mappedBy = "school", cascade = CascadeType.ALL, orphanRemoval = true)
     private SchoolContacts contacts;
 }
