@@ -1,10 +1,13 @@
 package com.blessedbits.SchoolHub.controllers;
 
+import com.blessedbits.SchoolHub.dto.AchievementDto;
 import com.blessedbits.SchoolHub.dto.AddSchoolUserDto;
+import com.blessedbits.SchoolHub.dto.CreateNewsDTO;
 import com.blessedbits.SchoolHub.dto.CreateSchoolDto;
 import com.blessedbits.SchoolHub.dto.SchoolContactsDto;
 import com.blessedbits.SchoolHub.dto.SchoolInfoDto;
 import com.blessedbits.SchoolHub.misc.CloudFolder;
+import com.blessedbits.SchoolHub.models.Achievement;
 import com.blessedbits.SchoolHub.models.School;
 import com.blessedbits.SchoolHub.models.SchoolContacts;
 import com.blessedbits.SchoolHub.models.UserEntity;
@@ -26,8 +29,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+
+
 
 
 
@@ -221,5 +224,32 @@ public class SchoolController {
         }
     }
     
-
+    @PostMapping("/{id}/create-achievement")
+    public ResponseEntity<?> createAchievement(@PathVariable Integer id, @RequestParam("image") MultipartFile image, @ModelAttribute AchievementDto achievementDto) {
+        try{
+            return new ResponseEntity<>(schoolService.createAchievement(id, image, achievementDto), HttpStatus.OK);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND); 
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); 
+        }
+    }
+    
+    @GetMapping("/{id}/achievements")
+    public ResponseEntity<?> getSchoolAchievements(@PathVariable int id) 
+    {
+        try 
+        {
+            List<Achievement> achievements = schoolService.getAchievementsBySchool(id);
+            if(achievements.isEmpty())
+            {
+                return new ResponseEntity<>("Error: No achievements found for this school.", HttpStatus.NOT_FOUND);
+            }
+            return new ResponseEntity<>(achievements, HttpStatus.OK);
+        }catch (Exception e)
+        {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
 }
