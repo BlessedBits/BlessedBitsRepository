@@ -39,7 +39,6 @@ public class UserService {
         UserProfileDto userProfileDto = new UserProfileDto();
         userProfileDto.setFirstName(user.getFirstName());
         userProfileDto.setLastName(user.getLastName());
-        userProfileDto.setUsername(user.getUsername());
         userProfileDto.setEmail(user.getEmail());
         userProfileDto.setRole(user.getRoles().isEmpty() ? "No role" : user.getRoles().get(0).getName());
         userProfileDto.setDuty(user.getDuty());
