@@ -28,6 +28,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 
 
@@ -207,6 +210,36 @@ public class UserController {
                 return new ResponseEntity<>("Error: User don't have any school.", HttpStatus.NOT_FOUND);
             }
             return new ResponseEntity<>(id, HttpStatus.OK);
+        }catch (Exception e)
+        {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    @GetMapping("/my-id")
+    public ResponseEntity<?> getUserId(@RequestHeader("Authorization") String authorizationHeader) 
+    {
+        try{
+            UserEntity user = userService.getUserFromHeader(authorizationHeader);
+            return new ResponseEntity<>(user.getId(), HttpStatus.OK);
+        }catch (Exception e)
+        {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        
+    }
+    
+    @GetMapping("/profile/{id}")
+    public ResponseEntity<?> getUserProfileInfoById(@PathVariable Integer id) 
+    {
+        Optional<UserEntity> userOpt = userRepository.findById(id);
+        if(userOpt.isEmpty())
+        {
+            return new ResponseEntity<>("Error: User is not found by provided ID.", HttpStatus.NOT_FOUND);
+        }
+        UserEntity user = userOpt.get();
+        try{
+            return new ResponseEntity<UserProfileDto>(userService.getUserProfileInfo(user), HttpStatus.OK);
         }catch (Exception e)
         {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
