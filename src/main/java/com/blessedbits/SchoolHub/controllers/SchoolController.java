@@ -224,7 +224,7 @@ public class SchoolController {
         }
     }
     
-    @PostMapping("/{id}/create-achievement")
+    @PostMapping("/{id}/achievements/create")
     public ResponseEntity<?> createAchievement(@PathVariable Integer id, @RequestParam("image") MultipartFile image, @ModelAttribute AchievementDto achievementDto) {
         try{
             return new ResponseEntity<>(schoolService.createAchievement(id, image, achievementDto), HttpStatus.OK);
