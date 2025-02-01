@@ -20,9 +20,6 @@ public interface UserRepository extends JpaRepository<UserEntity, Integer> {
     @Query("SELECT COUNT(u) FROM UserEntity u JOIN u.roles r WHERE u.school.id = :schoolId AND r.name = :role")
     long countBySchoolIdAndRole(int schoolId, String role);
 
-    @Query("SELECT u FROM UserEntity u JOIN u.roles r WHERE u.id = :teacherId AND r.name = 'TEACHER'")
-    Optional<UserEntity> findTeacherById(int teacherId);
-
     @Query("SELECT u FROM UserEntity u JOIN u.roles r WHERE u.school.id = :schoolId AND r.name = 'TEACHER'")
     List<UserEntity> findTeachersBySchoolId(int schoolId);
 }

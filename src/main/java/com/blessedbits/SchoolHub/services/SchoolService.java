@@ -15,6 +15,7 @@ import com.blessedbits.SchoolHub.repositories.UserRepository;
 import com.blessedbits.SchoolHub.repositories.AchievementRepository;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -88,20 +89,20 @@ public class SchoolService {
         return dto;
     }
 
-    public List<UserEntity> getTeachersBySchool(Integer schoolId) {
-        return userRepository.findTeachersBySchoolId(schoolId);
-    }
-
-    public TeacherInfoDto getTeacherInfo(Integer teacherId) {
-        UserEntity teacher = userRepository.findTeacherById(teacherId)
-                .orElseThrow(() -> new RuntimeException("Teacher not found"));
-
+    private TeacherInfoDto convertToTeacherInfoDto(UserEntity teacher) {
         TeacherInfoDto dto = new TeacherInfoDto();
         dto.setFirstName(teacher.getFirstName());
         dto.setLastName(teacher.getLastName());
-        dto.setDuty(teacher.getDuty());
         dto.setProfileImage(teacher.getProfileImage());
+        dto.setDuty(teacher.getDuty());
+        dto.setRole(teacher.getRoles().get(0).getName());
+
         return dto;
+    }
+
+    public List<TeacherInfoDto> getTeachersBySchool(Integer schoolId) {
+        List<UserEntity> teachers = userRepository.findTeachersBySchoolId(schoolId);
+        return teachers.stream().map(this::convertToTeacherInfoDto).collect(Collectors.toList());
     }
 
     public Achievement createAchievement(Integer schoolId, MultipartFile image, AchievementDto achievementDto)

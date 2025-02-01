@@ -213,17 +213,6 @@ public class SchoolController {
         
     }
 
-    @GetMapping("/teachers/{id}")
-    public ResponseEntity<?> getTeacherInfo(@PathVariable Integer id) {
-        try{
-            return new ResponseEntity<>(schoolService.getTeacherInfo(id), HttpStatus.OK);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND); 
-        } catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); 
-        }
-    }
-    
     @PostMapping("/{id}/achievements/create")
     public ResponseEntity<?> createAchievement(@PathVariable Integer id, @RequestParam("image") MultipartFile image, @ModelAttribute AchievementDto achievementDto) {
         try{
