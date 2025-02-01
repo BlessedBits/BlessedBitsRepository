@@ -182,9 +182,15 @@ public class UserController {
     }
 
     @GetMapping("/role")
-    public String getUserRole(@RequestHeader("Authorization") String authorizationHeader) 
+    public ResponseEntity<String> getUserRole(@RequestHeader("Authorization") String authorizationHeader) 
     {
         UserEntity user = userService.getUserFromHeader(authorizationHeader);
-        return user.getRoles().get(0).getName();
+        try
+        {
+            return new ResponseEntity<String>(user.getRoles().get(0).getName(), HttpStatus.OK);
+        }catch (Exception e)
+        {
+            return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }
