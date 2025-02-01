@@ -174,9 +174,15 @@ public class UserController {
     }
 
     @GetMapping("/profile")
-    public ResponseEntity<UserProfileDto> getUserProfileInfo(@RequestHeader("Authorization") String authorizationHeader)
+    public ResponseEntity<?> getUserProfileInfo(@RequestHeader("Authorization") String authorizationHeader)
     {
         UserEntity user = userService.getUserFromHeader(authorizationHeader);
-        return new ResponseEntity<UserProfileDto>(userService.getUserProfileInfo(user), HttpStatus.OK);
+        try{
+            return new ResponseEntity<UserProfileDto>(userService.getUserProfileInfo(user), HttpStatus.OK);
+        }catch (Exception e)
+        {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        
     }
 }
