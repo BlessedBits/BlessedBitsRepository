@@ -28,11 +28,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 
 
@@ -184,5 +179,12 @@ public class UserController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
         
+    }
+
+    @GetMapping("/role")
+    public String getUserRole(@RequestHeader("Authorization") String authorizationHeader) 
+    {
+        UserEntity user = userService.getUserFromHeader(authorizationHeader);
+        return user.getRoles().get(0).getName();
     }
 }
