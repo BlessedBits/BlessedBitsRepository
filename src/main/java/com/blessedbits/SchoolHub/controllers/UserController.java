@@ -31,6 +31,7 @@ import java.util.UUID;
 
 
 
+
 @RestController
 @RequestMapping("/users")
 public class UserController {
@@ -193,4 +194,24 @@ public class UserController {
             return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @GetMapping("/school-id")
+    public ResponseEntity<?> getUserSchoolId(@RequestHeader("Authorization") String authorizationHeader) 
+    {
+        UserEntity user = userService.getUserFromHeader(authorizationHeader);
+        try 
+        {
+            Integer id = user.getSchool() != null ? user.getSchool().getId() : null;
+            if(id == null)
+            {
+                return new ResponseEntity<>("Error: User don't have any school.", HttpStatus.NOT_FOUND);
+            }
+            return new ResponseEntity<>(id, HttpStatus.OK);
+        }catch (Exception e)
+        {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+
 }
