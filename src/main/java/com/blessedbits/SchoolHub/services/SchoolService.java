@@ -3,8 +3,10 @@ package com.blessedbits.SchoolHub.services;
 import com.blessedbits.SchoolHub.dto.SchoolContactsDto;
 import com.blessedbits.SchoolHub.dto.SchoolInfoDto;
 import com.blessedbits.SchoolHub.dto.TeacherInfoDto;
+import com.blessedbits.SchoolHub.dto.UpdateSchoolInfoDto;
 import com.blessedbits.SchoolHub.misc.CloudFolder;
 import com.blessedbits.SchoolHub.dto.AchievementDto;
+import com.blessedbits.SchoolHub.dto.CreateSchoolDto;
 import com.blessedbits.SchoolHub.models.Achievement;
 import com.blessedbits.SchoolHub.models.School;
 import com.blessedbits.SchoolHub.models.SchoolContacts;
@@ -18,7 +20,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
@@ -83,11 +89,44 @@ public class SchoolService {
         dto.setName(school.getName());
         dto.setAddress(school.getAddress());
         dto.setLogo(school.getLogo());
+        dto.setPhrase(school.getPhrase());
+        dto.setYear(school.getYear());
         dto.setStudentCount(studentCount);
         dto.setTeacherCount(teacherCount);
         
         return dto;
     }
+
+    public void updateSchoolInfo(School school, UpdateSchoolInfoDto schoolDto) 
+    {
+        if (schoolDto.getName() != null && !schoolDto.getName().isEmpty()) {
+            school.setName(schoolDto.getName());
+        }
+        if (schoolDto.getAddress() != null && !schoolDto.getAddress().isEmpty()) {
+            school.setAddress(schoolDto.getAddress());
+        }
+        if (schoolDto.getPhrase() != null && !schoolDto.getPhrase().isEmpty()) {
+            school.setPhrase(schoolDto.getPhrase());
+        }
+        if (schoolDto.getYear() != null) {
+            school.setYear(schoolDto.getYear()); 
+        }
+        schoolRepository.save(school);
+    }
+
+    public School createSchool(CreateSchoolDto schoolDto) {
+        School school = new School();
+        school.setName(schoolDto.getName());
+        school.setAddress(schoolDto.getAddress());
+        school.setYear(schoolDto.getYear());
+
+        SchoolContacts contacts = new SchoolContacts();
+        contacts.setSchool(school);
+        school.setContacts(contacts);
+
+        return schoolRepository.save(school);
+    }
+
 
     private TeacherInfoDto convertToTeacherInfoDto(UserEntity teacher) {
         TeacherInfoDto dto = new TeacherInfoDto();
@@ -104,6 +143,7 @@ public class SchoolService {
         List<UserEntity> teachers = userRepository.findTeachersBySchoolId(schoolId);
         return teachers.stream().map(this::convertToTeacherInfoDto).collect(Collectors.toList());
     }
+
 
     public Achievement createAchievement(Integer schoolId, MultipartFile image, AchievementDto achievementDto)
     {
@@ -126,4 +166,39 @@ public class SchoolService {
         return achievementRepository.findBySchoolId(schoolId);
     }
 
+    public Achievement updateAchievement(Integer schoolId, Integer achievementId, MultipartFile image, AchievementDto achievementDto) {
+        Achievement achievement = achievementRepository.findById(achievementId)
+                .orElseThrow(() -> new RuntimeException("Achievement not found"));
+
+        if (!achievement.getSchool().getId().equals(schoolId)) {
+            throw new RuntimeException("Achievement does not belong to the specified school");
+        }
+    
+        achievement.setTitle(achievementDto.getTitle());
+        achievement.setDescription(achievementDto.getDescription());
+        
+        try {
+            if (image != null && !image.isEmpty()) {
+                String url = storageService.uploadFile(image, CloudFolder.ACHIEVEMENT_IMAGES);
+                achievement.setImage(url);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to upload image: " + e.getMessage(), e);
+        }
+        
+        return achievementRepository.save(achievement);
+    }
+
+    public void deleteAchievement(Integer schoolId, Integer achievementId) {
+    
+        Achievement achievement = achievementRepository.findById(achievementId)
+                .orElseThrow(() -> new RuntimeException("Achievement not found"));
+
+        if (!achievement.getSchool().getId().equals(schoolId)) {
+            throw new RuntimeException("Achievement does not belong to the specified school");
+        }
+    
+        achievementRepository.delete(achievement);
+    }
+    
 }

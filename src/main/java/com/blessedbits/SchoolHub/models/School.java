@@ -16,12 +16,17 @@ import java.util.List;
 public class School {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private int id;
+    private Integer id;
 
     @Column(unique = true, nullable = false)
     private String name;
 
     private String address;
+
+    private Integer year;
+
+    private String phrase;
+
     private String logo;
 
     @JsonReferenceAsId

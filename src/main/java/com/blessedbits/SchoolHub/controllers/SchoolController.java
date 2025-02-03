@@ -6,6 +6,7 @@ import com.blessedbits.SchoolHub.dto.CreateNewsDTO;
 import com.blessedbits.SchoolHub.dto.CreateSchoolDto;
 import com.blessedbits.SchoolHub.dto.SchoolContactsDto;
 import com.blessedbits.SchoolHub.dto.SchoolInfoDto;
+import com.blessedbits.SchoolHub.dto.UpdateSchoolInfoDto;
 import com.blessedbits.SchoolHub.misc.CloudFolder;
 import com.blessedbits.SchoolHub.models.Achievement;
 import com.blessedbits.SchoolHub.models.School;
@@ -59,48 +60,41 @@ public class SchoolController {
     }
 
     @GetMapping("/school")
-    public ResponseEntity<School> getSchool(@RequestParam int id) {
-        Optional<School> school = schoolRepository.findById(id);
-        return school.map(value -> new ResponseEntity<>(value, HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    public ResponseEntity<?> getSchool(@RequestHeader("Authorization") String authorizationHeader) {
+        Integer schoolId = userService.getUserFromHeader(authorizationHeader).getSchool().getId();
+        try{
+            return new ResponseEntity<>(schoolService.getSchoolInfo(schoolId), HttpStatus.OK);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND); 
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); 
+        }
     }
 
     @PostMapping("/new")
-    public ResponseEntity<String> createSchool(@RequestBody CreateSchoolDto schoolDto) {
-        School school = new School();
-        school.setName(schoolDto.getName());
-        school.setAddress(schoolDto.getAddress());
-        SchoolContacts contacts = new SchoolContacts();
-        contacts.setSchool(school);
-        school.setContacts(contacts);
+    public ResponseEntity<?> createSchool(@RequestBody CreateSchoolDto schoolDto) {
         try {
-            schoolRepository.save(school);
-            return new ResponseEntity<>(schoolDto.toString(), HttpStatus.CREATED);
+            School school = schoolService.createSchool(schoolDto);
+            return new ResponseEntity<>(school, HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    @PostMapping("/update-info")
-    public ResponseEntity<String> updateInfo(@RequestBody CreateSchoolDto schoolDto,
+    @PutMapping("/update-info")
+    public ResponseEntity<String> updateInfo(@RequestBody UpdateSchoolInfoDto schoolDto,
                                              @RequestHeader("Authorization") String authorizationHeader) {
-        School school = userService.getUserFromHeader(authorizationHeader).getSchool();
-        String name = schoolDto.getName();
-        if (name != null && !name.isEmpty()) {
-            school.setName(name);
-        }
-        String address = schoolDto.getAddress();
-        if (address != null && !address.isEmpty()) {
-            school.setAddress(address);
-        }
-        try {
-            schoolRepository.save(school);
-        } catch (Exception e) {
+        try{
+            School school = userService.getUserFromHeader(authorizationHeader).getSchool();
+            schoolService.updateSchoolInfo(school, schoolDto);
+            return new ResponseEntity<>("Data updated", HttpStatus.OK);
+        }catch(Exception e)
+        {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return new ResponseEntity<>("Data updated", HttpStatus.OK);
     }
 
-    @PostMapping("/update-logo")
+    @PutMapping("/update-logo")
     public ResponseEntity<String> updateLogo(@RequestParam MultipartFile logo,
                                              @RequestHeader("Authorization") String authorizationHeader) {
         School school = userService.getUserFromHeader(authorizationHeader).getSchool();
@@ -164,10 +158,11 @@ public class SchoolController {
         }
     }
 
-    @GetMapping("/{id}/contacts")
-    public ResponseEntity<?> getSchoolContacts(@PathVariable Integer id) {
+    @GetMapping("/contacts")
+    public ResponseEntity<?> getSchoolContacts(@RequestHeader("Authorization") String authorizationHeader) {
         try {
-            SchoolContactsDto schoolContactsDto = schoolService.getSchoolContacts(id);
+            Integer schoolId = userService.getUserFromHeader(authorizationHeader).getSchool().getId();
+            SchoolContactsDto schoolContactsDto = schoolService.getSchoolContacts(schoolId);
             return new ResponseEntity<>(schoolContactsDto, HttpStatus.OK);
         } catch (RuntimeException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND); 
@@ -176,11 +171,12 @@ public class SchoolController {
         }
     }
 
-    @PutMapping("/{id}/update-contacts")
-    public ResponseEntity<?> updateSchoolContacts(@PathVariable Integer id, @RequestBody SchoolContactsDto schoolContactsDto) 
+    @PutMapping("/update-contacts")
+    public ResponseEntity<?> updateSchoolContacts(@RequestHeader("Authorization") String authorizationHeader, @RequestBody SchoolContactsDto schoolContactsDto) 
     {
         try{
-            schoolService.updateSchoolContacts(id, schoolContactsDto);
+            Integer schoolId = userService.getUserFromHeader(authorizationHeader).getSchool().getId();
+            schoolService.updateSchoolContacts(schoolId, schoolContactsDto);
             return new ResponseEntity<>(schoolContactsDto, HttpStatus.OK);
         } catch (RuntimeException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND); 
@@ -189,22 +185,11 @@ public class SchoolController {
         }
     }
     
-    @GetMapping("/{id}")
-    public ResponseEntity<?> getSchoolInfo(@PathVariable Integer id) {
+    @GetMapping("/teachers")
+    public ResponseEntity<?> getTeachersList(@RequestHeader("Authorization") String authorizationHeader) {
         try{
-            return new ResponseEntity<>(schoolService.getSchoolInfo(id), HttpStatus.OK);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND); 
-        } catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); 
-        }
-        
-    }
-    
-    @GetMapping("/{id}/teachers")
-    public ResponseEntity<?> getTeachersList(@PathVariable Integer id) {
-        try{
-            return new ResponseEntity<>(schoolService.getTeachersBySchool(id), HttpStatus.OK);
+            Integer schoolId = userService.getUserFromHeader(authorizationHeader).getSchool().getId();
+            return new ResponseEntity<>(schoolService.getTeachersBySchool(schoolId), HttpStatus.OK);
         } catch (RuntimeException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND); 
         } catch (Exception e) {
@@ -213,10 +198,11 @@ public class SchoolController {
         
     }
 
-    @PostMapping("/{id}/achievements/create")
-    public ResponseEntity<?> createAchievement(@PathVariable Integer id, @RequestParam("image") MultipartFile image, @ModelAttribute AchievementDto achievementDto) {
+    @PostMapping("/achievements/create")
+    public ResponseEntity<?> createAchievement(@RequestHeader("Authorization") String authorizationHeader, @RequestParam("image") MultipartFile image, @ModelAttribute AchievementDto achievementDto) {
         try{
-            return new ResponseEntity<>(schoolService.createAchievement(id, image, achievementDto), HttpStatus.CREATED);
+            Integer schoolId = userService.getUserFromHeader(authorizationHeader).getSchool().getId();
+            return new ResponseEntity<>(schoolService.createAchievement(schoolId, image, achievementDto), HttpStatus.CREATED);
         } catch (RuntimeException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND); 
         } catch (Exception e) {
@@ -224,12 +210,13 @@ public class SchoolController {
         }
     }
     
-    @GetMapping("/{id}/achievements")
-    public ResponseEntity<?> getSchoolAchievements(@PathVariable int id) 
+    @GetMapping("/achievements")
+    public ResponseEntity<?> getSchoolAchievements(@RequestHeader("Authorization") String authorizationHeader) 
     {
         try 
         {
-            List<Achievement> achievements = schoolService.getAchievementsBySchool(id);
+            Integer schoolId = userService.getUserFromHeader(authorizationHeader).getSchool().getId();
+            List<Achievement> achievements = schoolService.getAchievementsBySchool(schoolId);
             if(achievements.isEmpty())
             {
                 return new ResponseEntity<>("Error: No achievements found for this school.", HttpStatus.NOT_FOUND);
@@ -241,4 +228,33 @@ public class SchoolController {
         }
     }
     
+    @PutMapping("/achievements/{id}")
+    public ResponseEntity<?> updateAchievement(@RequestHeader("Authorization") String authorizationHeader,
+                                            @PathVariable("id") Integer id,
+                                            @RequestParam("image") MultipartFile image,
+                                            @ModelAttribute AchievementDto achievementDto) {
+        try {
+            Integer schoolId = userService.getUserFromHeader(authorizationHeader).getSchool().getId();
+            Achievement updatedAchievement = schoolService.updateAchievement(schoolId, id, image, achievementDto);
+            return new ResponseEntity<>(updatedAchievement, HttpStatus.OK);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @DeleteMapping("/achievements/{id}")
+    public ResponseEntity<?> deleteAchievement(@RequestHeader("Authorization") String authorizationHeader, @PathVariable("id") Integer id) {
+        try {
+            Integer schoolId = userService.getUserFromHeader(authorizationHeader).getSchool().getId();
+            schoolService.deleteAchievement(schoolId, id);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT); 
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 }
