@@ -103,6 +103,9 @@ public class NewsService {
     
         if (image != null && !image.isEmpty()) {
             try {
+                if (existingNews.getNewsImage() != null && !existingNews.getNewsImage().isEmpty()) {
+                    storageService.deleteFile(existingNews.getNewsImage());
+                }
                 String url = storageService.uploadFile(image, CloudFolder.NEWS_IMAGES);
                 existingNews.setNewsImage(url);
             } catch (Exception e) {

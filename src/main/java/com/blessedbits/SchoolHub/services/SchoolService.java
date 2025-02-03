@@ -189,6 +189,9 @@ public class SchoolService {
         
         try {
             if (image != null && !image.isEmpty()) {
+                if (achievement.getImage() != null && !achievement.getImage().isEmpty()) {
+                    storageService.deleteFile(achievement.getImage());
+                }
                 String url = storageService.uploadFile(image, CloudFolder.ACHIEVEMENT_IMAGES);
                 achievement.setImage(url);
             }
