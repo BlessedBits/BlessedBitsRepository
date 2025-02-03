@@ -61,6 +61,10 @@ public class SecurityConfig {
                                 "USER", "STUDENT", "TEACHER", "SCHOOL_ADMIN", "PLATFORM_ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/schools/update-contacts").hasAnyRole(
                                 "SCHOOL_ADMIN", "PLATFORM_ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/schools/update-info").hasAnyRole(
+                                "SCHOOL_ADMIN", "PLATFORM_ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/schools/update-logo").hasAnyRole(
+                                "SCHOOL_ADMIN", "PLATFORM_ADMIN")
                         .requestMatchers(HttpMethod.GET, "/schools/school").hasAnyRole(
                                 "USER", "STUDENT", "TEACHER", "SCHOOL_ADMIN", "PLATFORM_ADMIN")
                         .requestMatchers(HttpMethod.GET, "schools/teachers").hasAnyRole(
@@ -68,11 +72,17 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "schools/achievements/create").hasAnyRole(
                                 "SCHOOL_ADMIN", "PLATFORM_ADMIN")  
                         .requestMatchers(HttpMethod.GET, "schools/achievements").hasAnyRole(
-                                        "USER", "STUDENT", "TEACHER", "SCHOOL_ADMIN", "PLATFORM_ADMIN")  
+                                "USER", "STUDENT", "TEACHER", "SCHOOL_ADMIN", "PLATFORM_ADMIN")  
                         .requestMatchers(HttpMethod.PUT, "schools/achievements/id").hasAnyRole(
-                                        "SCHOOL_ADMIN", "PLATFORM_ADMIN") 
+                                "SCHOOL_ADMIN", "PLATFORM_ADMIN") 
                         .requestMatchers(HttpMethod.DELETE, "schools/achievements/id").hasAnyRole(
-                                        "SCHOOL_ADMIN", "PLATFORM_ADMIN") 
+                                "SCHOOL_ADMIN", "PLATFORM_ADMIN") 
+                                .requestMatchers(HttpMethod.GET, "schools/all-gallery-image").hasAnyRole(
+                                        "USER", "STUDENT", "TEACHER", "SCHOOL_ADMIN", "PLATFORM_ADMIN") 
+                        .requestMatchers(HttpMethod.GET, "schools/all-gallery-image").hasAnyRole(
+                                "USER", "STUDENT", "TEACHER", "SCHOOL_ADMIN", "PLATFORM_ADMIN") 
+                        .requestMatchers(HttpMethod.DELETE, "schools/delete-gallery-image").hasAnyRole(
+                                "SCHOOL_ADMIN", "PLATFORM_ADMIN") 
 
                         .requestMatchers("/users/**").hasAnyRole(
                                 "USER", "STUDENT", "TEACHER", "SCHOOL_ADMIN", "PLATFORM_ADMIN")

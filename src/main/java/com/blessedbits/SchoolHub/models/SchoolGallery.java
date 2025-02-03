@@ -1,8 +1,6 @@
 package com.blessedbits.SchoolHub.models;
 
 import com.blessedbits.SchoolHub.misc.JsonReferenceAsId;
-import com.fasterxml.jackson.annotation.JsonBackReference;
-
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,21 +9,15 @@ import lombok.NoArgsConstructor;
 @Table
 @Data
 @NoArgsConstructor
-public class Achievement {
-
+public class SchoolGallery {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private int id;
+    private Integer id;
 
-    @Column(nullable = false)
-    private String title;
-
-    private String description;
-
-    private String image;
+    private String galleryImage;
 
     @ManyToOne
+    @JoinColumn(name = "school_id")
     @JsonReferenceAsId
-    @JoinColumn(name = "school_id", nullable = false)
     private School school;
 }

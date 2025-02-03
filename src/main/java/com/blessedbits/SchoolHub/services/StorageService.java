@@ -23,4 +23,13 @@ public class StorageService {
                 Map.of("folder", cloudFolder.toString()));
         return (String) uploadResult.get("secure_url");
     }
+
+    public void deleteFile(String imageUrl) throws IOException {
+        String publicId = imageUrl.replaceAll("https://res.cloudinary.com/.*/image/upload/", "")
+                               .replaceFirst("\\.[a-zA-Z0-9]+$", "");  
+    if (publicId.isEmpty()) {
+        throw new IllegalArgumentException("Invalid image URL");
+    }
+        cloudinary.uploader().destroy(publicId, Map.of());
+    }
 }

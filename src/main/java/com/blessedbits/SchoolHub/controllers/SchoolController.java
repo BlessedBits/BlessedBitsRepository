@@ -11,7 +11,9 @@ import com.blessedbits.SchoolHub.misc.CloudFolder;
 import com.blessedbits.SchoolHub.models.Achievement;
 import com.blessedbits.SchoolHub.models.School;
 import com.blessedbits.SchoolHub.models.SchoolContacts;
+import com.blessedbits.SchoolHub.models.SchoolGallery;
 import com.blessedbits.SchoolHub.models.UserEntity;
+import com.blessedbits.SchoolHub.repositories.SchoolGalleryRepository;
 import com.blessedbits.SchoolHub.repositories.SchoolRepository;
 import com.blessedbits.SchoolHub.repositories.UserRepository;
 import com.blessedbits.SchoolHub.services.StorageService;
@@ -44,14 +46,16 @@ public class SchoolController {
     private final UserService userService;
     private final UserRepository userRepository;
     private final SchoolService schoolService;
+    private final SchoolGalleryRepository schoolGalleryRepository;
 
     @Autowired
-    public SchoolController(SchoolService schoolService, SchoolRepository schoolRepository, StorageService storageService, UserService userService, UserRepository userRepository) {
+    public SchoolController(SchoolService schoolService, SchoolRepository schoolRepository, StorageService storageService, UserService userService, UserRepository userRepository, SchoolGalleryRepository schoolGalleryRepository) {
         this.schoolRepository = schoolRepository;
         this.storageService = storageService;
         this.userService = userService;
         this.userRepository = userRepository;
         this.schoolService = schoolService;
+        this.schoolGalleryRepository = schoolGalleryRepository;
     }
 
     @GetMapping("/")
@@ -147,16 +151,36 @@ public class SchoolController {
         );
     }
 
-    // For test purposes, needs to change functionality.
     @PostMapping("/add-gallery-image")
-    public ResponseEntity<String> addGalleryImage(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<String> addGalleryImage(@RequestHeader("Authorization") String authorizationHeader, @RequestParam("image") MultipartFile file) {
         try {
-            String url = storageService.uploadFile(file, CloudFolder.SCHOOL_GALLERIES);
+            String url = schoolService.addImageToSchoolGallery(authorizationHeader, file);
             return new ResponseEntity<>("Gallery image added successfully on link: " + url, HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @GetMapping("/all-gallery-images")
+    public ResponseEntity<List<SchoolGallery>> getAllGalleryImages(@RequestHeader("Authorization") String authorizationHeader) {
+        try {
+            List<SchoolGallery> images = schoolService.getAllGalleryImages(authorizationHeader);
+            return new ResponseEntity<>(images, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @DeleteMapping("/delete-gallery-image")
+    public ResponseEntity<String> deleteGalleryImage(@RequestHeader("Authorization") String authorizationHeader, @RequestParam("image") String image) {
+        try {
+            schoolService.deleteGalleryImage(authorizationHeader, image);
+            return new ResponseEntity<>("Gallery image deleted successfully", HttpStatus.NO_CONTENT);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 
     @GetMapping("/contacts")
     public ResponseEntity<?> getSchoolContacts(@RequestHeader("Authorization") String authorizationHeader) {
