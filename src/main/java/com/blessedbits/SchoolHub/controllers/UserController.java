@@ -28,8 +28,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 
 
@@ -58,7 +56,7 @@ public class UserController {
         this.submissionRepository = submissionRepository;
     }
 
-    @PostMapping("/update-info")
+    @PutMapping("/update-info")
     public ResponseEntity<String> updateUserInfo(
             @RequestHeader("Authorization") String authorizationHeader,
             @RequestBody @Valid UpdateInfoDto updateInfoDto)
@@ -98,11 +96,14 @@ public class UserController {
         return new ResponseEntity<>("User info was updated successfully!", HttpStatus.CREATED);
     }
 
-    @PostMapping("/update-profile-image")
+    @PutMapping("/update-profile-image")
     public ResponseEntity<String> updateProfileImage(@RequestParam MultipartFile profileImage,
                                                      @RequestHeader("Authorization") String authorizationHeader) {
         UserEntity user = userService.getUserFromHeader(authorizationHeader);
         try {
+            if (user.getProfileImage() != null && !user.getProfileImage().isEmpty()) {
+                storageService.deleteFile(user.getProfileImage());
+            }
             String url = storageService.uploadFile(profileImage, CloudFolder.PROFILE_IMAGES);
             user.setProfileImage(url);
             userRepository.save(user);

@@ -103,6 +103,9 @@ public class SchoolController {
                                              @RequestHeader("Authorization") String authorizationHeader) {
         School school = userService.getUserFromHeader(authorizationHeader).getSchool();
         try {
+            if (school.getLogo() != null && !school.getLogo().isEmpty()) {
+                storageService.deleteFile(school.getLogo());
+            }
             String url = storageService.uploadFile(logo, CloudFolder.SCHOOL_IMAGES);
             school.setLogo(url);
             schoolRepository.save(school);
