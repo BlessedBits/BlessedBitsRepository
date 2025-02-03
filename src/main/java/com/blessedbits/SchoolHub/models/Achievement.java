@@ -1,5 +1,6 @@
 package com.blessedbits.SchoolHub.models;
 
+import com.blessedbits.SchoolHub.misc.JsonReferenceAsId;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import jakarta.persistence.*;
@@ -24,7 +25,7 @@ public class Achievement {
     private String image;
 
     @ManyToOne
-    @JsonBackReference
+    @JsonReferenceAsId
     @JoinColumn(name = "school_id", nullable = false)
     private School school;
 }
