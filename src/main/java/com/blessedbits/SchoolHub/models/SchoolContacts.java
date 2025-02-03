@@ -1,5 +1,6 @@
 package com.blessedbits.SchoolHub.models;
 
+import com.blessedbits.SchoolHub.misc.JsonReferenceAsId;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import jakarta.persistence.*;
@@ -17,7 +18,7 @@ public class SchoolContacts {
 
     @OneToOne
     @JoinColumn(name = "school_id", referencedColumnName = "id")
-    @JsonBackReference
+    @JsonReferenceAsId
     private School school;
 
     private String phoneNumber;
