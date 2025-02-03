@@ -10,10 +10,15 @@ import com.blessedbits.SchoolHub.dto.CreateSchoolDto;
 import com.blessedbits.SchoolHub.models.Achievement;
 import com.blessedbits.SchoolHub.models.School;
 import com.blessedbits.SchoolHub.models.SchoolContacts;
+import com.blessedbits.SchoolHub.models.SchoolGallery;
 import com.blessedbits.SchoolHub.models.UserEntity;
 import com.blessedbits.SchoolHub.repositories.SchoolContactsRepository;
+import com.blessedbits.SchoolHub.repositories.SchoolGalleryRepository;
 import com.blessedbits.SchoolHub.repositories.SchoolRepository;
 import com.blessedbits.SchoolHub.repositories.UserRepository;
+
+import io.jsonwebtoken.io.IOException;
+
 import com.blessedbits.SchoolHub.repositories.AchievementRepository;
 
 import java.util.List;
@@ -25,6 +30,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
@@ -40,6 +46,10 @@ public class SchoolService {
     private AchievementRepository achievementRepository;
     @Autowired
     private StorageService storageService;
+    @Autowired
+    private SchoolGalleryRepository schoolGalleryRepository;
+    @Autowired
+    private UserService userService;
 
     public SchoolContactsDto getSchoolContacts(Integer schoolId) {
         SchoolContacts schoolContacts = schoolContactsRepository.findBySchoolId(schoolId)
@@ -201,4 +211,36 @@ public class SchoolService {
         achievementRepository.delete(achievement);
     }
     
+
+    public String addImageToSchoolGallery(String authorizationHeader, MultipartFile file) throws Exception
+    {
+        School school = userService.getUserFromHeader(authorizationHeader).getSchool();
+
+        String url = storageService.uploadFile(file, CloudFolder.SCHOOL_GALLERIES);
+
+        SchoolGallery schoolGallery = new SchoolGallery();
+        schoolGallery.setGalleryImage(url);
+        schoolGallery.setSchool(school);
+
+        schoolGalleryRepository.save(schoolGallery);
+        return url;
+    }
+
+    public List<SchoolGallery> getAllGalleryImages(String authorizationHeader) {
+        School school = userService.getUserFromHeader(authorizationHeader).getSchool();
+        return schoolGalleryRepository.findBySchool(school);
+    }
+
+    public void deleteGalleryImage(String authorizationHeader, String image) throws Exception {
+        School school = userService.getUserFromHeader(authorizationHeader).getSchool();
+
+        SchoolGallery schoolGallery = schoolGalleryRepository.findBySchoolAndGalleryImage(school, image)
+                .orElseThrow(() -> new RuntimeException("Image not found"));
+
+        storageService.deleteFile(image);
+
+        schoolGalleryRepository.delete(schoolGallery);
+    }
+    
+
 }
