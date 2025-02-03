@@ -1,5 +1,7 @@
 package com.blessedbits.SchoolHub.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,6 +17,7 @@ public class SchoolContacts {
 
     @OneToOne
     @JoinColumn(name = "school_id", referencedColumnName = "id")
+    @JsonBackReference
     private School school;
 
     private String phoneNumber;
