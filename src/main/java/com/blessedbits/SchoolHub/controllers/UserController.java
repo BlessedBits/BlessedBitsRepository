@@ -5,7 +5,6 @@ import com.blessedbits.SchoolHub.misc.CloudFolder;
 import com.blessedbits.SchoolHub.models.Submission;
 import com.blessedbits.SchoolHub.models.UserEntity;
 import com.blessedbits.SchoolHub.models.VerificationToken;
-import com.blessedbits.SchoolHub.projections.UserProjection;
 import com.blessedbits.SchoolHub.repositories.SubmissionRepository;
 import com.blessedbits.SchoolHub.repositories.UserRepository;
 import com.blessedbits.SchoolHub.repositories.VerificationTokenRepository;
@@ -63,9 +62,9 @@ public class UserController {
     }
 
     @GetMapping("/")
-    public ResponseEntity<UserProjection> getUser(@RequestParam(required = false) String username) {
+    public ResponseEntity<UserEntity> getUser(@RequestParam(required = false) String username) {
         if (username != null) {
-            return new ResponseEntity<>(userService.getByUsername(username, UserProjection.class), HttpStatus.OK);
+            return new ResponseEntity<>(userService.getByUsername(username), HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }

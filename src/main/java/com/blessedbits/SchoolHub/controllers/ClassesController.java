@@ -8,6 +8,8 @@ import com.blessedbits.SchoolHub.models.ClassEntity;
 import com.blessedbits.SchoolHub.models.Course;
 import com.blessedbits.SchoolHub.models.School;
 import com.blessedbits.SchoolHub.models.UserEntity;
+import com.blessedbits.SchoolHub.projections.dto.ClassDto;
+import com.blessedbits.SchoolHub.projections.mappers.ClassMapper;
 import com.blessedbits.SchoolHub.repositories.ClassRepository;
 import com.blessedbits.SchoolHub.repositories.UserRepository;
 import com.blessedbits.SchoolHub.services.ClassService;
@@ -18,10 +20,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/classes")
@@ -45,8 +47,13 @@ public class ClassesController {
     }
 
     @GetMapping("")
-    public ResponseEntity<List<ClassEntity>> getClasses() {
-        return new ResponseEntity<>(classRepository.findAll(), HttpStatus.OK);
+    public ResponseEntity<List<ClassDto>> getClasses(
+            @RequestParam(required = false) List<String> include
+    ) {
+        List<ClassDto> classes = classRepository.findAllWithCourses().stream()
+                .map(classEntity -> ClassMapper.INSTANCE.toClassDto(classEntity, include))
+                .toList();
+        return new ResponseEntity<>(classes, HttpStatus.OK);
     }
 
     @PostMapping("")
