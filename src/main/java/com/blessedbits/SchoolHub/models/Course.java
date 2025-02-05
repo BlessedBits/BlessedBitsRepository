@@ -28,7 +28,7 @@ public class Course {
     private List<ModuleEntity> modules;
 
     @JsonReferenceAsId
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "school_id")
     private School school;
 

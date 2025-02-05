@@ -17,5 +17,5 @@ public class SchoolDto {
     private List<CourseDto> courses;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private List<UserDto> users;
-    // To add news
+    // Todo add news
 }

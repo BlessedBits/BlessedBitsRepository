@@ -9,7 +9,10 @@ import com.blessedbits.SchoolHub.models.Course;
 import com.blessedbits.SchoolHub.models.School;
 import com.blessedbits.SchoolHub.models.UserEntity;
 import com.blessedbits.SchoolHub.projections.dto.ClassDto;
+import com.blessedbits.SchoolHub.projections.dto.CourseDto;
+import com.blessedbits.SchoolHub.projections.dto.UserDto;
 import com.blessedbits.SchoolHub.projections.mappers.ClassMapper;
+import com.blessedbits.SchoolHub.projections.mappers.CourseMapper;
 import com.blessedbits.SchoolHub.repositories.ClassRepository;
 import com.blessedbits.SchoolHub.repositories.UserRepository;
 import com.blessedbits.SchoolHub.services.ClassService;
@@ -50,10 +53,7 @@ public class ClassesController {
     public ResponseEntity<List<ClassDto>> getClasses(
             @RequestParam(required = false) List<String> include
     ) {
-        List<ClassDto> classes = classRepository.findAllWithCourses().stream()
-                .map(classEntity -> ClassMapper.INSTANCE.toClassDto(classEntity, include))
-                .toList();
-        return new ResponseEntity<>(classes, HttpStatus.OK);
+        return new ResponseEntity<>(classService.getAllAsDto(include), HttpStatus.OK);
     }
 
     @PostMapping("")
@@ -82,15 +82,16 @@ public class ClassesController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ClassEntity> getClassById(
+    public ResponseEntity<ClassDto> getClassById(
             @PathVariable("id") Integer classId,
+            @RequestParam(required = false) List<String> include,
             @AuthenticationPrincipal UserEntity user
     ) {
         ClassEntity classEntity = classService.getById(classId);
         if (!RoleBasedAccessUtils.canAccessClass(user, classEntity)) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
-        return new ResponseEntity<>(classEntity, HttpStatus.OK);
+        return new ResponseEntity<>(ClassMapper.INSTANCE.toClassDto(classEntity, include), HttpStatus.OK);
     }
 
     @PutMapping("/{id}")
@@ -168,15 +169,17 @@ public class ClassesController {
     }
 
     @GetMapping("/{id}/courses")
-    public ResponseEntity<List<Course>> getClassCourses(
+    public ResponseEntity<List<CourseDto>> getClassCourses(
             @PathVariable(name = "id") Integer classId,
+            @RequestParam(required = false) List<String> include,
             @AuthenticationPrincipal UserEntity user
     ) {
         ClassEntity classEntity = classService.getById(classId);
         if (!RoleBasedAccessUtils.canAccessClass(user, classEntity)) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
-        return new ResponseEntity<>(classEntity.getCourses(), HttpStatus.OK);
+        List<CourseDto> courses = courseService.mapAllToDto(classEntity.getCourses(), include);
+        return new ResponseEntity<>(courses, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}/courses")
@@ -232,15 +235,17 @@ public class ClassesController {
     }
 
     @GetMapping("/{id}/students")
-    public ResponseEntity<List<UserEntity>> getClassStudents(
+    public ResponseEntity<List<UserDto>> getClassStudents(
             @PathVariable(name = "id") Integer classId,
+            @RequestParam(required = false) List<String> include,
             @AuthenticationPrincipal UserEntity user
     ) {
         ClassEntity classEntity = classService.getById(classId);
         if (!RoleBasedAccessUtils.canAccessClass(user, classEntity)) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
-        return new ResponseEntity<>(classEntity.getStudents(), HttpStatus.OK);
+        List<UserDto> students = userService.fetchAllToDto(classEntity.getStudents(), include);
+        return new ResponseEntity<>(students, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}/students")

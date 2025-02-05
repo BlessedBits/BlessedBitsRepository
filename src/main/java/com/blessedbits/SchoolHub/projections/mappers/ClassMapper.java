@@ -14,13 +14,12 @@ public interface ClassMapper {
     ClassMapper INSTANCE = Mappers.getMapper(ClassMapper.class);
 
     default ClassDto toClassDto(ClassEntity classEntity, @Context List<String> include) {
-        ClassDto classDto = new ClassDto();
-        classDto.setId(classEntity.getId());
-        classDto.setName(classEntity.getName());
+        ClassDto classDto;
         if (include == null || include.isEmpty()) {
-            classDto.setHomeroomTeacherId(classEntity.getHomeroomTeacher().getId());
-            classDto.setSchoolId(classEntity.getSchool().getId());
+            classDto = BasicDtoMapper.toClassDto(classEntity);
             return classDto;
+        } else {
+            classDto = BasicDtoMapper.toBasicClassDto(classEntity);
         }
         if (include.contains("homeroomTeacher")) {
             classDto.setHomeroomTeacher(BasicDtoMapper.toUserDto(classEntity.getHomeroomTeacher()));

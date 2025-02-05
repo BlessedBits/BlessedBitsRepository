@@ -9,7 +9,9 @@ import java.util.List;
 public class CourseDto {
     private Integer id;
     private String name;
-    // To add modules
+    // Todo add modules
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private Integer schoolId;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private SchoolDto school;
     @JsonInclude(JsonInclude.Include.NON_NULL)

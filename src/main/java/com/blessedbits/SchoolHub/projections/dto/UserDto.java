@@ -16,7 +16,11 @@ public class UserDto {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private List<RoleDto> roles;
     @JsonInclude(JsonInclude.Include.NON_NULL)
+    private Integer userClassId;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private ClassDto userClass;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private Integer schoolId;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private SchoolDto school;
 }

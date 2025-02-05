@@ -20,7 +20,6 @@ public interface ClassRepository extends JpaRepository<ClassEntity, Integer>
 
     @EntityGraph(attributePaths = {"courses"})
     @Query("select c from ClassEntity c")
-
     List<ClassEntity> findAllWithCourses();
 }
 

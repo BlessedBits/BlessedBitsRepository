@@ -11,10 +11,10 @@ public class RoleBasedAccessUtils {
             return true;
         }
         if (user.hasRole(RoleType.SCHOOL_ADMIN) || user.hasRole(RoleType.TEACHER)) {
-            return classEntity.getSchool().equals(user.getSchool());
+            return classEntity.getSchool().getId() == user.getSchool().getId();
         }
         if (user.hasRole(RoleType.STUDENT)) {
-            return user.getUserClass().equals(classEntity);
+            return user.getUserClass().getId() == classEntity.getId();
         }
         return false;
     }
@@ -24,7 +24,7 @@ public class RoleBasedAccessUtils {
             return true;
         }
         if (user.hasRole(RoleType.SCHOOL_ADMIN)) {
-            return classEntity.getSchool().equals(user.getSchool());
+            return classEntity.getSchool().getId() == user.getSchool().getId();
         }
         return false;
     }
@@ -34,7 +34,7 @@ public class RoleBasedAccessUtils {
             return true;
         }
         if (user.hasRole(RoleType.SCHOOL_ADMIN) || user.hasRole(RoleType.TEACHER)) {
-            return course.getSchool().equals(user.getSchool());
+            return course.getSchool().getId() == user.getSchool().getId();
         }
         if (user.hasRole(RoleType.STUDENT)) {
             return user.getUserClass().getCourses().contains(course);
@@ -47,7 +47,7 @@ public class RoleBasedAccessUtils {
             return true;
         }
         if (user.hasRole(RoleType.SCHOOL_ADMIN) || user.hasRole(RoleType.TEACHER)) {
-            return course.getSchool().equals(user.getSchool());
+            return course.getSchool().getId() == user.getSchool().getId();
         }
         return false;
     }
@@ -57,7 +57,7 @@ public class RoleBasedAccessUtils {
             return true;
         }
         if (user.hasRole(RoleType.SCHOOL_ADMIN)) {
-            return school.equals(user.getSchool());
+            return school.getId() == user.getSchool().getId();
         }
         return false;
     }

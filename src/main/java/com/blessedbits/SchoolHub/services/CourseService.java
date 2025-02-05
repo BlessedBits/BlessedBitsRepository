@@ -1,6 +1,8 @@
 package com.blessedbits.SchoolHub.services;
 
 import com.blessedbits.SchoolHub.models.*;
+import com.blessedbits.SchoolHub.projections.dto.CourseDto;
+import com.blessedbits.SchoolHub.projections.mappers.CourseMapper;
 import com.blessedbits.SchoolHub.repositories.AssignmentRepository;
 import com.blessedbits.SchoolHub.repositories.CourseRepository;
 import com.blessedbits.SchoolHub.repositories.ModuleRepository;
@@ -9,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -120,5 +123,17 @@ public class CourseService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "Either assignment title or id must be specified");
         }
+    }
+
+    public List<CourseDto> getAllAsDto(List<String> include) {
+        return courseRepository.findAll().stream()
+                .map(course -> CourseMapper.INSTANCE.toCourseDto(course, include))
+                .toList();
+    }
+
+    public List<CourseDto> mapAllToDto(List<Course> courses, List<String> include) {
+        return courses.stream()
+                .map(course -> CourseMapper.INSTANCE.toCourseDto(course, include))
+                .toList();
     }
 }
