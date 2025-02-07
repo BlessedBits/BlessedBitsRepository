@@ -109,4 +109,10 @@ public class ClassService {
                 .map(classEntity -> ClassMapper.INSTANCE.toClassDto(classEntity, include))
                 .toList();
     }
+
+    public List<ClassDto> mapAllToDto(List<ClassEntity> entities, List<String> include) {
+        return entities.stream()
+                .map(classEntity -> ClassMapper.INSTANCE.toClassDto(classEntity, include))
+                .toList();
+    }
 }

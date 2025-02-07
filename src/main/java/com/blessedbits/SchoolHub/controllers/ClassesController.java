@@ -75,7 +75,10 @@ public class ClassesController {
             classRepository.save(classEntity);
             return new ResponseEntity<>("Class created", HttpStatus.CREATED);
         } catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            System.out.println(e.getMessage());
+            return new ResponseEntity<>(
+                    "Unable to create class. Class like this might already exist",
+                    HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -117,7 +120,8 @@ public class ClassesController {
             classRepository.save(classEntity);
             return new ResponseEntity<>("Class updated", HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            System.out.println(e.getMessage());
+            return new ResponseEntity<>("Unable to update class", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -133,7 +137,8 @@ public class ClassesController {
         try {
             classRepository.delete(classEntity);
         } catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            System.out.println(e.getMessage());
+            return new ResponseEntity<>("Unable to delete class", HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<>("Class deleted", HttpStatus.OK);
     }
@@ -160,6 +165,7 @@ public class ClassesController {
         try {
             classRepository.save(classEntity);
         } catch (Exception e) {
+            System.out.println(e.getMessage());
             return new ResponseEntity<>("Unable to add course to your class",
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -202,7 +208,8 @@ public class ClassesController {
             classEntity.removeCourse(course);
             classRepository.save(classEntity);
         } catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            System.out.println(e.getMessage());
+            return new ResponseEntity<>("Unable to remove course", HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<>("Course removed from class", HttpStatus.OK);
     }
@@ -227,6 +234,7 @@ public class ClassesController {
             classRepository.save(classEntity);
             userRepository.save(student);
         } catch (Exception e) {
+            System.out.println(e.getMessage());
             return new ResponseEntity<>("Couldn't add user to specified class",
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -244,7 +252,7 @@ public class ClassesController {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
         List<UserDto> students = userService
-                .fetchAllToDto(classService.getClassStudentsLoaded(classId, include), include);
+                .mapAllToDto(classService.getClassStudentsLoaded(classId, include), include);
         return new ResponseEntity<>(students, HttpStatus.OK);
     }
 
@@ -266,7 +274,8 @@ public class ClassesController {
             classEntity.removeStudent(student);
             classRepository.save(classEntity);
         } catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            System.out.println(e.getMessage());
+            return new ResponseEntity<>("Unable to remove student", HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<>("Student removed from specified class", HttpStatus.OK);
     }

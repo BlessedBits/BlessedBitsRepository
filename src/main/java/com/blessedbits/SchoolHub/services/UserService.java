@@ -56,13 +56,13 @@ public class UserService {
                 .toList();
     }
 
-    public List<UserDto> fetchAllToDto(Set<UserEntity> users, List<String> include) {
+    public List<UserDto> mapAllToDto(Set<UserEntity> users, List<String> include) {
         return users.stream()
                 .map(userEntity -> UserMapper.INSTANCE.toUserDto(userEntity, include))
                 .toList();
     }
 
-    public List<UserDto> fetchAllToDto(List<UserEntity> users, List<String> include) {
+    public List<UserDto> mapAllToDto(List<UserEntity> users, List<String> include) {
         return users.stream()
                 .map(userEntity -> UserMapper.INSTANCE.toUserDto(userEntity, include))
                 .toList();

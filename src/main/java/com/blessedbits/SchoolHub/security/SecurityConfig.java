@@ -81,10 +81,42 @@ public class SecurityConfig {
                                 "STUDENT", "TEACHER", "SCHOOL_ADMIN")
 
                         // SchoolController
-                        .requestMatchers("/schools/new").hasRole("PLATFORM_ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/schools").hasRole("PLATFORM_ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/schools").hasRole("PLATFORM_ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/schools/{id}").hasAnyRole(
+                                "PLATFORM_ADMIN", "SCHOOL_ADMIN", "TEACHER", "STUDENT", "USER"
+                        )
+                        .requestMatchers(HttpMethod.PUT, "/schools/{id}/info").hasAnyRole(
+                                "PLATFORM_ADMIN", "SCHOOL_ADMIN"
+                        )
+                        .requestMatchers(HttpMethod.PUT, "/schools/{id}/logo").hasAnyRole(
+                                "PLATFORM_ADMIN", "SCHOOL_ADMIN"
+                        )
+                        .requestMatchers(HttpMethod.DELETE, "/schools/{id}").hasAnyRole(
+                                "PLATFORM_ADMIN", "SCHOOL_ADMIN"
+                        )
+                        .requestMatchers(HttpMethod.GET, "/schools/{id}/rating").hasAnyRole(
+                                "PLATFORM_ADMIN", "SCHOOL_ADMIN", "TEACHER", "STUDENT", "USER"
+                        )
+                        .requestMatchers(HttpMethod.POST, "/schools/{id}/users").hasAnyRole(
+                                "PLATFORM_ADMIN", "SCHOOL_ADMIN"
+                        )
+                        .requestMatchers(HttpMethod.GET, "/schools/{id}/users").hasAnyRole(
+                                "PLATFORM_ADMIN", "SCHOOL_ADMIN", "TEACHER"
+                        )
+                        .requestMatchers(HttpMethod.GET, "/schools/{id}/classes").hasAnyRole(
+                                "PLATFORM_ADMIN", "SCHOOL_ADMIN", "TEACHER"
+                        )
+                        .requestMatchers(HttpMethod.GET, "/schools/{id}/courses").hasAnyRole(
+                                "PLATFORM_ADMIN", "SCHOOL_ADMIN", "TEACHER"
+                        )
+                        .requestMatchers(HttpMethod.GET, "/schools/{id}/news").hasAnyRole(
+                                "PLATFORM_ADMIN", "SCHOOL_ADMIN", "TEACHER", "STUDENT", "USER"
+                        )
                         .requestMatchers("/schools/**").hasAnyRole(
                                 "USER", "STUDENT", "TEACHER", "SCHOOL_ADMIN", "PLATFORM_ADMIN")
 
+                        // UserController
                         .requestMatchers(HttpMethod.PUT, "/users/set-duty/{id}").hasAnyRole(
                                 "SCHOOL_ADMIN", "PLATFORM_ADMIN")
                         .requestMatchers("/users/**").hasAnyRole(

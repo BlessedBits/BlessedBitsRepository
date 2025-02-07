@@ -7,6 +7,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(
@@ -37,5 +38,5 @@ public class Course {
 
     @JsonReferenceAsId
     @ManyToMany(mappedBy = "courses")
-    private List<ClassEntity> classes;
+    private Set<ClassEntity> classes;
 }
