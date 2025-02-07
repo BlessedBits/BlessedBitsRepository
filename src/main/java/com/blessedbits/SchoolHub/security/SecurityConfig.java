@@ -117,14 +117,35 @@ public class SecurityConfig {
                                 "USER", "STUDENT", "TEACHER", "SCHOOL_ADMIN", "PLATFORM_ADMIN")
 
                         // UserController
-                        .requestMatchers(HttpMethod.PUT, "/users/set-duty/{id}").hasAnyRole(
-                                "SCHOOL_ADMIN", "PLATFORM_ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/users/{id}").hasAnyRole(
+                                "PLATFORM_ADMIN", "SCHOOL_ADMIN", "TEACHER", "STUDENT", "USER"
+                        )
+                        .requestMatchers(HttpMethod.GET, "/users").hasAnyRole(
+                                "PLATFORM_ADMIN", "SCHOOL_ADMIN", "TEACHER", "STUDENT", "USER"
+                        )
+                        .requestMatchers(HttpMethod.PUT, "/users/{id}/info").hasAnyRole(
+                                "PLATFORM_ADMIN", "SCHOOL_ADMIN", "TEACHER", "STUDENT", "USER"
+                        )
+                        .requestMatchers(HttpMethod.PUT, "/users/{id}/image").hasAnyRole(
+                                "PLATFORM_ADMIN", "SCHOOL_ADMIN", "TEACHER", "STUDENT", "USER"
+                        )
+                        .requestMatchers(HttpMethod.PUT, "/users/{id}/duty").hasAnyRole(
+                                "PLATFORM_ADMIN", "SCHOOL_ADMIN"
+                        )
+                        .requestMatchers(HttpMethod.DELETE, "/users/{id}").hasAnyRole(
+                                "PLATFORM_ADMIN", "SCHOOL_ADMIN", "TEACHER", "STUDENT", "USER"
+                        )
+                        .requestMatchers(HttpMethod.GET, "/users/{id}/grades").hasAnyRole(
+                                "PLATFORM_ADMIN", "SCHOOL_ADMIN", "TEACHER", "STUDENT", "USER"
+                        )
                         .requestMatchers("/users/**").hasAnyRole(
                                 "USER", "STUDENT", "TEACHER", "SCHOOL_ADMIN", "PLATFORM_ADMIN")
 
                         // ScheduleController
                         .requestMatchers("/schedules/new").hasRole("SCHOOL_ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/schedules/{id}").hasAnyRole("STUDENT", "TEACHER", "SCHOOL_ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/schedules/{id}").hasAnyRole(
+                                "STUDENT", "TEACHER", "SCHOOL_ADMIN"
+                        )
                         .requestMatchers(HttpMethod.PUT, "/schedules/{id}").hasRole("SCHOOL_ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/schedules/{id}").hasRole("SCHOOL_ADMIN")
                         .requestMatchers("/schedules/**").hasAnyRole(

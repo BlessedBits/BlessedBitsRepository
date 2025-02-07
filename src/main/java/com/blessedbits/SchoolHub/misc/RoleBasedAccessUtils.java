@@ -72,6 +72,19 @@ public class RoleBasedAccessUtils {
         return false;
     }
 
+    public static boolean canAccessUser(UserEntity user, UserEntity targetUser) {
+        if (user.hasRole(RoleType.PLATFORM_ADMIN)) {
+            return true;
+        }
+        if (user.hasRole(RoleType.SCHOOL_ADMIN) || user.hasRole(RoleType.TEACHER)) {
+            return targetUser.getId() == user.getId() || (targetUser.getSchool().getId() == user.getSchool().getId());
+        }
+        if (user.hasRole(RoleType.STUDENT) || user.hasRole(RoleType.USER)) {
+            return targetUser.getId() == user.getId();
+        }
+        return false;
+    }
+
     public static boolean canModifyUser(UserEntity user, UserEntity targetUser) {
         if (user.hasRole(RoleType.PLATFORM_ADMIN)) {
             return true;
