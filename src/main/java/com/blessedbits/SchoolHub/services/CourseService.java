@@ -13,6 +13,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class CourseService {
@@ -127,6 +128,12 @@ public class CourseService {
 
     public List<CourseDto> getAllAsDto(List<String> include) {
         return courseRepository.findAll().stream()
+                .map(course -> CourseMapper.INSTANCE.toCourseDto(course, include))
+                .toList();
+    }
+
+    public List<CourseDto> mapAllToDto(Set<Course> courses, List<String> include) {
+        return courses.stream()
                 .map(course -> CourseMapper.INSTANCE.toCourseDto(course, include))
                 .toList();
     }

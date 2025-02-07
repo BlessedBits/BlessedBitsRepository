@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class UserService {
@@ -52,6 +52,12 @@ public class UserService {
 
     public List<UserDto> getAllAsDto(List<String> include) {
         return userRepository.findAll().stream()
+                .map(userEntity -> UserMapper.INSTANCE.toUserDto(userEntity, include))
+                .toList();
+    }
+
+    public List<UserDto> fetchAllToDto(Set<UserEntity> users, List<String> include) {
+        return users.stream()
                 .map(userEntity -> UserMapper.INSTANCE.toUserDto(userEntity, include))
                 .toList();
     }

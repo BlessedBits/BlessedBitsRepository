@@ -3,6 +3,7 @@ package com.blessedbits.SchoolHub.models;
 import com.blessedbits.SchoolHub.misc.JsonReferenceAsId;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
@@ -15,9 +16,11 @@ import java.util.List;
 )
 @Data
 @NoArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Course {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @EqualsAndHashCode.Include
     private int id;
 
     @Column(nullable = false)

@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/courses")
@@ -60,7 +61,7 @@ public class CourseController {
     }
 
     @GetMapping("/user")
-    public ResponseEntity<List<Course>> getUserCourses(
+    public ResponseEntity<Set<Course>> getUserCourses(
             @RequestHeader("Authorization") String authorizationHeader) {
         UserEntity user = userService.getUserFromHeader(authorizationHeader);
         return new ResponseEntity<>(user.getUserClass().getCourses(), HttpStatus.OK);

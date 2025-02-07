@@ -4,6 +4,7 @@ import com.blessedbits.SchoolHub.misc.JsonReferenceAsId;
 import com.blessedbits.SchoolHub.misc.RoleType;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
@@ -13,9 +14,11 @@ import java.util.List;
 @Table(name="users")
 @Data
 @NoArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class UserEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private int id;
 
     @Column(unique=true)

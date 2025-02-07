@@ -12,7 +12,6 @@ import com.blessedbits.SchoolHub.projections.dto.ClassDto;
 import com.blessedbits.SchoolHub.projections.dto.CourseDto;
 import com.blessedbits.SchoolHub.projections.dto.UserDto;
 import com.blessedbits.SchoolHub.projections.mappers.ClassMapper;
-import com.blessedbits.SchoolHub.projections.mappers.CourseMapper;
 import com.blessedbits.SchoolHub.repositories.ClassRepository;
 import com.blessedbits.SchoolHub.repositories.UserRepository;
 import com.blessedbits.SchoolHub.services.ClassService;
@@ -26,7 +25,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/classes")
@@ -87,7 +85,7 @@ public class ClassesController {
             @RequestParam(required = false) List<String> include,
             @AuthenticationPrincipal UserEntity user
     ) {
-        ClassEntity classEntity = classService.getById(classId);
+        ClassEntity classEntity = classService.getLoadedById(classId, include);
         if (!RoleBasedAccessUtils.canAccessClass(user, classEntity)) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
@@ -178,21 +176,22 @@ public class ClassesController {
         if (!RoleBasedAccessUtils.canAccessClass(user, classEntity)) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
-        List<CourseDto> courses = courseService.mapAllToDto(classEntity.getCourses(), include);
+        List<CourseDto> courses = courseService
+                .mapAllToDto(classService.getClassCoursesLoaded(classId, include), include);
         return new ResponseEntity<>(courses, HttpStatus.OK);
     }
 
-    @DeleteMapping("/{id}/courses")
+    @DeleteMapping("/{id}/courses/{courseId}")
     public ResponseEntity<String> removeCourse(
             @PathVariable(name = "id") Integer classId,
-            @RequestBody AddCourseToClassDto addCourseToClassDto,
+            @PathVariable(name = "courseId") Integer courseId,
             @AuthenticationPrincipal UserEntity user
     ) {
         ClassEntity classEntity = classService.getById(classId);
         if (!RoleBasedAccessUtils.canModifyClass(user, classEntity)) {
             return new ResponseEntity<>("You can't modify this class", HttpStatus.FORBIDDEN);
         }
-        Course course = courseService.getById(addCourseToClassDto.getCourseId());
+        Course course = courseService.getById(courseId);
         if (!RoleBasedAccessUtils.canModifyCourse(user, course)) {
             return new ResponseEntity<>("You can't modify this course", HttpStatus.FORBIDDEN);
         }
@@ -244,21 +243,22 @@ public class ClassesController {
         if (!RoleBasedAccessUtils.canAccessClass(user, classEntity)) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
-        List<UserDto> students = userService.fetchAllToDto(classEntity.getStudents(), include);
+        List<UserDto> students = userService
+                .fetchAllToDto(classService.getClassStudentsLoaded(classId, include), include);
         return new ResponseEntity<>(students, HttpStatus.OK);
     }
 
-    @DeleteMapping("/{id}/students")
+    @DeleteMapping("/{id}/students/{username}")
     public ResponseEntity<String> removeStudent(
             @PathVariable(name = "id") Integer classId,
-            @RequestBody AddClassStudentDto addClassStudentDto,
+            @PathVariable(name = "username") String studentUsername,
             @AuthenticationPrincipal UserEntity user
     ) {
         ClassEntity classEntity = classService.getById(classId);
         if (!RoleBasedAccessUtils.canModifyClass(user, classEntity)) {
             return new ResponseEntity<>("You can't modify this class", HttpStatus.FORBIDDEN);
         }
-        UserEntity student = userService.getByUsername(addClassStudentDto.getUsername());
+        UserEntity student = userService.getByUsername(studentUsername);
         if (!classEntity.getStudents().contains(student)) {
             return new ResponseEntity<>("This student does not belong to this class", HttpStatus.BAD_REQUEST);
         }
