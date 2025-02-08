@@ -139,14 +139,14 @@ public class SecurityConfig {
                                 "SCHOOL_ADMIN", "PLATFORM_ADMIN")  
                         .requestMatchers(HttpMethod.GET, "schools/achievements").hasAnyRole(
                                 "USER", "STUDENT", "TEACHER", "SCHOOL_ADMIN", "PLATFORM_ADMIN")  
-                        .requestMatchers(HttpMethod.PUT, "schools/achievements/id").hasAnyRole(
+                        .requestMatchers(HttpMethod.PUT, "schools/achievements/{id}").hasAnyRole(
                                 "SCHOOL_ADMIN", "PLATFORM_ADMIN") 
-                        .requestMatchers(HttpMethod.DELETE, "schools/achievements/id").hasAnyRole(
+                        .requestMatchers(HttpMethod.DELETE, "schools/achievements/{id}").hasAnyRole(
                                 "SCHOOL_ADMIN", "PLATFORM_ADMIN") 
-                                .requestMatchers(HttpMethod.GET, "schools/all-gallery-image").hasAnyRole(
-                                        "USER", "STUDENT", "TEACHER", "SCHOOL_ADMIN", "PLATFORM_ADMIN") 
                         .requestMatchers(HttpMethod.GET, "schools/all-gallery-image").hasAnyRole(
-                                "USER", "STUDENT", "TEACHER", "SCHOOL_ADMIN", "PLATFORM_ADMIN") 
+                                        "USER", "STUDENT", "TEACHER", "SCHOOL_ADMIN", "PLATFORM_ADMIN") 
+                        .requestMatchers(HttpMethod.POST, "schools/add-gallery-image").hasAnyRole(
+                                "SCHOOL_ADMIN", "PLATFORM_ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "schools/delete-gallery-image").hasAnyRole(
                                 "SCHOOL_ADMIN", "PLATFORM_ADMIN") 
 
