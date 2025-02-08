@@ -80,4 +80,67 @@ public interface BasicDtoMapper {
         classDto.setSchoolId(classEntity.getSchool().getId());
         return classDto;
     }
+
+    static ModuleDto toBasicModuleDto(ModuleEntity moduleEntity) {
+        ModuleDto moduleDto = new ModuleDto();
+        moduleDto.setId(moduleEntity.getId());
+        moduleDto.setName(moduleEntity.getName());
+        moduleDto.setVisible(moduleEntity.getIsVisible());
+        return moduleDto;
+    }
+
+    static ModuleDto toModuleDto(ModuleEntity moduleEntity) {
+        ModuleDto moduleDto = toBasicModuleDto(moduleEntity);
+        moduleDto.setCourseId(moduleEntity.getCourse().getId());
+        return moduleDto;
+    }
+
+    static MaterialDto toBasicMaterialDto(Material material) {
+        MaterialDto materialDto = new MaterialDto();
+        materialDto.setId(material.getId());
+        materialDto.setTitle(material.getTitle());
+        materialDto.setDescription(material.getDescription());
+        materialDto.setUrl(material.getUrl());
+        return materialDto;
+    }
+
+    static MaterialDto toMaterialDto(Material material) {
+        MaterialDto materialDto = toBasicMaterialDto(material);
+        materialDto.setModuleId(material.getModule().getId());
+        return materialDto;
+    }
+
+    static AssignmentDto toBasicAssignmentDto(Assignment assignment) {
+        AssignmentDto assignmentDto = new AssignmentDto();
+        assignmentDto.setId(assignment.getId());
+        assignmentDto.setTitle(assignment.getTitle());
+        assignmentDto.setDescription(assignment.getDescription());
+        assignmentDto.setUrl(assignment.getUrl());
+        assignmentDto.setDueDate(assignment.getDueDate());
+        return assignmentDto;
+    }
+
+    static AssignmentDto toAssignmentDto(Assignment assignment) {
+        AssignmentDto assignmentDto = toBasicAssignmentDto(assignment);
+        assignmentDto.setModuleId(assignment.getModule().getId());
+        return assignmentDto;
+    }
+
+    static SubmissionDto toBasicSubmissionDto(Submission submission) {
+        SubmissionDto submissionDto = new SubmissionDto();
+        submissionDto.setId(submission.getId());
+        submissionDto.setUrl(submission.getUrl());
+        submissionDto.setSubmittedAt(submission.getSubmittedAt());
+        submissionDto.setGrade(submission.getGrade());
+        submissionDto.setGradedAt(submission.getGradedAt());
+        return submissionDto;
+    }
+
+    static SubmissionDto toSubmissionDto(Submission submission) {
+        SubmissionDto submissionDto = toBasicSubmissionDto(submission);
+        submissionDto.setStudentId(submission.getStudent().getId());
+        submissionDto.setTeacherId(submission.getTeacher().getId());
+        submissionDto.setAssignmentId(submission.getAssignment().getId());
+        return submissionDto;
+    }
 }

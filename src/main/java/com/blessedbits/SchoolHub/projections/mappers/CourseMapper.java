@@ -24,6 +24,11 @@ public interface CourseMapper {
         } else {
             courseDto.setSchoolId(course.getSchool().getId());
         }
+        if (include.contains("modules")) {
+            courseDto.setModules(course.getModules().stream()
+                    .map(BasicDtoMapper::toModuleDto)
+                    .toList());
+        }
         if (include.contains("classes")) {
             courseDto.setClasses(course.getClasses().stream()
                     .map(BasicDtoMapper::toClassDto)

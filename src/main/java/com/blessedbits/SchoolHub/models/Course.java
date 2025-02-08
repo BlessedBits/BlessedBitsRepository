@@ -29,7 +29,7 @@ public class Course {
 
     @JsonReferenceAsId
     @OneToMany(mappedBy = "course")
-    private List<ModuleEntity> modules;
+    private Set<ModuleEntity> modules;
 
     @JsonReferenceAsId
     @ManyToOne(fetch = FetchType.LAZY)

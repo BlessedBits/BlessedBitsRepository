@@ -6,15 +6,16 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class CourseDto {
-    private Integer id;
+public class ModuleDto {
+    private Long id;
     private String name;
+    private boolean isVisible = true;
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private Integer schoolId;
+    private Integer courseId;
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private SchoolDto school;
+    private CourseDto course;
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private List<ModuleDto> modules;
+    private List<MaterialDto> materials;
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private List<ClassDto> classes;
+    private List<AssignmentDto> assignments;
 }
