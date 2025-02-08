@@ -1,6 +1,8 @@
 package com.blessedbits.SchoolHub.controllers;
 
 import com.blessedbits.SchoolHub.dto.UpdateInfoDto;
+import com.blessedbits.SchoolHub.dto.UpdateNameDto;
+import com.blessedbits.SchoolHub.dto.UserProfileDto;
 import com.blessedbits.SchoolHub.misc.CloudFolder;
 import com.blessedbits.SchoolHub.misc.RoleBasedAccessUtils;
 import com.blessedbits.SchoolHub.models.Submission;
@@ -17,6 +19,7 @@ import com.blessedbits.SchoolHub.services.StorageService;
 import com.blessedbits.SchoolHub.services.UserService;
 import jakarta.validation.Valid;
 
+import org.apache.http.protocol.HTTP;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -30,11 +33,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+
+
 
 
 
@@ -152,6 +152,9 @@ public class UserController {
             return new ResponseEntity<>("You can't modify this user", HttpStatus.FORBIDDEN);
         }
         try {
+            if (user.getProfileImage() != null && !user.getProfileImage().isEmpty()) {
+                storageService.deleteFile(user.getProfileImage());
+            }
             String url = storageService.uploadFile(profileImage, CloudFolder.PROFILE_IMAGES);
             targetUser.setProfileImage(url);
             userRepository.save(targetUser);
@@ -200,6 +203,28 @@ public class UserController {
         }
     }
 
+    @PutMapping("/update-name/{id}")
+    public ResponseEntity<String> updateName(@PathVariable Integer id, @RequestBody UpdateNameDto updateNameDto) 
+    {
+        Optional<UserEntity> userOpt = userRepository.findById(id);
+        if(userOpt.isEmpty())
+        {
+            return new ResponseEntity<>("Error: User is not found by provided ID.", HttpStatus.NOT_FOUND);
+        }
+        UserEntity user = userOpt.get(); 
+        user.setFirstName(updateNameDto.getFirstName());
+        user.setLastName(updateNameDto.getLastName());  
+        try 
+        {
+            userRepository.save(user);
+            return new ResponseEntity<>("User's name was successfully updated.", HttpStatus.OK);
+        }
+        catch(Exception e)
+        {
+            return new ResponseEntity<>(("Error: User's name was not updated." + e), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @GetMapping("/{id}/grades")
     public ResponseEntity<List<Submission>> getGrades(
             @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
@@ -216,4 +241,80 @@ public class UserController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @GetMapping("/profile")
+    public ResponseEntity<?> getUserProfileInfo(@RequestHeader("Authorization") String authorizationHeader)
+    {
+        UserEntity user = userService.getUserFromHeader(authorizationHeader);
+        try{
+            return new ResponseEntity<UserProfileDto>(userService.getUserProfileInfo(user), HttpStatus.OK);
+        }catch (Exception e)
+        {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        
+    }
+
+    @GetMapping("/role")
+    public ResponseEntity<String> getUserRole(@RequestHeader("Authorization") String authorizationHeader) 
+    {
+        UserEntity user = userService.getUserFromHeader(authorizationHeader);
+        try
+        {
+            return new ResponseEntity<String>(user.getRoles().get(0).getName(), HttpStatus.OK);
+        }catch (Exception e)
+        {
+            return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/school-id")
+    public ResponseEntity<?> getUserSchoolId(@RequestHeader("Authorization") String authorizationHeader) 
+    {
+        UserEntity user = userService.getUserFromHeader(authorizationHeader);
+        try 
+        {
+            Integer id = user.getSchool() != null ? user.getSchool().getId() : null;
+            if(id == null)
+            {
+                return new ResponseEntity<>("Error: User don't have any school.", HttpStatus.NOT_FOUND);
+            }
+            return new ResponseEntity<>(id, HttpStatus.OK);
+        }catch (Exception e)
+        {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    @GetMapping("/my-id")
+    public ResponseEntity<?> getUserId(@RequestHeader("Authorization") String authorizationHeader) 
+    {
+        try{
+            UserEntity user = userService.getUserFromHeader(authorizationHeader);
+            return new ResponseEntity<>(user.getId(), HttpStatus.OK);
+        }catch (Exception e)
+        {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        
+    }
+    
+    @GetMapping("/profile/{id}")
+    public ResponseEntity<?> getUserProfileInfoById(@PathVariable Integer id) 
+    {
+        Optional<UserEntity> userOpt = userRepository.findById(id);
+        if(userOpt.isEmpty())
+        {
+            return new ResponseEntity<>("Error: User is not found by provided ID.", HttpStatus.NOT_FOUND);
+        }
+        UserEntity user = userOpt.get();
+        try{
+            return new ResponseEntity<UserProfileDto>(userService.getUserProfileInfo(user), HttpStatus.OK);
+        }catch (Exception e)
+        {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+
 }

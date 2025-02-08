@@ -9,7 +9,8 @@ public enum CloudFolder {
     SCHOOL_IMAGES("schoolImages"),
     SCHOOL_GALLERIES("schoolGalleries"),
     NEWS_IMAGES("newsImages"),
-    TASK_SUBMISSIONS("taskSubmissions");
+    TASK_SUBMISSIONS("taskSubmissions"),
+    ACHIEVEMENT_IMAGES("achievementImages");
 
     private final String folderName;
 

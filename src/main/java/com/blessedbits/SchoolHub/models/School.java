@@ -1,6 +1,7 @@
 package com.blessedbits.SchoolHub.models;
 
 import com.blessedbits.SchoolHub.misc.JsonReferenceAsId;
+
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,12 +16,17 @@ import java.util.Set;
 public class School {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private int id;
+    private Integer id;
 
     @Column(unique = true, nullable = false)
     private String name;
 
     private String address;
+
+    private Integer year;
+
+    private String phrase;
+
     private String logo;
 
     @JsonReferenceAsId
@@ -38,4 +44,16 @@ public class School {
     @JsonReferenceAsId
     @OneToMany(mappedBy = "school", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<News> news;
+
+    @JsonReferenceAsId
+    @OneToMany(mappedBy = "school", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Achievement> achievements;
+
+    @JsonReferenceAsId
+    @OneToOne(mappedBy = "school", cascade = CascadeType.ALL, orphanRemoval = true)
+    private SchoolContacts contacts;
+
+    @JsonReferenceAsId
+    @OneToMany(mappedBy = "school", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<SchoolGallery> gallery;
 }

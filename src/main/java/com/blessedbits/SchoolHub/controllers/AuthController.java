@@ -123,6 +123,8 @@ public class AuthController {
             return new ResponseEntity<>("Email already taken!", HttpStatus.BAD_REQUEST); 
         }
         UserEntity user = new UserEntity();
+        user.setFirstName(request.getFirstName());
+        user.setLastName(request.getLastName());
         user.setUsername(request.getUsername());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         Role roles = roleRepository.findByName("USER").get();

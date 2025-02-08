@@ -4,6 +4,7 @@ import com.blessedbits.SchoolHub.misc.EntityManagerUtils;
 import com.blessedbits.SchoolHub.models.UserEntity;
 import com.blessedbits.SchoolHub.projections.dto.UserDto;
 import com.blessedbits.SchoolHub.projections.mappers.UserMapper;
+import com.blessedbits.SchoolHub.dto.UserProfileDto;
 import com.blessedbits.SchoolHub.repositories.UserRepository;
 import com.blessedbits.SchoolHub.security.JWTUtils;
 import jakarta.persistence.EntityManager;
@@ -17,6 +18,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Set;
+import java.util.Optional;
 
 @Service
 public class UserService {
@@ -153,5 +155,18 @@ public class UserService {
         return users.stream()
                 .map(userEntity -> UserMapper.INSTANCE.toUserDto(userEntity, include))
                 .toList();
+    }
+
+    public UserProfileDto getUserProfileInfo(UserEntity user)
+    {
+        UserProfileDto userProfileDto = new UserProfileDto();
+        userProfileDto.setFirstName(user.getFirstName());
+        userProfileDto.setLastName(user.getLastName());
+        userProfileDto.setEmail(user.getEmail());
+        userProfileDto.setRole(user.getRoles().isEmpty() ? "No role" : user.getRoles().get(0).getName());
+        userProfileDto.setDuty(user.getDuty());
+        userProfileDto.setProfileImage(user.getProfileImage());
+        userProfileDto.setSchool(user.getSchool() != null ? user.getSchool().getName() : "No school");
+        return userProfileDto;
     }
 }

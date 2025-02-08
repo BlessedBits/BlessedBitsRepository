@@ -1,11 +1,19 @@
 package com.blessedbits.SchoolHub.controllers;
 
+import com.blessedbits.SchoolHub.dto.AchievementDto;
 import com.blessedbits.SchoolHub.dto.AddSchoolUserDto;
+import com.blessedbits.SchoolHub.dto.CreateNewsDTO;
 import com.blessedbits.SchoolHub.dto.CreateSchoolDto;
+import com.blessedbits.SchoolHub.dto.SchoolContactsDto;
+import com.blessedbits.SchoolHub.dto.SchoolInfoDto;
+import com.blessedbits.SchoolHub.dto.UpdateSchoolInfoDto;
 import com.blessedbits.SchoolHub.misc.CloudFolder;
 import com.blessedbits.SchoolHub.misc.RoleBasedAccessUtils;
 import com.blessedbits.SchoolHub.models.News;
+import com.blessedbits.SchoolHub.models.Achievement;
 import com.blessedbits.SchoolHub.models.School;
+import com.blessedbits.SchoolHub.models.SchoolContacts;
+import com.blessedbits.SchoolHub.models.SchoolGallery;
 import com.blessedbits.SchoolHub.models.UserEntity;
 import com.blessedbits.SchoolHub.projections.dto.ClassDto;
 import com.blessedbits.SchoolHub.projections.dto.CourseDto;
@@ -15,6 +23,7 @@ import com.blessedbits.SchoolHub.projections.mappers.BasicDtoMapper;
 import com.blessedbits.SchoolHub.projections.mappers.SchoolMapper;
 import com.blessedbits.SchoolHub.repositories.SchoolRepository;
 import com.blessedbits.SchoolHub.repositories.UserRepository;
+import com.blessedbits.SchoolHub.repositories.SchoolGalleryRepository;
 import com.blessedbits.SchoolHub.services.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -31,6 +40,11 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+
+
+
+
+
 @RestController
 @RequestMapping("/schools")
 public class SchoolController {
@@ -41,9 +55,10 @@ public class SchoolController {
     private final SchoolService schoolService;
     private final ClassService classService;
     private final CourseService courseService;
+    private final SchoolGalleryRepository schoolGalleryRepository;
 
     @Autowired
-    public SchoolController(SchoolRepository schoolRepository, StorageService storageService, UserService userService, UserRepository userRepository, SchoolService schoolService, ClassService classService, CourseService courseService) {
+    public SchoolController(SchoolService schoolService, SchoolRepository schoolRepository, StorageService storageService, UserService userService, UserRepository userRepository, ClassService classService, CourseService courseService, SchoolGalleryRepository schoolGalleryRepository) {
         this.schoolRepository = schoolRepository;
         this.storageService = storageService;
         this.userService = userService;
@@ -51,6 +66,7 @@ public class SchoolController {
         this.schoolService = schoolService;
         this.classService = classService;
         this.courseService = courseService;
+        this.schoolGalleryRepository = schoolGalleryRepository;
     }
 
     @GetMapping("")
@@ -65,11 +81,16 @@ public class SchoolController {
         School school = new School();
         school.setName(schoolDto.getName());
         school.setAddress(schoolDto.getAddress());
-        try {
-            schoolRepository.save(school);
-            return new ResponseEntity<>(schoolDto.toString(), HttpStatus.CREATED);
+      
+    @GetMapping("/school")
+    public ResponseEntity<?> getSchool(@RequestHeader("Authorization") String authorizationHeader) {
+        Integer schoolId = userService.getUserFromHeader(authorizationHeader).getSchool().getId();
+        try{
+            return new ResponseEntity<>(schoolService.getSchoolInfo(schoolId), HttpStatus.OK);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND); 
         } catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); 
         }
     }
 
@@ -112,7 +133,6 @@ public class SchoolController {
             System.out.println(e.getMessage());
             return new ResponseEntity<>("Unable to update info", HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return new ResponseEntity<>("Data updated", HttpStatus.OK);
     }
 
     @PutMapping("/{id}/logo")
@@ -125,6 +145,9 @@ public class SchoolController {
             return new ResponseEntity<>("You can't modify this school", HttpStatus.FORBIDDEN);
         }
         try {
+            if (school.getLogo() != null && !school.getLogo().isEmpty()) {
+                storageService.deleteFile(school.getLogo());
+            }
             String url = storageService.uploadFile(logo, CloudFolder.SCHOOL_IMAGES);
             school.setLogo(url);
             schoolRepository.save(school);
@@ -253,14 +276,134 @@ public class SchoolController {
         return new ResponseEntity<>(schoolService.getSchoolNewsLoaded(id, include), HttpStatus.OK);
     }
 
-    // For test purposes, needs to change functionality.
     @PostMapping("/add-gallery-image")
-    public ResponseEntity<String> addGalleryImage(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<String> addGalleryImage(@RequestHeader("Authorization") String authorizationHeader, @RequestParam("image") MultipartFile file) {
         try {
-            String url = storageService.uploadFile(file, CloudFolder.SCHOOL_GALLERIES);
+            String url = schoolService.addImageToSchoolGallery(authorizationHeader, file);
             return new ResponseEntity<>("Gallery image added successfully on link: " + url, HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @GetMapping("/all-gallery-images")
+    public ResponseEntity<List<SchoolGallery>> getAllGalleryImages(@RequestHeader("Authorization") String authorizationHeader) {
+        try {
+            List<SchoolGallery> images = schoolService.getAllGalleryImages(authorizationHeader);
+            return new ResponseEntity<>(images, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @DeleteMapping("/delete-gallery-image")
+    public ResponseEntity<String> deleteGalleryImage(@RequestHeader("Authorization") String authorizationHeader, @RequestParam("image") String image) {
+        try {
+            schoolService.deleteGalleryImage(authorizationHeader, image);
+            return new ResponseEntity<>("Gallery image deleted successfully", HttpStatus.NO_CONTENT);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+    @GetMapping("/contacts")
+    public ResponseEntity<?> getSchoolContacts(@RequestHeader("Authorization") String authorizationHeader) {
+        try {
+            Integer schoolId = userService.getUserFromHeader(authorizationHeader).getSchool().getId();
+            SchoolContactsDto schoolContactsDto = schoolService.getSchoolContacts(schoolId);
+            return new ResponseEntity<>(schoolContactsDto, HttpStatus.OK);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND); 
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); 
+        }
+    }
+
+    @PutMapping("/update-contacts")
+    public ResponseEntity<?> updateSchoolContacts(@RequestHeader("Authorization") String authorizationHeader, @RequestBody SchoolContactsDto schoolContactsDto) 
+    {
+        try{
+            Integer schoolId = userService.getUserFromHeader(authorizationHeader).getSchool().getId();
+            schoolService.updateSchoolContacts(schoolId, schoolContactsDto);
+            return new ResponseEntity<>(schoolContactsDto, HttpStatus.OK);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND); 
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); 
+        }
+    }
+    
+    @GetMapping("/teachers")
+    public ResponseEntity<?> getTeachersList(@RequestHeader("Authorization") String authorizationHeader) {
+        try{
+            Integer schoolId = userService.getUserFromHeader(authorizationHeader).getSchool().getId();
+            return new ResponseEntity<>(schoolService.getTeachersBySchool(schoolId), HttpStatus.OK);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND); 
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); 
+        }
+        
+    }
+
+    @PostMapping("/achievements/create")
+    public ResponseEntity<?> createAchievement(@RequestHeader("Authorization") String authorizationHeader, @RequestParam("image") MultipartFile image, @ModelAttribute AchievementDto achievementDto) {
+        try{
+            Integer schoolId = userService.getUserFromHeader(authorizationHeader).getSchool().getId();
+            return new ResponseEntity<>(schoolService.createAchievement(schoolId, image, achievementDto), HttpStatus.CREATED);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND); 
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); 
+        }
+    }
+    
+    @GetMapping("/achievements")
+    public ResponseEntity<?> getSchoolAchievements(@RequestHeader("Authorization") String authorizationHeader) 
+    {
+        try 
+        {
+            Integer schoolId = userService.getUserFromHeader(authorizationHeader).getSchool().getId();
+            List<Achievement> achievements = schoolService.getAchievementsBySchool(schoolId);
+            if(achievements.isEmpty())
+            {
+                return new ResponseEntity<>("Error: No achievements found for this school.", HttpStatus.NOT_FOUND);
+            }
+            return new ResponseEntity<>(achievements, HttpStatus.OK);
+        }catch (Exception e)
+        {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    @PutMapping("/achievements/{id}")
+    public ResponseEntity<?> updateAchievement(@RequestHeader("Authorization") String authorizationHeader,
+                                            @PathVariable("id") Integer id,
+                                            @RequestParam("image") MultipartFile image,
+                                            @ModelAttribute AchievementDto achievementDto) {
+        try {
+            Integer schoolId = userService.getUserFromHeader(authorizationHeader).getSchool().getId();
+            Achievement updatedAchievement = schoolService.updateAchievement(schoolId, id, image, achievementDto);
+            return new ResponseEntity<>(updatedAchievement, HttpStatus.OK);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @DeleteMapping("/achievements/{id}")
+    public ResponseEntity<?> deleteAchievement(@RequestHeader("Authorization") String authorizationHeader, @PathVariable("id") Integer id) {
+        try {
+            Integer schoolId = userService.getUserFromHeader(authorizationHeader).getSchool().getId();
+            schoolService.deleteAchievement(schoolId, id);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT); 
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 }
