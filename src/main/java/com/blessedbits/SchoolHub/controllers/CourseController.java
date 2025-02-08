@@ -146,42 +146,6 @@ public class CourseController {
         return new ResponseEntity<>(modules, HttpStatus.OK);
     }
 
-    @PostMapping("/modules/assignments/")
-    public ResponseEntity<String> createAssignment(
-            @RequestParam(required = false) Integer courseId,
-            @RequestParam(required = false) String courseName,
-            @RequestParam(required = false) Long moduleId,
-            @RequestParam(required = false) String moduleName,
-            @RequestBody CreateAssignmentDto assignmentDto,
-            @RequestHeader("Authorization") String authorizationHeader
-    ) {
-        UserEntity user = userService.getUserFromHeader(authorizationHeader);
-
-        Course course = courseService.
-                getCourseByNameOrIdAndSchoolId(courseId, courseName, user.getSchool().getId());
-        if (course.getSchool() != user.getSchool()) {
-            return new ResponseEntity<>("You are not allowed to modify this course",
-                    HttpStatus.FORBIDDEN);
-        }
-
-        ModuleEntity module = courseService.
-                getModuleByNameOrIdAndCourseId(moduleId, moduleName, course.getId());
-
-        Assignment assignment = new Assignment();
-        assignment.setTitle(assignmentDto.getTitle());
-        assignment.setDescription(assignmentDto.getDescription());
-        assignment.setUrl(assignmentDto.getUrl());
-        assignment.setDueDate(assignmentDto.getDueDate());
-        assignment.setModule(module);
-        try {
-            assignmentRepository.save(assignment);
-            return new ResponseEntity<>("Assignment created", HttpStatus.CREATED);
-        } catch (Exception e) {
-            return new ResponseEntity<>("Couldn't create assignment",
-                    HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
     @PostMapping("/modules/assignments/submissions")
     public ResponseEntity<String> createSubmission(
             @RequestParam(required = false) Integer courseId,

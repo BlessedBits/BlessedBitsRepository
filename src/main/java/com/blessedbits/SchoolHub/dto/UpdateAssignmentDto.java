@@ -5,10 +5,9 @@ import lombok.Getter;
 import java.time.LocalDateTime;
 
 @Getter
-public class CreateAssignmentDto {
+public class UpdateAssignmentDto {
     private String title;
     private String description;
     private String url;
     private LocalDateTime dueDate;
-    private Long moduleId;
 }
