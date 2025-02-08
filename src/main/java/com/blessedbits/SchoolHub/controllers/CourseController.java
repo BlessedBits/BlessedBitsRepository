@@ -9,6 +9,7 @@ import com.blessedbits.SchoolHub.projections.mappers.CourseMapper;
 import com.blessedbits.SchoolHub.projections.mappers.ModuleMapper;
 import com.blessedbits.SchoolHub.repositories.*;
 import com.blessedbits.SchoolHub.services.CourseService;
+import com.blessedbits.SchoolHub.services.ModuleService;
 import com.blessedbits.SchoolHub.services.SchoolService;
 import com.blessedbits.SchoolHub.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,11 +35,12 @@ public class CourseController {
     private final SubmissionRepository submissionRepository;
     private final CourseService courseService;
     private final SchoolService schoolService;
+    private final ModuleService moduleService;
 
     @Autowired
     public CourseController(CourseRepository courseRepository,
                             UserService userService, ModuleRepository moduleRepository,
-                            MaterialRepository materialRepository, AssignmentRepository assignmentRepository, SubmissionRepository submissionRepository, CourseService courseService, SchoolService schoolService) {
+                            MaterialRepository materialRepository, AssignmentRepository assignmentRepository, SubmissionRepository submissionRepository, CourseService courseService, SchoolService schoolService, ModuleService moduleService) {
         this.courseRepository = courseRepository;
         this.userService = userService;
         this.moduleRepository = moduleRepository;
@@ -47,6 +49,7 @@ public class CourseController {
         this.submissionRepository = submissionRepository;
         this.courseService = courseService;
         this.schoolService = schoolService;
+        this.moduleService = moduleService;
     }
 
     @GetMapping("")
@@ -138,70 +141,9 @@ public class CourseController {
         if (!RoleBasedAccessUtils.canAccessCourse(user, course)) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
-        List<ModuleDto> modules = courseService.getCourseModulesLoaded(id, include).stream()
-                .map(moduleEntity -> ModuleMapper.INSTANCE.toModuleDto(moduleEntity, include))
-                .toList();
+        List<ModuleDto> modules = moduleService
+                .mapAllToDto(courseService.getCourseModulesLoaded(id, include), include);
         return new ResponseEntity<>(modules, HttpStatus.OK);
-    }
-
-    @PostMapping("/modules")
-    public ResponseEntity<String> createModule(
-            @RequestParam(required = false) Integer courseId,
-            @RequestParam(required = false) String courseName,
-            @RequestBody CreateModuleDto moduleDto,
-            @RequestHeader("Authorization") String authorizationHeader) {
-        UserEntity user = userService.getUserFromHeader(authorizationHeader);
-
-        Course course = courseService.
-                getCourseByNameOrIdAndSchoolId(courseId, courseName, user.getSchool().getId());
-        if (course.getSchool() != user.getSchool()) {
-            return new ResponseEntity<>("You are not allowed to modify this course",
-                    HttpStatus.FORBIDDEN);
-        }
-
-        ModuleEntity module = new ModuleEntity();
-        module.setName(moduleDto.getName());
-        module.setCourse(course);
-        try {
-            moduleRepository.save(module);
-            return new ResponseEntity<>("Module created", HttpStatus.CREATED);
-        } catch (Exception e) {
-            return new ResponseEntity<>("Couldn't create module", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @PostMapping("/modules/materials")
-    public ResponseEntity<String> createMaterial(
-            @RequestParam(required = false) Integer courseId,
-            @RequestParam(required = false) String courseName,
-            @RequestParam(required = false) Long moduleId,
-            @RequestParam(required = false) String moduleName,
-            @RequestBody CreateMaterialDto materialDto,
-            @RequestHeader("Authorization") String authorizationHeader
-    ) {
-        UserEntity user = userService.getUserFromHeader(authorizationHeader);
-
-        Course course = courseService.
-                getCourseByNameOrIdAndSchoolId(courseId, courseName, user.getSchool().getId());
-        if (course.getSchool() != user.getSchool()) {
-            return new ResponseEntity<>("You are not allowed to modify this course",
-                    HttpStatus.FORBIDDEN);
-        }
-
-        ModuleEntity module = courseService.
-                getModuleByNameOrIdAndCourseId(moduleId, moduleName, course.getId());
-
-        Material material = new Material();
-        material.setTitle(materialDto.getTitle());
-        material.setDescription(materialDto.getDescription());
-        material.setUrl(materialDto.getUrl());
-        material.setModule(module);
-        try {
-            materialRepository.save(material);
-            return new ResponseEntity<>("Material created", HttpStatus.CREATED);
-        } catch (Exception e) {
-            return new ResponseEntity<>("Couldn't create material", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
     }
 
     @PostMapping("/modules/assignments/")

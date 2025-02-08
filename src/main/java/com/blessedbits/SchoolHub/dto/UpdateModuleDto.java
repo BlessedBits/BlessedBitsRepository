@@ -3,7 +3,6 @@ package com.blessedbits.SchoolHub.dto;
 import lombok.Getter;
 
 @Getter
-public class CreateModuleDto {
+public class UpdateModuleDto {
     private String name;
-    private Integer courseId;
 }

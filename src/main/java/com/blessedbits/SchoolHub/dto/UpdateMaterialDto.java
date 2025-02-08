@@ -3,9 +3,8 @@ package com.blessedbits.SchoolHub.dto;
 import lombok.Getter;
 
 @Getter
-public class CreateMaterialDto {
+public class UpdateMaterialDto {
     private String title;
     private String description;
     private String url;
-    private Long moduleId;
 }
