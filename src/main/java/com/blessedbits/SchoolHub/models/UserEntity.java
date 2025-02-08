@@ -1,8 +1,10 @@
 package com.blessedbits.SchoolHub.models;
 
 import com.blessedbits.SchoolHub.misc.JsonReferenceAsId;
+import com.blessedbits.SchoolHub.misc.RoleType;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
@@ -12,9 +14,11 @@ import java.util.List;
 @Table(name="users")
 @Data
 @NoArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class UserEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private int id;
 
     private String firstName;
@@ -35,7 +39,7 @@ public class UserEntity {
     
     private String duty;
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinTable(name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id")
@@ -43,12 +47,16 @@ public class UserEntity {
     private List<Role> roles = new ArrayList<>();
 
     @JsonReferenceAsId
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "class_id")
     private ClassEntity userClass;
 
     @JsonReferenceAsId
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "school_id")
     private School school;
+
+    public boolean hasRole(RoleType role) {
+        return roles.stream().anyMatch(r -> r.getName().equals(role.name()));
+    }
 }

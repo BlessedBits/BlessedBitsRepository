@@ -7,4 +7,5 @@ public class CreateMaterialDto {
     private String title;
     private String description;
     private String url;
+    private Long moduleId;
 }

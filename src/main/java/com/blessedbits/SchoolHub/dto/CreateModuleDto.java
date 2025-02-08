@@ -5,4 +5,5 @@ import lombok.Getter;
 @Getter
 public class CreateModuleDto {
     private String name;
+    private Integer courseId;
 }

@@ -3,6 +3,7 @@ package com.blessedbits.SchoolHub.models;
 import com.blessedbits.SchoolHub.misc.JsonReferenceAsId;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @Entity
@@ -13,9 +14,11 @@ import lombok.NoArgsConstructor;
 )
 @Data
 @NoArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Material {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @EqualsAndHashCode.Include
     private long id;
 
     @Column(nullable = false)
@@ -24,7 +27,7 @@ public class Material {
     private String url;
 
     @JsonReferenceAsId
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "module_id")
     private ModuleEntity module;
 }

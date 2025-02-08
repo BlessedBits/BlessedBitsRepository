@@ -3,10 +3,12 @@ package com.blessedbits.SchoolHub.models;
 import com.blessedbits.SchoolHub.misc.JsonReferenceAsId;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(
@@ -16,9 +18,11 @@ import java.util.List;
 )
 @Data
 @NoArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Assignment {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @EqualsAndHashCode.Include
     private long id;
 
     @Column(nullable = false)
@@ -28,11 +32,11 @@ public class Assignment {
     private LocalDateTime dueDate;
 
     @JsonReferenceAsId
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "module_id")
     private ModuleEntity module;
 
     @JsonReferenceAsId
     @OneToMany(mappedBy = "assignment")
-    private List<Submission> submissions;
+    private Set<Submission> submissions;
 }

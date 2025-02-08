@@ -2,6 +2,7 @@ package com.blessedbits.SchoolHub.models;
 
 import java.time.LocalDateTime;
 
+import lombok.EqualsAndHashCode;
 import org.hibernate.validator.constraints.URL;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -14,10 +15,12 @@ import lombok.Data;
 @Data
 @Entity
 @Table(name = "news")
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class News 
 {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Long id;
 
     @NotBlank

@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table
@@ -30,19 +31,19 @@ public class School {
 
     @JsonReferenceAsId
     @OneToMany(mappedBy = "school", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ClassEntity> classes;
+    private Set<ClassEntity> classes;
 
     @JsonReferenceAsId
     @OneToMany(mappedBy = "school", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Course> courses;
+    private Set<Course> courses;
 
     @JsonReferenceAsId
     @OneToMany(mappedBy = "school", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<UserEntity> users;
+    private Set<UserEntity> users;
 
     @JsonReferenceAsId
     @OneToMany(mappedBy = "school", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<News> news;
+    private Set<News> news;
 
     @JsonReferenceAsId
     @OneToMany(mappedBy = "school", cascade = CascadeType.ALL, orphanRemoval = true)

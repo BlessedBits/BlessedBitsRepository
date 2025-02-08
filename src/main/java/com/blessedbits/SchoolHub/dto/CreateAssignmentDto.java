@@ -10,4 +10,5 @@ public class CreateAssignmentDto {
     private String description;
     private String url;
     private LocalDateTime dueDate;
+    private Long moduleId;
 }
