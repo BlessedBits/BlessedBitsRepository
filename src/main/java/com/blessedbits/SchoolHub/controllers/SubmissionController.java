@@ -40,8 +40,8 @@ public class SubmissionController {
             @AuthenticationPrincipal UserEntity user
     ) {
         Assignment assignment = assignmentService.getById(submissionDto.getAssignmentId());
-        if (!RoleBasedAccessUtils.canModifyCourse(user, assignment.getModule().getCourse())) {
-            return new ResponseEntity<>("You can't modify this course", HttpStatus.FORBIDDEN);
+        if (!RoleBasedAccessUtils.canAccessCourse(user, assignment.getModule().getCourse())) {
+            return new ResponseEntity<>("You can't create submission for this course", HttpStatus.FORBIDDEN);
         }
         Submission submission = new Submission();
         submission.setUrl(submissionDto.getUrl());
