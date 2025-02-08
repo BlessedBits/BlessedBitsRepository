@@ -81,9 +81,17 @@ public class SchoolController {
         School school = new School();
         school.setName(schoolDto.getName());
         school.setAddress(schoolDto.getAddress());
+        try {
+            schoolRepository.save(school);
+            return new ResponseEntity<>("School created", HttpStatus.CREATED);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return new ResponseEntity<>("Unable to create school", HttpStatus.BAD_REQUEST);
+        }
+    }
       
     @GetMapping("/school")
-    public ResponseEntity<?> getSchool(@RequestHeader("Authorization") String authorizationHeader) {
+    public ResponseEntity<?> getSchoolV(@RequestHeader("Authorization") String authorizationHeader) {
         Integer schoolId = userService.getUserFromHeader(authorizationHeader).getSchool().getId();
         try{
             return new ResponseEntity<>(schoolService.getSchoolInfo(schoolId), HttpStatus.OK);
@@ -129,6 +137,7 @@ public class SchoolController {
         }
         try {
             schoolRepository.save(school);
+            return new ResponseEntity<>("School updated", HttpStatus.OK);
         } catch (Exception e) {
             System.out.println(e.getMessage());
             return new ResponseEntity<>("Unable to update info", HttpStatus.INTERNAL_SERVER_ERROR);
