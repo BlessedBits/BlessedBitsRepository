@@ -2,6 +2,7 @@ package com.blessedbits.SchoolHub.services;
 
 import com.blessedbits.SchoolHub.misc.EntityManagerUtils;
 import com.blessedbits.SchoolHub.models.Assignment;
+import com.blessedbits.SchoolHub.models.Submission;
 import com.blessedbits.SchoolHub.repositories.AssignmentRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
@@ -41,6 +42,21 @@ public class AssignmentService {
         } catch (Exception e) {
             System.out.println(e.getMessage());
             return getById(id);
+        }
+    }
+
+    public List<Submission> getAssignmentSubmissionsLoaded(Long assignmentId, List<String> include) {
+        String jpql = "SELECT s FROM Submission s WHERE s.assignment.id = :assignmentId";
+        TypedQuery<Submission> query = EntityManagerUtils
+                .createTypedQueryWithGraph(Submission.class, entityManager, jpql, include);
+        query.setParameter("assignmentId", assignmentId);
+        try {
+            return query.getResultList();
+        } catch (NoResultException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No submissions found for the given assignment");
+        } catch (Exception e) {
+            System.out.println("Unable to execute query for submissions");
+            return getById(assignmentId).getSubmissions().stream().toList();
         }
     }
 

@@ -5,6 +5,7 @@ import com.blessedbits.SchoolHub.dto.UpdateAssignmentDto;
 import com.blessedbits.SchoolHub.misc.RoleBasedAccessUtils;
 import com.blessedbits.SchoolHub.models.Assignment;
 import com.blessedbits.SchoolHub.models.ModuleEntity;
+import com.blessedbits.SchoolHub.models.Submission;
 import com.blessedbits.SchoolHub.models.UserEntity;
 import com.blessedbits.SchoolHub.projections.dto.AssignmentDto;
 import com.blessedbits.SchoolHub.projections.mappers.AssignmentMapper;
@@ -17,6 +18,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
 
 @RestController
 @RequestMapping("/assignments")
@@ -108,5 +110,22 @@ public class AssignmentController {
             return new ResponseEntity<>("Unable to delete assignment", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @GetMapping("{id}/submissions")
+    public ResponseEntity<List<Submission>> getModuleSubmissions(
+        @PathVariable Long id,
+        @RequestParam(required = false) List<String> include,
+        @AuthenticationPrincipal UserEntity user) 
+    {
+        Assignment assignment = assignmentService.getById(id);
+
+        if (!RoleBasedAccessUtils.canAccessCourse(user, assignment.getModule().getCourse())) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+        List<Submission> submissions = assignmentService.getAssignmentSubmissionsLoaded(id, include);
+        return new ResponseEntity<>(submissions, HttpStatus.OK);
+    }
+  
+    
 
 }
