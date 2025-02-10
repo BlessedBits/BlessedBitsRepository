@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name="users")
@@ -55,6 +56,10 @@ public class UserEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "school_id")
     private School school;
+
+    @JsonReferenceAsId
+    @ManyToMany(mappedBy = "teachers")
+    private Set<Course> courses;
 
     public boolean hasRole(RoleType role) {
         return roles.stream().anyMatch(r -> r.getName().equals(role.name()));
