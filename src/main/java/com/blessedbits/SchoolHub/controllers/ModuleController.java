@@ -3,7 +3,9 @@ package com.blessedbits.SchoolHub.controllers;
 import com.blessedbits.SchoolHub.dto.CreateModuleDto;
 import com.blessedbits.SchoolHub.dto.UpdateModuleDto;
 import com.blessedbits.SchoolHub.misc.RoleBasedAccessUtils;
+import com.blessedbits.SchoolHub.models.Assignment;
 import com.blessedbits.SchoolHub.models.Course;
+import com.blessedbits.SchoolHub.models.Material;
 import com.blessedbits.SchoolHub.models.ModuleEntity;
 import com.blessedbits.SchoolHub.models.UserEntity;
 import com.blessedbits.SchoolHub.projections.dto.ModuleDto;
@@ -18,6 +20,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
 
 @RestController
 @RequestMapping("/modules")
@@ -39,7 +42,7 @@ public class ModuleController {
             @AuthenticationPrincipal UserEntity user
     ) {
         Course course = courseService.getById(createModuleDto.getCourseId());
-        if (RoleBasedAccessUtils.canModifyCourse(user, course)) {
+        if (!RoleBasedAccessUtils.canModifyCourse(user, course)) {
             return new ResponseEntity<>("You can't modify this course", HttpStatus.FORBIDDEN);
         }
         ModuleEntity moduleEntity = new ModuleEntity();
@@ -105,4 +108,36 @@ public class ModuleController {
         }
     }
 
+    @GetMapping("/{id}/materials")
+    public ResponseEntity<List<Material>> getModuleMaterials(
+            @PathVariable Long id,
+            @RequestParam(required = false) List<String> include,
+            @AuthenticationPrincipal UserEntity user
+    ) {
+        ModuleEntity module = moduleService.getById(id);
+
+        if (!RoleBasedAccessUtils.canAccessCourse(user, module.getCourse())) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+
+        List<Material> materials = moduleService.getModuleMaterialsLoaded(id, include);
+        return new ResponseEntity<>(materials, HttpStatus.OK);
+    }
+
+    @GetMapping("{id}/assignments")
+    public ResponseEntity<List<Assignment>> getModuleAssignments(
+        @PathVariable Long id,
+        @RequestParam(required = false) List<String> include,
+        @AuthenticationPrincipal UserEntity user) 
+    {
+        ModuleEntity module = moduleService.getById(id);
+
+        if (!RoleBasedAccessUtils.canAccessCourse(user, module.getCourse())) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+        List<Assignment> assignments = moduleService.getModuleAssignmentsLoaded(id, include);
+        return new ResponseEntity<>(assignments, HttpStatus.OK);
+    }
+    
 }
+

@@ -39,4 +39,13 @@ public class Course {
     @JsonReferenceAsId
     @ManyToMany(mappedBy = "courses")
     private Set<ClassEntity> classes;
+
+    @JsonReferenceAsId
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "course_teachers",
+            joinColumns = @JoinColumn(name = "course_id"),
+            inverseJoinColumns = @JoinColumn(name = "teacher_id")
+    )
+    private Set<UserEntity> teachers;
 }

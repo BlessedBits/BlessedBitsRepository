@@ -64,19 +64,7 @@ public class CourseController {
             @RequestBody CreateCourseDto courseDto,
             @AuthenticationPrincipal UserEntity user
     ) {
-        School school = schoolService.getByIdOrUser(courseDto.getSchoolId(), user);
-        if (!RoleBasedAccessUtils.canAccessSchool(user, school)) {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-        }
-        Course course = new Course();
-        course.setName(courseDto.getName());
-        course.setSchool(school);
-        try {
-            courseRepository.save(course);
-            return new ResponseEntity<>("Course created", HttpStatus.CREATED);
-        } catch (Exception e) {
-            return new ResponseEntity<>("Unable to create course", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        return courseService.createCourse(courseDto, user);
     }
 
     @GetMapping("/{id}")

@@ -1,6 +1,8 @@
 package com.blessedbits.SchoolHub.services;
 
 import com.blessedbits.SchoolHub.misc.EntityManagerUtils;
+import com.blessedbits.SchoolHub.models.Assignment;
+import com.blessedbits.SchoolHub.models.Material;
 import com.blessedbits.SchoolHub.models.ModuleEntity;
 import com.blessedbits.SchoolHub.projections.dto.ModuleDto;
 import com.blessedbits.SchoolHub.projections.mappers.ModuleMapper;
@@ -53,4 +55,35 @@ public class ModuleService {
                 .map(moduleEntity -> ModuleMapper.INSTANCE.toModuleDto(moduleEntity, include))
                 .toList();
     }
+
+    public List<Material> getModuleMaterialsLoaded(Long moduleId, List<String> include) {
+        String jpql = "SELECT m FROM Material m WHERE m.module.id = :moduleId";
+        TypedQuery<Material> query = EntityManagerUtils
+                .createTypedQueryWithGraph(Material.class, entityManager, jpql, include);
+        query.setParameter("moduleId", moduleId);
+        try {
+            return query.getResultList();
+        } catch (NoResultException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No materials found for this module");
+        } catch (Exception e) {
+            System.out.println("Unable to execute query with entity graph");
+            return getById(moduleId).getMaterials().stream().toList(); 
+        }
+    }
+
+    public List<Assignment> getModuleAssignmentsLoaded(Long moduleId, List<String> include) {
+        String jpql = "SELECT a FROM Assignment a WHERE a.module.id = :moduleId";
+        TypedQuery<Assignment> query = EntityManagerUtils
+                .createTypedQueryWithGraph(Assignment.class, entityManager, jpql, include);
+        query.setParameter("moduleId", moduleId);
+        try {
+            return query.getResultList();
+        } catch (NoResultException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No assignments found for this module");
+        } catch (Exception e) {
+            System.out.println("Unable to execute query with entity graph");
+            return getById(moduleId).getAssignments().stream().toList();
+        }
+    }
+    
 }

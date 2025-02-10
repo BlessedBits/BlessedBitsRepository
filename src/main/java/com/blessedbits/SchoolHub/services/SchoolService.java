@@ -247,6 +247,7 @@ public class SchoolService {
 
     private TeacherInfoDto convertToTeacherInfoDto(UserEntity teacher) {
         TeacherInfoDto dto = new TeacherInfoDto();
+        dto.setId(teacher.getId());
         dto.setFirstName(teacher.getFirstName());
         dto.setLastName(teacher.getLastName());
         dto.setProfileImage(teacher.getProfileImage());
