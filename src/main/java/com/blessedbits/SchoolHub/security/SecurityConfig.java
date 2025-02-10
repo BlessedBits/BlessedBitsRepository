@@ -200,6 +200,12 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/modules/{id}").hasAnyRole(
                                 "PLATFORM_ADMIN", "SCHOOL_ADMIN", "TEACHER"
                         )
+                        .requestMatchers(HttpMethod.GET, "/modules/{id}/materials").hasAnyRole(
+                                "PLATFORM_ADMIN", "SCHOOL_ADMIN", "TEACHER", "STUDENT"
+                        )
+                        .requestMatchers(HttpMethod.GET, "/modules/{id}/assignments").hasAnyRole(
+                                "PLATFORM_ADMIN", "SCHOOL_ADMIN", "TEACHER", "STUDENT"
+                        )
 
                         // MaterialController
                         .requestMatchers(HttpMethod.POST, "/materials").hasAnyRole(
@@ -227,6 +233,9 @@ public class SecurityConfig {
                         )
                         .requestMatchers(HttpMethod.DELETE, "/assignments/{id}").hasAnyRole(
                                 "PLATFORM_ADMIN", "SCHOOL_ADMIN", "TEACHER"
+                        )
+                        .requestMatchers(HttpMethod.GET, "/assignments/{id}/submissions").hasAnyRole(
+                                "PLATFORM_ADMIN", "SCHOOL_ADMIN", "TEACHER", "USER"
                         )
 
                         // SubmissionController
