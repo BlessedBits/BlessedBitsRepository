@@ -1,6 +1,8 @@
 package com.blessedbits.SchoolHub.services;
 
+import com.blessedbits.SchoolHub.dto.CreateCourseDto;
 import com.blessedbits.SchoolHub.misc.EntityManagerUtils;
+import com.blessedbits.SchoolHub.misc.RoleBasedAccessUtils;
 import com.blessedbits.SchoolHub.models.*;
 import com.blessedbits.SchoolHub.projections.dto.CourseDto;
 import com.blessedbits.SchoolHub.projections.dto.ModuleDto;
@@ -8,15 +10,20 @@ import com.blessedbits.SchoolHub.projections.mappers.CourseMapper;
 import com.blessedbits.SchoolHub.repositories.AssignmentRepository;
 import com.blessedbits.SchoolHub.repositories.CourseRepository;
 import com.blessedbits.SchoolHub.repositories.ModuleRepository;
+import com.blessedbits.SchoolHub.repositories.SchoolRepository;
 import com.blessedbits.SchoolHub.repositories.SubmissionRepository;
+import com.blessedbits.SchoolHub.repositories.UserRepository;
+
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -27,15 +34,19 @@ public class CourseService {
     private final ModuleRepository moduleRepository;
     private final AssignmentRepository assignmentRepository;
     private final SubmissionRepository submissionRepository;
+    private final SchoolRepository schoolRepository;
+    private final UserRepository userRepository;   
 
     @PersistenceContext
     private EntityManager entityManager;
 
-    public CourseService(CourseRepository courseRepository, ModuleRepository moduleRepository, AssignmentRepository assignmentRepository, SubmissionRepository submissionRepository) {
+    public CourseService(UserRepository userRepository, SchoolRepository schoolRepository, CourseRepository courseRepository, ModuleRepository moduleRepository, AssignmentRepository assignmentRepository, SubmissionRepository submissionRepository) {
         this.courseRepository = courseRepository;
         this.moduleRepository = moduleRepository;
         this.assignmentRepository = assignmentRepository;
         this.submissionRepository = submissionRepository;
+        this.userRepository = userRepository;
+        this.schoolRepository = schoolRepository;
     }
 
     public Course getById(Integer id) {
@@ -151,7 +162,7 @@ public class CourseService {
     }
 
     public List<ModuleEntity> getCourseModulesLoaded(Integer courseId, List<String> include) {
-        String jpql = "SELECT m FROM ModuleDto m WHERE m.courseId = :courseId";
+        String jpql = "SELECT m FROM ModuleEntity m WHERE m.course.id = :courseId";
         TypedQuery<ModuleEntity> query = EntityManagerUtils
                 .createTypedQueryWithGraph(ModuleEntity.class, entityManager, jpql, include);
         query.setParameter("courseId", courseId);
@@ -195,5 +206,33 @@ public class CourseService {
         return courses.stream()
                 .map(course -> CourseMapper.INSTANCE.toCourseDto(course, include))
                 .toList();
+    }
+
+    public ResponseEntity<String> createCourse(CreateCourseDto courseDto, UserEntity user) {
+        School school = schoolRepository.findById(courseDto.getSchoolId())
+                .orElseGet(() -> user.getSchool());
+
+        if (!RoleBasedAccessUtils.canAccessSchool(user, school)) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+
+        Set<UserEntity> teachers = new HashSet<>();
+        if (courseDto.getTeacherIds() != null) {
+            for (Integer teacherId : courseDto.getTeacherIds()) {
+                userRepository.findById(teacherId).ifPresent(teachers::add);
+            }
+        }
+
+        Course course = new Course();
+        course.setName(courseDto.getName());
+        course.setSchool(school);
+        course.setTeachers(teachers);
+
+        try {
+            courseRepository.save(course);
+            return new ResponseEntity<>("Course created", HttpStatus.CREATED);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Unable to create course", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }
