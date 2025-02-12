@@ -4,11 +4,21 @@ import com.blessedbits.SchoolHub.models.ClassEntity;
 import com.blessedbits.SchoolHub.models.Course;
 import com.blessedbits.SchoolHub.models.School;
 import com.blessedbits.SchoolHub.models.UserEntity;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.Objects;
 
+@Component
 public class RoleBasedAccessUtils {
-    public static boolean canAccessClass(UserEntity user, ClassEntity classEntity) {
+    private MiscRepository miscRepository;
+
+    @Autowired
+    public RoleBasedAccessUtils(MiscRepository miscRepository) {
+        this.miscRepository = miscRepository;
+    }
+
+    public boolean canAccessClass(UserEntity user, ClassEntity classEntity) {
         if (user.hasRole(RoleType.PLATFORM_ADMIN)) {
             return true;
         }
@@ -21,7 +31,7 @@ public class RoleBasedAccessUtils {
         return false;
     }
 
-    public static boolean canModifyClass(UserEntity user, ClassEntity classEntity) {
+    public boolean canModifyClass(UserEntity user, ClassEntity classEntity) {
         if (user.hasRole(RoleType.PLATFORM_ADMIN)) {
             return true;
         }
@@ -31,7 +41,7 @@ public class RoleBasedAccessUtils {
         return false;
     }
 
-    public static boolean canAccessCourse(UserEntity user, Course course) {
+    public boolean canAccessCourse(UserEntity user, Course course) {
         if (user.hasRole(RoleType.PLATFORM_ADMIN)) {
             return true;
         }
@@ -39,12 +49,12 @@ public class RoleBasedAccessUtils {
             return Objects.equals(course.getSchool().getId(), user.getSchool().getId());
         }
         if (user.hasRole(RoleType.STUDENT)) {
-            return user.getUserClass().getCourses().contains(course);
+            return miscRepository.classHasCourse(user.getUserClass().getId(), course.getId());
         }
         return false;
     }
 
-    public static boolean canModifyCourse(UserEntity user, Course course) {
+    public boolean canModifyCourse(UserEntity user, Course course) {
         if (user.hasRole(RoleType.PLATFORM_ADMIN)) {
             return true;
         }
@@ -54,7 +64,7 @@ public class RoleBasedAccessUtils {
         return false;
     }
 
-    public static boolean canAccessSchool(UserEntity user, School school) {
+    public boolean canAccessSchool(UserEntity user, School school) {
         if (user.hasRole(RoleType.PLATFORM_ADMIN)) {
             return true;
         }
@@ -64,7 +74,7 @@ public class RoleBasedAccessUtils {
         return false;
     }
 
-    public static boolean canModifySchool(UserEntity user, School school) {
+    public boolean canModifySchool(UserEntity user, School school) {
         if (user.hasRole(RoleType.PLATFORM_ADMIN)) {
             return true;
         }
@@ -74,7 +84,7 @@ public class RoleBasedAccessUtils {
         return false;
     }
 
-    public static boolean canAccessUser(UserEntity user, UserEntity targetUser) {
+    public boolean canAccessUser(UserEntity user, UserEntity targetUser) {
         if (user.hasRole(RoleType.PLATFORM_ADMIN)) {
             return true;
         }
@@ -87,7 +97,7 @@ public class RoleBasedAccessUtils {
         return false;
     }
 
-    public static boolean canModifyUser(UserEntity user, UserEntity targetUser) {
+    public boolean canModifyUser(UserEntity user, UserEntity targetUser) {
         if (user.hasRole(RoleType.PLATFORM_ADMIN)) {
             return true;
         }

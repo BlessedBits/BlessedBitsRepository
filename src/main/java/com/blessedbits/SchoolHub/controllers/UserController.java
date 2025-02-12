@@ -47,18 +47,20 @@ public class UserController {
     private final EmailService emailService;
     private final StorageService storageService;
     private final SubmissionRepository submissionRepository;
+    private final RoleBasedAccessUtils roleBasedAccessUtils;
 
     @Autowired
     public UserController(UserRepository userRepository,
                           VerificationTokenRepository verificationTokenRepository,
                           UserService userService, EmailService emailService,
-                          StorageService storageService, SubmissionRepository submissionRepository) {
+                          StorageService storageService, SubmissionRepository submissionRepository, RoleBasedAccessUtils roleBasedAccessUtils) {
         this.userRepository = userRepository;
         this.verificationTokenRepository = verificationTokenRepository;
         this.userService = userService;
         this.emailService = emailService;
         this.storageService = storageService;
         this.submissionRepository = submissionRepository;
+        this.roleBasedAccessUtils = roleBasedAccessUtils;
     }
 
     @GetMapping("/{id}")
@@ -80,14 +82,14 @@ public class UserController {
     ) {
         if (username != null) {
             UserEntity loadedUser = userService.getLoadedByUsername(username, include);
-            if (RoleBasedAccessUtils.canAccessUser(user, loadedUser)) {
+            if (roleBasedAccessUtils.canAccessUser(user, loadedUser)) {
                 return new ResponseEntity<>(UserMapper.INSTANCE.toUserDto(loadedUser, include), HttpStatus.OK);
             }
             return new ResponseEntity<>(BasicDtoMapper.toUserDto(loadedUser), HttpStatus.OK);
         }
         if (email != null) {
             UserEntity loadedUser = userService.getLoadedByEmail(email, include);
-            if (RoleBasedAccessUtils.canAccessUser(user, loadedUser)) {
+            if (roleBasedAccessUtils.canAccessUser(user, loadedUser)) {
                 return new ResponseEntity<>(UserMapper.INSTANCE.toUserDto(loadedUser, include), HttpStatus.OK);
             }
             return new ResponseEntity<>(BasicDtoMapper.toUserDto(loadedUser), HttpStatus.OK);
@@ -148,7 +150,7 @@ public class UserController {
             @RequestParam MultipartFile profileImage,
             @AuthenticationPrincipal UserEntity user) {
         UserEntity targetUser = userService.getByIdOrUser(id, user);
-        if (!RoleBasedAccessUtils.canModifyUser(user, targetUser)) {
+        if (!roleBasedAccessUtils.canModifyUser(user, targetUser)) {
             return new ResponseEntity<>("You can't modify this user", HttpStatus.FORBIDDEN);
         }
         try {
@@ -171,7 +173,7 @@ public class UserController {
             @AuthenticationPrincipal UserEntity user
     ) {
         UserEntity targetUser = userService.getByIdOrUser(id, user);
-        if (!RoleBasedAccessUtils.canModifyUser(user,  targetUser)) {
+        if (!roleBasedAccessUtils.canModifyUser(user,  targetUser)) {
             return new ResponseEntity<>("You can't modify this user", HttpStatus.FORBIDDEN);
         }
         targetUser.setDuty(duty);
@@ -191,7 +193,7 @@ public class UserController {
             @AuthenticationPrincipal UserEntity user
     ) {
         UserEntity targetUser = userService.getByIdOrUser(id, user);
-        if (!RoleBasedAccessUtils.canModifyUser(user, targetUser)) {
+        if (!roleBasedAccessUtils.canModifyUser(user, targetUser)) {
             return new ResponseEntity<>("You can't modify this user", HttpStatus.FORBIDDEN);
         }
         try {

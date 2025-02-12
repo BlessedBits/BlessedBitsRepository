@@ -40,11 +40,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-
-
-
-
-
 @RestController
 @RequestMapping("/schools")
 public class SchoolController {
@@ -56,9 +51,10 @@ public class SchoolController {
     private final ClassService classService;
     private final CourseService courseService;
     private final SchoolGalleryRepository schoolGalleryRepository;
+    private final RoleBasedAccessUtils roleBasedAccessUtils;
 
     @Autowired
-    public SchoolController(SchoolService schoolService, SchoolRepository schoolRepository, StorageService storageService, UserService userService, UserRepository userRepository, ClassService classService, CourseService courseService, SchoolGalleryRepository schoolGalleryRepository) {
+    public SchoolController(SchoolService schoolService, SchoolRepository schoolRepository, StorageService storageService, UserService userService, UserRepository userRepository, ClassService classService, CourseService courseService, SchoolGalleryRepository schoolGalleryRepository, RoleBasedAccessUtils roleBasedAccessUtils) {
         this.schoolRepository = schoolRepository;
         this.storageService = storageService;
         this.userService = userService;
@@ -67,6 +63,7 @@ public class SchoolController {
         this.classService = classService;
         this.courseService = courseService;
         this.schoolGalleryRepository = schoolGalleryRepository;
+        this.roleBasedAccessUtils = roleBasedAccessUtils;
     }
 
     @GetMapping("")
@@ -110,7 +107,7 @@ public class SchoolController {
     ) {
         School school = schoolService.getById(id);
         SchoolDto schoolDto;
-        if (RoleBasedAccessUtils.canAccessSchool(user, school)) {
+        if (roleBasedAccessUtils.canAccessSchool(user, school)) {
             schoolDto = SchoolMapper.INSTANCE.toSchoolDto(school, include);
         } else {
             schoolDto = BasicDtoMapper.toSchoolDto(school);
@@ -124,7 +121,7 @@ public class SchoolController {
             @RequestBody CreateSchoolDto schoolDto,
             @AuthenticationPrincipal UserEntity user) {
         School school = schoolService.getByIdOrUser(id, user);
-        if (!RoleBasedAccessUtils.canModifySchool(user, school)) {
+        if (!roleBasedAccessUtils.canModifySchool(user, school)) {
             return new ResponseEntity<>("You can't modify this school", HttpStatus.FORBIDDEN);
         }
         String name = schoolDto.getName();
@@ -150,7 +147,7 @@ public class SchoolController {
             @RequestParam MultipartFile logo,
             @AuthenticationPrincipal UserEntity user) {
         School school = schoolService.getByIdOrUser(id, user);
-        if (!RoleBasedAccessUtils.canModifySchool(user, school)) {
+        if (!roleBasedAccessUtils.canModifySchool(user, school)) {
             return new ResponseEntity<>("You can't modify this school", HttpStatus.FORBIDDEN);
         }
         try {
@@ -173,7 +170,7 @@ public class SchoolController {
             @AuthenticationPrincipal UserEntity user
     ) {
         School school = schoolService.getByIdOrUser(id, user);
-        if (!RoleBasedAccessUtils.canModifySchool(user, school)) {
+        if (!roleBasedAccessUtils.canModifySchool(user, school)) {
             return new ResponseEntity<>("You can't modify this school", HttpStatus.FORBIDDEN);
         }
         try {
@@ -211,11 +208,11 @@ public class SchoolController {
             @RequestBody AddSchoolUserDto addSchoolUserDto,
             @AuthenticationPrincipal UserEntity user) {
         School school = schoolService.getByIdOrUser(id, user);
-        if (!RoleBasedAccessUtils.canModifySchool(user, school)) {
+        if (!roleBasedAccessUtils.canModifySchool(user, school)) {
             return new ResponseEntity<>("You can't modify this school", HttpStatus.FORBIDDEN);
         }
         UserEntity targetUser = userService.getByUsername(addSchoolUserDto.getUsername());
-        if (!RoleBasedAccessUtils.canModifyUser(user, targetUser)) {
+        if (!roleBasedAccessUtils.canModifyUser(user, targetUser)) {
             return new ResponseEntity<>("You can't modify this user", HttpStatus.FORBIDDEN);
         }
         targetUser.setSchool(school);
@@ -235,7 +232,7 @@ public class SchoolController {
             @AuthenticationPrincipal UserEntity user
     ) {
         School school = schoolService.getByIdOrUser(id, user);
-        if (!RoleBasedAccessUtils.canAccessSchool(user, school)) {
+        if (!roleBasedAccessUtils.canAccessSchool(user, school)) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
         List<UserDto> users = userService.mapAllToDto(schoolService.getSchoolUsersLoaded(id, include), include);
@@ -249,7 +246,7 @@ public class SchoolController {
             @AuthenticationPrincipal UserEntity user
     ) {
         School school = schoolService.getByIdOrUser(id, user);
-        if (!RoleBasedAccessUtils.canAccessSchool(user, school)) {
+        if (!roleBasedAccessUtils.canAccessSchool(user, school)) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
         List<ClassDto> classes = classService
@@ -264,7 +261,7 @@ public class SchoolController {
             @AuthenticationPrincipal UserEntity user
     ) {
         School school = schoolService.getByIdOrUser(id, user);
-        if (!RoleBasedAccessUtils.canAccessSchool(user, school)) {
+        if (!roleBasedAccessUtils.canAccessSchool(user, school)) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
         List<CourseDto> courses = courseService
@@ -279,7 +276,7 @@ public class SchoolController {
             @AuthenticationPrincipal UserEntity user
     ) {
         School school = schoolService.getByIdOrUser(id, user);
-        if (!RoleBasedAccessUtils.canAccessSchool(user, school)) {
+        if (!roleBasedAccessUtils.canAccessSchool(user, school)) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
         return new ResponseEntity<>(schoolService.getSchoolNewsLoaded(id, include), HttpStatus.OK);

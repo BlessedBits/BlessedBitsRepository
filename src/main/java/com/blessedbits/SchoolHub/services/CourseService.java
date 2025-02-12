@@ -35,18 +35,20 @@ public class CourseService {
     private final AssignmentRepository assignmentRepository;
     private final SubmissionRepository submissionRepository;
     private final SchoolRepository schoolRepository;
-    private final UserRepository userRepository;   
+    private final UserRepository userRepository;
+    private final RoleBasedAccessUtils roleBasedAccessUtils;
 
     @PersistenceContext
     private EntityManager entityManager;
 
-    public CourseService(UserRepository userRepository, SchoolRepository schoolRepository, CourseRepository courseRepository, ModuleRepository moduleRepository, AssignmentRepository assignmentRepository, SubmissionRepository submissionRepository) {
+    public CourseService(UserRepository userRepository, SchoolRepository schoolRepository, CourseRepository courseRepository, ModuleRepository moduleRepository, AssignmentRepository assignmentRepository, SubmissionRepository submissionRepository, RoleBasedAccessUtils roleBasedAccessUtils) {
         this.courseRepository = courseRepository;
         this.moduleRepository = moduleRepository;
         this.assignmentRepository = assignmentRepository;
         this.submissionRepository = submissionRepository;
         this.userRepository = userRepository;
         this.schoolRepository = schoolRepository;
+        this.roleBasedAccessUtils = roleBasedAccessUtils;
     }
 
     public Course getById(Integer id) {
@@ -212,7 +214,7 @@ public class CourseService {
         School school = schoolRepository.findById(courseDto.getSchoolId())
                 .orElseGet(() -> user.getSchool());
 
-        if (!RoleBasedAccessUtils.canAccessSchool(user, school)) {
+        if (!roleBasedAccessUtils.canAccessSchool(user, school)) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
 

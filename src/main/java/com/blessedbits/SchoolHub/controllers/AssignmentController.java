@@ -26,11 +26,13 @@ public class AssignmentController {
     private final ModuleService moduleService;
     private final AssignmentRepository assignmentRepository;
     private final AssignmentService assignmentService;
+    private final RoleBasedAccessUtils roleBasedAccessUtils;
 
-    public AssignmentController(ModuleService moduleService, AssignmentRepository assignmentRepository, AssignmentService assignmentService) {
+    public AssignmentController(ModuleService moduleService, AssignmentRepository assignmentRepository, AssignmentService assignmentService, RoleBasedAccessUtils roleBasedAccessUtils) {
         this.moduleService = moduleService;
         this.assignmentRepository = assignmentRepository;
         this.assignmentService = assignmentService;
+        this.roleBasedAccessUtils = roleBasedAccessUtils;
     }
 
     @PostMapping("")
@@ -39,7 +41,7 @@ public class AssignmentController {
             @AuthenticationPrincipal UserEntity user
     ) {
         ModuleEntity moduleEntity = moduleService.getById(assignmentDto.getModuleId());
-        if (!RoleBasedAccessUtils.canModifyCourse(user, moduleEntity.getCourse())) {
+        if (!roleBasedAccessUtils.canModifyCourse(user, moduleEntity.getCourse())) {
             return new ResponseEntity<>("You can't modify this course", HttpStatus.FORBIDDEN);
         }
         Assignment assignment = new Assignment();
@@ -64,7 +66,7 @@ public class AssignmentController {
             @AuthenticationPrincipal UserEntity user
     ) {
         Assignment assignment = assignmentService.getLoadedById(id, include);
-        if (!RoleBasedAccessUtils.canAccessCourse(user, assignment.getModule().getCourse())) {
+        if (!roleBasedAccessUtils.canAccessCourse(user, assignment.getModule().getCourse())) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
         return new ResponseEntity<>(AssignmentMapper.INSTANCE.toAssignmentDto(assignment, include), HttpStatus.OK);
@@ -77,7 +79,7 @@ public class AssignmentController {
             @AuthenticationPrincipal UserEntity user
     ) {
         Assignment assignment = assignmentService.getById(id);
-        if (!RoleBasedAccessUtils.canModifyCourse(user, assignment.getModule().getCourse())) {
+        if (!roleBasedAccessUtils.canModifyCourse(user, assignment.getModule().getCourse())) {
             return new ResponseEntity<>("You can't modify this course", HttpStatus.FORBIDDEN);
         }
         assignment.setTitle(assignmentDto.getTitle());
@@ -99,7 +101,7 @@ public class AssignmentController {
             @AuthenticationPrincipal UserEntity user
     ) {
         Assignment assignment = assignmentService.getById(id);
-        if (!RoleBasedAccessUtils.canModifyCourse(user, assignment.getModule().getCourse())) {
+        if (!roleBasedAccessUtils.canModifyCourse(user, assignment.getModule().getCourse())) {
             return new ResponseEntity<>("You can't modify this course", HttpStatus.FORBIDDEN);
         }
         try {
@@ -119,7 +121,7 @@ public class AssignmentController {
     {
         Assignment assignment = assignmentService.getById(id);
 
-        if (!RoleBasedAccessUtils.canAccessCourse(user, assignment.getModule().getCourse())) {
+        if (!roleBasedAccessUtils.canAccessCourse(user, assignment.getModule().getCourse())) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
         List<Submission> submissions = assignmentService.getAssignmentSubmissionsLoaded(id, include);

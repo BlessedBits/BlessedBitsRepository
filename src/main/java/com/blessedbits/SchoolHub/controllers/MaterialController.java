@@ -25,12 +25,14 @@ public class MaterialController {
     private final ModuleService moduleService;
     private final MaterialRepository materialRepository;
     private final MaterialService materialService;
+    private final RoleBasedAccessUtils roleBasedAccessUtils;
 
     @Autowired
-    public MaterialController(ModuleService moduleService, MaterialRepository materialRepository, MaterialService materialService) {
+    public MaterialController(ModuleService moduleService, MaterialRepository materialRepository, MaterialService materialService, RoleBasedAccessUtils roleBasedAccessUtils) {
         this.moduleService = moduleService;
         this.materialRepository = materialRepository;
         this.materialService = materialService;
+        this.roleBasedAccessUtils = roleBasedAccessUtils;
     }
 
     @PostMapping("")
@@ -39,7 +41,7 @@ public class MaterialController {
             @AuthenticationPrincipal UserEntity user
     ) {
         ModuleEntity moduleEntity = moduleService.getById(createMaterialDto.getModuleId());
-        if (!RoleBasedAccessUtils.canModifyCourse(user, moduleEntity.getCourse())) {
+        if (!roleBasedAccessUtils.canModifyCourse(user, moduleEntity.getCourse())) {
             return new ResponseEntity<>("You can't modify this course", HttpStatus.FORBIDDEN);
         }
         Material material = new Material();
@@ -63,7 +65,7 @@ public class MaterialController {
             @AuthenticationPrincipal UserEntity user
     ) {
         Material materialEntity = materialService.getLoadedById(id, include);
-        if (!RoleBasedAccessUtils.canAccessCourse(user, materialEntity.getModule().getCourse())) {
+        if (!roleBasedAccessUtils.canAccessCourse(user, materialEntity.getModule().getCourse())) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
         return new ResponseEntity<>(MaterialMapper.INSTANCE.toMaterialDto(materialEntity, include), HttpStatus.OK);
@@ -76,7 +78,7 @@ public class MaterialController {
             @AuthenticationPrincipal UserEntity user
     ) {
         Material materialEntity = materialService.getById(id);
-        if (!RoleBasedAccessUtils.canModifyCourse(user, materialEntity.getModule().getCourse())) {
+        if (!roleBasedAccessUtils.canModifyCourse(user, materialEntity.getModule().getCourse())) {
             return new ResponseEntity<>("You can't modify this course", HttpStatus.FORBIDDEN);
         }
         try {
@@ -97,7 +99,7 @@ public class MaterialController {
             @AuthenticationPrincipal UserEntity user
     ) {
         Material materialEntity = materialService.getById(id);
-        if (!RoleBasedAccessUtils.canModifyCourse(user, materialEntity.getModule().getCourse())) {
+        if (!roleBasedAccessUtils.canModifyCourse(user, materialEntity.getModule().getCourse())) {
             return new ResponseEntity<>("You can't modify this course", HttpStatus.FORBIDDEN);
         }
         try {
