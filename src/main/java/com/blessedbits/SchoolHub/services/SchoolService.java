@@ -113,9 +113,10 @@ public class SchoolService {
     }
 
     public List<Course> getSchoolCoursesLoaded(Integer id, List<String> include) {
-        String jpql = "select s.courses from School s";
+        String jpql = "select s.courses from School s where s.id = :id";
         TypedQuery<Course> query = EntityManagerUtils
                 .createTypedQueryWithGraph(Course.class, entityManager, jpql, include);
+        query.setParameter("id", id);g
         try {
             return query.getResultList();
         } catch (NoResultException e) {
