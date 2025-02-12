@@ -26,12 +26,14 @@ public class SubmissionController {
     private final AssignmentService assignmentService;
     private final SubmissionRepository submissionRepository;
     private final SubmissionService submissionService;
+    private final RoleBasedAccessUtils roleBasedAccessUtils;
 
     @Autowired
-    public SubmissionController(AssignmentService assignmentService, SubmissionRepository submissionRepository, SubmissionService submissionService) {
+    public SubmissionController(AssignmentService assignmentService, SubmissionRepository submissionRepository, SubmissionService submissionService, RoleBasedAccessUtils roleBasedAccessUtils) {
         this.assignmentService = assignmentService;
         this.submissionRepository = submissionRepository;
         this.submissionService = submissionService;
+        this.roleBasedAccessUtils = roleBasedAccessUtils;
     }
 
     @PostMapping("")
@@ -40,7 +42,7 @@ public class SubmissionController {
             @AuthenticationPrincipal UserEntity user
     ) {
         Assignment assignment = assignmentService.getById(submissionDto.getAssignmentId());
-        if (!RoleBasedAccessUtils.canAccessCourse(user, assignment.getModule().getCourse())) {
+        if (!roleBasedAccessUtils.canAccessCourse(user, assignment.getModule().getCourse())) {
             return new ResponseEntity<>("You can't create submission for this course", HttpStatus.FORBIDDEN);
         }
         Submission submission = new Submission();
@@ -64,7 +66,7 @@ public class SubmissionController {
             @AuthenticationPrincipal UserEntity user
     ) {
         Submission submission = submissionService.getLoadedById(id, include);
-        if (!RoleBasedAccessUtils.canAccessCourse(user, submission.getAssignment().getModule().getCourse())) {
+        if (!roleBasedAccessUtils.canAccessCourse(user, submission.getAssignment().getModule().getCourse())) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
         return new ResponseEntity<>(SubmissionMapper.INSTANCE.toSubmissionDto(submission, include), HttpStatus.OK);

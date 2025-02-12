@@ -28,12 +28,14 @@ public class ModuleController {
     private final ModuleRepository moduleRepository;
     private final ModuleService moduleService;
     private final CourseService courseService;
+    private final RoleBasedAccessUtils roleBasedAccessUtils;
 
     @Autowired
-    public ModuleController(final ModuleRepository moduleRepository, final ModuleService moduleService, CourseService courseService) {
+    public ModuleController(final ModuleRepository moduleRepository, final ModuleService moduleService, CourseService courseService, RoleBasedAccessUtils roleBasedAccessUtils) {
         this.moduleRepository = moduleRepository;
         this.moduleService = moduleService;
         this.courseService = courseService;
+        this.roleBasedAccessUtils = roleBasedAccessUtils;
     }
 
     @PostMapping("")
@@ -42,7 +44,7 @@ public class ModuleController {
             @AuthenticationPrincipal UserEntity user
     ) {
         Course course = courseService.getById(createModuleDto.getCourseId());
-        if (!RoleBasedAccessUtils.canModifyCourse(user, course)) {
+        if (!roleBasedAccessUtils.canModifyCourse(user, course)) {
             return new ResponseEntity<>("You can't modify this course", HttpStatus.FORBIDDEN);
         }
         ModuleEntity moduleEntity = new ModuleEntity();
@@ -64,7 +66,7 @@ public class ModuleController {
             @AuthenticationPrincipal UserEntity user
     ) {
         ModuleEntity moduleEntity = moduleService.getLoadedById(id, include);
-        if (!RoleBasedAccessUtils.canAccessCourse(user, moduleEntity.getCourse())) {
+        if (!roleBasedAccessUtils.canAccessCourse(user, moduleEntity.getCourse())) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
         return new ResponseEntity<>(ModuleMapper.INSTANCE.toModuleDto(moduleEntity, include), HttpStatus.OK);
@@ -77,7 +79,7 @@ public class ModuleController {
             @AuthenticationPrincipal UserEntity user
     ) {
         ModuleEntity moduleEntity = moduleService.getById(id);
-        if (!RoleBasedAccessUtils.canModifyCourse(user, moduleEntity.getCourse())) {
+        if (!roleBasedAccessUtils.canModifyCourse(user, moduleEntity.getCourse())) {
             return new ResponseEntity<>("You can't modify this course", HttpStatus.FORBIDDEN);
         }
         try {
@@ -96,7 +98,7 @@ public class ModuleController {
             @AuthenticationPrincipal UserEntity user
     ) {
         ModuleEntity moduleEntity = moduleService.getById(id);
-        if (!RoleBasedAccessUtils.canModifyCourse(user, moduleEntity.getCourse())) {
+        if (!roleBasedAccessUtils.canModifyCourse(user, moduleEntity.getCourse())) {
             return new ResponseEntity<>("You can't modify this course", HttpStatus.FORBIDDEN);
         }
         try {
@@ -116,7 +118,7 @@ public class ModuleController {
     ) {
         ModuleEntity module = moduleService.getById(id);
 
-        if (!RoleBasedAccessUtils.canAccessCourse(user, module.getCourse())) {
+        if (!roleBasedAccessUtils.canAccessCourse(user, module.getCourse())) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
 
@@ -132,7 +134,7 @@ public class ModuleController {
     {
         ModuleEntity module = moduleService.getById(id);
 
-        if (!RoleBasedAccessUtils.canAccessCourse(user, module.getCourse())) {
+        if (!roleBasedAccessUtils.canAccessCourse(user, module.getCourse())) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
         List<Assignment> assignments = moduleService.getModuleAssignmentsLoaded(id, include);

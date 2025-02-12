@@ -35,16 +35,18 @@ public class ClassesController {
     private final CourseService courseService;
     private final ClassService classService;
     private final SchoolService schoolService;
+    private final RoleBasedAccessUtils roleBasedAccessUtils;
 
     @Autowired
     public ClassesController(ClassRepository classRepository, UserRepository userRepository,
-                             UserService userService, CourseService courseService, ClassService classService, SchoolService schoolService) {
+                             UserService userService, CourseService courseService, ClassService classService, SchoolService schoolService, RoleBasedAccessUtils roleBasedAccessUtils) {
         this.classRepository = classRepository;
         this.userRepository = userRepository;
         this.userService = userService;
         this.courseService = courseService;
         this.classService = classService;
         this.schoolService = schoolService;
+        this.roleBasedAccessUtils = roleBasedAccessUtils;
     }
 
     @GetMapping("")
@@ -60,7 +62,7 @@ public class ClassesController {
             @AuthenticationPrincipal UserEntity user
     ) {
         School school = schoolService.getByIdOrUser(classDto.getSchoolId(), user);
-        if (!RoleBasedAccessUtils.canModifySchool(user, school)) {
+        if (!roleBasedAccessUtils.canModifySchool(user, school)) {
             return new ResponseEntity<>("You can't modify this school", HttpStatus.FORBIDDEN);
         }
         UserEntity teacher = userService.getByUsername(classDto.getHomeroomTeacher());
@@ -89,7 +91,7 @@ public class ClassesController {
             @AuthenticationPrincipal UserEntity user
     ) {
         ClassEntity classEntity = classService.getLoadedById(classId, include);
-        if (!RoleBasedAccessUtils.canAccessClass(user, classEntity)) {
+        if (!roleBasedAccessUtils.canAccessClass(user, classEntity)) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
         return new ResponseEntity<>(ClassMapper.INSTANCE.toClassDto(classEntity, include), HttpStatus.OK);
@@ -102,7 +104,7 @@ public class ClassesController {
             @AuthenticationPrincipal UserEntity user
     ) {
         ClassEntity classEntity = classService.getById(classId);
-        if (!RoleBasedAccessUtils.canModifyClass(user, classEntity)) {
+        if (!roleBasedAccessUtils.canModifyClass(user, classEntity)) {
             return new ResponseEntity<>("You can't modify this class", HttpStatus.FORBIDDEN);
         }
         String className = classDto.getName();
@@ -131,7 +133,7 @@ public class ClassesController {
             @AuthenticationPrincipal UserEntity user
     ) {
         ClassEntity classEntity = classService.getById(classId);
-        if (!RoleBasedAccessUtils.canModifyClass(user, classEntity)) {
+        if (!roleBasedAccessUtils.canModifyClass(user, classEntity)) {
             return new ResponseEntity<>("You can't modify this class", HttpStatus.FORBIDDEN);
         }
         try {
@@ -150,11 +152,11 @@ public class ClassesController {
             @AuthenticationPrincipal UserEntity user
     ) {
         Course course = courseService.getById(addCourseToClassDto.getCourseId());
-        if (!RoleBasedAccessUtils.canModifyCourse(user, course)) {
+        if (!roleBasedAccessUtils.canModifyCourse(user, course)) {
             return new ResponseEntity<>("You can't modify this course", HttpStatus.FORBIDDEN);
         }
         ClassEntity classEntity = classService.getById(classId);
-        if (!RoleBasedAccessUtils.canModifyClass(user, classEntity)) {
+        if (!roleBasedAccessUtils.canModifyClass(user, classEntity)) {
             return new ResponseEntity<>("You can't modify this class", HttpStatus.FORBIDDEN);
         }
         if (!classEntity.getSchool().equals(course.getSchool())) {
@@ -179,7 +181,7 @@ public class ClassesController {
             @AuthenticationPrincipal UserEntity user
     ) {
         ClassEntity classEntity = classService.getById(classId);
-        if (!RoleBasedAccessUtils.canAccessClass(user, classEntity)) {
+        if (!roleBasedAccessUtils.canAccessClass(user, classEntity)) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
         List<CourseDto> courses = courseService
@@ -194,11 +196,11 @@ public class ClassesController {
             @AuthenticationPrincipal UserEntity user
     ) {
         ClassEntity classEntity = classService.getById(classId);
-        if (!RoleBasedAccessUtils.canModifyClass(user, classEntity)) {
+        if (!roleBasedAccessUtils.canModifyClass(user, classEntity)) {
             return new ResponseEntity<>("You can't modify this class", HttpStatus.FORBIDDEN);
         }
         Course course = courseService.getById(courseId);
-        if (!RoleBasedAccessUtils.canModifyCourse(user, course)) {
+        if (!roleBasedAccessUtils.canModifyCourse(user, course)) {
             return new ResponseEntity<>("You can't modify this course", HttpStatus.FORBIDDEN);
         }
         if (!classEntity.getCourses().contains(course)) {
@@ -221,7 +223,7 @@ public class ClassesController {
             @AuthenticationPrincipal UserEntity user
     ) {
         ClassEntity classEntity = classService.getById(classId);
-        if (!RoleBasedAccessUtils.canModifyClass(user, classEntity)) {
+        if (!roleBasedAccessUtils.canModifyClass(user, classEntity)) {
             return new ResponseEntity<>("You can't modify this class", HttpStatus.FORBIDDEN);
         }
         UserEntity student = userService.getByUsername(addClassStudentDto.getUsername());
@@ -248,7 +250,7 @@ public class ClassesController {
             @AuthenticationPrincipal UserEntity user
     ) {
         ClassEntity classEntity = classService.getById(classId);
-        if (!RoleBasedAccessUtils.canAccessClass(user, classEntity)) {
+        if (!roleBasedAccessUtils.canAccessClass(user, classEntity)) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
         List<UserDto> students = userService
@@ -263,7 +265,7 @@ public class ClassesController {
             @AuthenticationPrincipal UserEntity user
     ) {
         ClassEntity classEntity = classService.getById(classId);
-        if (!RoleBasedAccessUtils.canModifyClass(user, classEntity)) {
+        if (!roleBasedAccessUtils.canModifyClass(user, classEntity)) {
             return new ResponseEntity<>("You can't modify this class", HttpStatus.FORBIDDEN);
         }
         UserEntity student = userService.getByUsername(studentUsername);
