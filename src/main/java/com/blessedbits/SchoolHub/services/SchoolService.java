@@ -63,6 +63,21 @@ public class SchoolService {
         );
     }
 
+    public School getLoadedById(Integer id, List<String> include) {
+        String jpql = "SELECT s FROM School s WHERE s.id = :id";
+        TypedQuery<School> query = EntityManagerUtils
+                .createTypedQueryWithGraph(School.class, entityManager, jpql, include);
+        query.setParameter("id", id);
+        try {
+            return query.getSingleResult();
+        } catch (NoResultException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "School with given id not found");
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return getById(id);
+        }
+    }
+
     public School getByIdOrUser(Integer id, UserEntity user) {
         if (id == null) {
             return user.getSchool();

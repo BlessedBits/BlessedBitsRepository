@@ -105,7 +105,7 @@ public class SchoolController {
             @RequestParam(required = false) List<String> include,
             @AuthenticationPrincipal UserEntity user
     ) {
-        School school = schoolService.getById(id);
+        School school = schoolService.getLoadedById(id, include);
         SchoolDto schoolDto;
         if (roleBasedAccessUtils.canAccessSchool(user, school)) {
             schoolDto = SchoolMapper.INSTANCE.toSchoolDto(school, include);
