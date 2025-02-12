@@ -63,6 +63,21 @@ public class SchoolService {
         );
     }
 
+    public School getLoadedById(Integer id, List<String> include) {
+        String jpql = "SELECT s FROM School s WHERE s.id = :id";
+        TypedQuery<School> query = EntityManagerUtils
+                .createTypedQueryWithGraph(School.class, entityManager, jpql, include);
+        query.setParameter("id", id);
+        try {
+            return query.getSingleResult();
+        } catch (NoResultException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "School with given id not found");
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return getById(id);
+        }
+    }
+
     public School getByIdOrUser(Integer id, UserEntity user) {
         if (id == null) {
             return user.getSchool();
@@ -85,9 +100,10 @@ public class SchoolService {
     }
 
     public List<UserEntity> getSchoolUsersLoaded(Integer id, List<String> include) {
-        String jpql = "select s.users from School s";
+        String jpql = "select s.users from School s where s.id = :id";
         TypedQuery<UserEntity> query = EntityManagerUtils
                 .createTypedQueryWithGraph(UserEntity.class, entityManager, jpql, include);
+        query.setParameter("id", id);
         try {
             return query.getResultList();
         } catch (NoResultException e) {
@@ -99,9 +115,10 @@ public class SchoolService {
     }
 
     public List<ClassEntity> getSchoolClassesLoaded(Integer id, List<String> include) {
-        String jpql = "select s.classes from School s";
+        String jpql = "select s.classes from School s where s.id = :id";
         TypedQuery<ClassEntity> query = EntityManagerUtils
                 .createTypedQueryWithGraph(ClassEntity.class, entityManager, jpql, include);
+        query.setParameter("id", id);
         try {
             return query.getResultList();
         } catch (NoResultException e) {
@@ -113,9 +130,10 @@ public class SchoolService {
     }
 
     public List<Course> getSchoolCoursesLoaded(Integer id, List<String> include) {
-        String jpql = "select s.courses from School s";
+        String jpql = "select s.courses from School s where s.id = :id";
         TypedQuery<Course> query = EntityManagerUtils
                 .createTypedQueryWithGraph(Course.class, entityManager, jpql, include);
+        query.setParameter("id", id);
         try {
             return query.getResultList();
         } catch (NoResultException e) {
@@ -127,9 +145,10 @@ public class SchoolService {
     }
 
     public List<News> getSchoolNewsLoaded(Integer id, List<String> include) {
-        String jpql = "select s.news from School s";
+        String jpql = "select s.news from School s where s.id = :id";
         TypedQuery<News> query = EntityManagerUtils
                 .createTypedQueryWithGraph(News.class, entityManager, jpql, include);
+        query.setParameter("id", id);
         try {
             return query.getResultList();
         } catch (NoResultException e) {
