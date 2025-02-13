@@ -1,5 +1,6 @@
 package com.blessedbits.SchoolHub.controllers;
 
+import com.blessedbits.SchoolHub.dto.UpdateDutyDto;
 import com.blessedbits.SchoolHub.dto.UpdateInfoDto;
 import com.blessedbits.SchoolHub.dto.UpdateNameDto;
 import com.blessedbits.SchoolHub.dto.UserProfileDto;
@@ -169,14 +170,14 @@ public class UserController {
     @PutMapping("/{id}/duty")
     public ResponseEntity<String> setUsersDuty(
             @PathVariable Integer id,
-            @RequestBody String duty,
+            @RequestBody UpdateDutyDto updateDutyDto,
             @AuthenticationPrincipal UserEntity user
     ) {
         UserEntity targetUser = userService.getByIdOrUser(id, user);
         if (!roleBasedAccessUtils.canModifyUser(user,  targetUser)) {
             return new ResponseEntity<>("You can't modify this user", HttpStatus.FORBIDDEN);
         }
-        targetUser.setDuty(duty);
+        targetUser.setDuty(updateDutyDto.getDuty());
         try {
             userRepository.save(targetUser);
             return new ResponseEntity<>("User's duty was successfully updated.", HttpStatus.OK);
