@@ -250,10 +250,13 @@ public class SecurityConfig {
                         )
 
                         // ScheduleController
-                        .requestMatchers("/schedules/new").hasRole("SCHOOL_ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/schedules/").hasRole("SCHOOL_ADMIN")
                         .requestMatchers(HttpMethod.GET, "/schedules/{id}").hasAnyRole(
-                                "STUDENT", "TEACHER", "SCHOOL_ADMIN"
-                        )
+                                "STUDENT", "TEACHER", "SCHOOL_ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/schedules/").hasAnyRole(
+                                "STUDENT", "TEACHER", "SCHOOL_ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/schedules/class/{id}").hasAnyRole(
+                                "STUDENT", "TEACHER", "SCHOOL_ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/schedules/{id}").hasRole("SCHOOL_ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/schedules/{id}").hasRole("SCHOOL_ADMIN")
                         .requestMatchers("/schedules/**").hasAnyRole(
