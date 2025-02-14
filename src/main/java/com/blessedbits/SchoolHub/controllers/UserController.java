@@ -1,11 +1,13 @@
 package com.blessedbits.SchoolHub.controllers;
 
+import com.blessedbits.SchoolHub.dto.RoleUpdateRequest;
 import com.blessedbits.SchoolHub.dto.UpdateDutyDto;
 import com.blessedbits.SchoolHub.dto.UpdateInfoDto;
 import com.blessedbits.SchoolHub.dto.UpdateNameDto;
 import com.blessedbits.SchoolHub.dto.UserProfileDto;
 import com.blessedbits.SchoolHub.misc.CloudFolder;
 import com.blessedbits.SchoolHub.misc.RoleBasedAccessUtils;
+import com.blessedbits.SchoolHub.models.Role;
 import com.blessedbits.SchoolHub.models.Submission;
 import com.blessedbits.SchoolHub.models.UserEntity;
 import com.blessedbits.SchoolHub.models.VerificationToken;
@@ -34,6 +36,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.PathVariable;
+
 
 
 
@@ -258,16 +264,16 @@ public class UserController {
         
     }
 
-    @GetMapping("/role")
-    public ResponseEntity<String> getUserRole(@RequestHeader("Authorization") String authorizationHeader) 
+    @GetMapping("/roles")
+    public ResponseEntity<?> getUserRoles(@RequestHeader("Authorization") String authorizationHeader) 
     {
         UserEntity user = userService.getUserFromHeader(authorizationHeader);
         try
         {
-            return new ResponseEntity<String>(user.getRoles().get(0).getName(), HttpStatus.OK);
+            return new ResponseEntity<>(user.getRoles(), HttpStatus.OK);
         }catch (Exception e)
         {
-            return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -318,6 +324,17 @@ public class UserController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
+    @PutMapping("/{id}/update-roles")
+    public ResponseEntity<String> updateRole(
+            @PathVariable int id,
+            @RequestBody RoleUpdateRequest roleUpdateRequest) {
+        try {
+            userService.updateRole(id, roleUpdateRequest.getRoleId(), roleUpdateRequest.isAdd());
+            return new ResponseEntity<String>("Role updated successfully.", HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Error: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
 
 }
