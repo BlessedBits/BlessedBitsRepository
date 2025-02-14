@@ -143,4 +143,21 @@ public interface BasicDtoMapper {
         submissionDto.setAssignmentId(submission.getAssignment().getId());
         return submissionDto;
     }
+
+    static ScheduleDto toBasicScheduleDto(Schedule schedule) {
+        ScheduleDto scheduleDto = new ScheduleDto();
+        scheduleDto.setId(schedule.getId());
+        scheduleDto.setDayOfWeek(schedule.getDayOfWeek());
+        scheduleDto.setStartTime(schedule.getStartTime());
+        scheduleDto.setEndTime(schedule.getEndTime());
+        scheduleDto.setRoom(schedule.getRoom());
+        return scheduleDto;
+    }
+
+    static ScheduleDto toScheduleDto(Schedule schedule) {
+        ScheduleDto scheduleDto = toBasicScheduleDto(schedule);
+        scheduleDto.setCourseId(schedule.getCourse().getId());
+        scheduleDto.setSchoolClassId(schedule.getClassEntity().getId());
+        return scheduleDto;
+    }
 }

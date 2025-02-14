@@ -21,4 +21,6 @@ public class ClassDto {
     private List<UserDto> students;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private List<CourseDto> courses;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private List<ScheduleDto> schedules;
 }

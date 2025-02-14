@@ -51,6 +51,9 @@ public class ClassEntity {
     )
     private Set<Course> courses;
 
+    @OneToMany(mappedBy = "classEntity", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Schedule> schedules;
+
     public void addCourse(Course course) {
         this.courses.add(course);
         course.getClasses().add(this);

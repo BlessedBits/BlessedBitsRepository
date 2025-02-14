@@ -41,6 +41,11 @@ public interface ClassMapper {
                     .map(BasicDtoMapper::toCourseDto)
                     .collect(Collectors.toList()));
         }
+        if (include.contains("schedules")) {
+            classDto.setSchedules(classEntity.getSchedules().stream()
+                    .map(BasicDtoMapper::toScheduleDto)
+                    .toList());
+        }
         return classDto;
     }
 }

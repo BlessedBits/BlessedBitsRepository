@@ -2,6 +2,8 @@ package com.blessedbits.SchoolHub.models;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+
 import java.time.LocalTime;
 
 @Entity
@@ -18,10 +20,11 @@ import java.time.LocalTime;
     }
 )
 @Data
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Schedule {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Integer id;
 
     @ManyToOne
