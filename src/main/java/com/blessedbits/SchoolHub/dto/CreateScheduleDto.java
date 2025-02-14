@@ -4,7 +4,7 @@ import java.time.LocalTime;
 import lombok.Data;
 
 @Data
-public class ScheduleDto 
+public class CreateScheduleDto
 {
     private Integer classId;
     private Integer courseId;

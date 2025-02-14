@@ -3,6 +3,7 @@ package com.blessedbits.SchoolHub.services;
 import com.blessedbits.SchoolHub.misc.EntityManagerUtils;
 import com.blessedbits.SchoolHub.models.ClassEntity;
 import com.blessedbits.SchoolHub.models.Course;
+import com.blessedbits.SchoolHub.models.Schedule;
 import com.blessedbits.SchoolHub.models.UserEntity;
 import com.blessedbits.SchoolHub.projections.dto.ClassDto;
 import com.blessedbits.SchoolHub.projections.mappers.ClassMapper;
@@ -95,6 +96,21 @@ public class ClassService {
         } catch (Exception e) {
             System.out.println("Couldn't execute query with entity graph");
             return getById(id).getStudents().stream().toList();
+        }
+    }
+
+    public List<Schedule> getClassSchedulesLoaded(Integer id, List<String> include) {
+        String jpql = "select cl.schedules from ClassEntity cl where cl.id = :id";
+        TypedQuery<Schedule> query = EntityManagerUtils
+                .createTypedQueryWithGraph(Schedule.class, entityManager, jpql, include);
+        query.setParameter("id", id);
+        try {
+            return query.getResultList();
+        } catch (NoResultException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No results found for the query", e);
+        } catch (Exception e) {
+            System.out.println("Couldn't execute query with entity graph");
+            return getById(id).getSchedules().stream().toList();
         }
     }
 

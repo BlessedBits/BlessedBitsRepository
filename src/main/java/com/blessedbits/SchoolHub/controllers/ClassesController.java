@@ -10,14 +10,12 @@ import com.blessedbits.SchoolHub.models.School;
 import com.blessedbits.SchoolHub.models.UserEntity;
 import com.blessedbits.SchoolHub.projections.dto.ClassDto;
 import com.blessedbits.SchoolHub.projections.dto.CourseDto;
+import com.blessedbits.SchoolHub.projections.dto.ScheduleDto;
 import com.blessedbits.SchoolHub.projections.dto.UserDto;
 import com.blessedbits.SchoolHub.projections.mappers.ClassMapper;
 import com.blessedbits.SchoolHub.repositories.ClassRepository;
 import com.blessedbits.SchoolHub.repositories.UserRepository;
-import com.blessedbits.SchoolHub.services.ClassService;
-import com.blessedbits.SchoolHub.services.CourseService;
-import com.blessedbits.SchoolHub.services.SchoolService;
-import com.blessedbits.SchoolHub.services.UserService;
+import com.blessedbits.SchoolHub.services.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -36,10 +34,11 @@ public class ClassesController {
     private final ClassService classService;
     private final SchoolService schoolService;
     private final RoleBasedAccessUtils roleBasedAccessUtils;
+    private final ScheduleService scheduleService;
 
     @Autowired
     public ClassesController(ClassRepository classRepository, UserRepository userRepository,
-                             UserService userService, CourseService courseService, ClassService classService, SchoolService schoolService, RoleBasedAccessUtils roleBasedAccessUtils) {
+                             UserService userService, CourseService courseService, ClassService classService, SchoolService schoolService, RoleBasedAccessUtils roleBasedAccessUtils, ScheduleService scheduleService) {
         this.classRepository = classRepository;
         this.userRepository = userRepository;
         this.userService = userService;
@@ -47,6 +46,7 @@ public class ClassesController {
         this.classService = classService;
         this.schoolService = schoolService;
         this.roleBasedAccessUtils = roleBasedAccessUtils;
+        this.scheduleService = scheduleService;
     }
 
     @GetMapping("")
@@ -280,6 +280,21 @@ public class ClassesController {
             return new ResponseEntity<>("Unable to remove student", HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<>("Student removed from specified class", HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}/schedules")
+    public ResponseEntity<List<ScheduleDto>> getSchedules(
+            @PathVariable(name = "id") Integer classId,
+            @RequestParam(required = false) List<String> include,
+            @AuthenticationPrincipal UserEntity user
+    ) {
+        ClassEntity classEntity = classService.getById(classId);
+        if (!roleBasedAccessUtils.canAccessClass(user, classEntity)) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+        List<ScheduleDto> schedules = scheduleService
+                .mapAllToDto(classService.getClassSchedulesLoaded(classId, include), include);
+        return new ResponseEntity<>(schedules, HttpStatus.OK);
     }
 
 }
