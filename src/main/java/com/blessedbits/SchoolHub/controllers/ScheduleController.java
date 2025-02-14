@@ -1,6 +1,7 @@
 package com.blessedbits.SchoolHub.controllers;
 
 import com.blessedbits.SchoolHub.models.Schedule;
+import com.blessedbits.SchoolHub.repositories.ScheduleRepository;
 import com.blessedbits.SchoolHub.dto.ScheduleDto;
 import com.blessedbits.SchoolHub.services.ScheduleService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,55 +19,51 @@ public class ScheduleController {
     @Autowired
     private ScheduleService scheduleService;
 
-    @PostMapping("/new")
-    public ResponseEntity<Schedule> createSchedule(@RequestBody ScheduleDto scheduleDto) {
+    @PostMapping("/")
+    public ResponseEntity<String> createSchedule(@RequestBody ScheduleDto scheduleDto) {
         try 
         {
-            return ResponseEntity.ok(scheduleService.createSchedule(scheduleDto));
+            scheduleService.createSchedule(scheduleDto);
+            return new ResponseEntity<String>("Schedule was successfully created!", HttpStatus.CREATED);
         } catch (Exception e) 
         {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return new ResponseEntity<String>("Error " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @GetMapping("/")
     public ResponseEntity<List<Schedule>> getAllSchedules() {
         try {
-            return ResponseEntity.ok(scheduleService.getAllSchedules());
+            return new ResponseEntity<>(scheduleService.getAllSchedules(), HttpStatus.OK);
         } catch (Exception e) 
         {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error: Couldn't return all schedules", e);
         }
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Schedule> getScheduleById(@PathVariable Integer id) {
         try {
-            return ResponseEntity.ok(scheduleService.getScheduleById(id));
+            return new ResponseEntity<>(scheduleService.getScheduleById(id), HttpStatus.OK);
         } catch (RuntimeException e) 
         {
-            e.printStackTrace();
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Schedule not found with ID: " + id, e);
         } catch (Exception e) 
         {
-            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Schedule> updateSchedule(@PathVariable Integer id, @RequestBody ScheduleDto scheduleDto) {
+    public ResponseEntity<String> updateSchedule(@PathVariable Integer id, @RequestBody ScheduleDto scheduleDto) {
         try {
-            return ResponseEntity.ok(scheduleService.updateSchedule(id, scheduleDto));
+            scheduleService.updateSchedule(id, scheduleDto);
+            return new ResponseEntity<>("Schedule was successfully updated!", HttpStatus.OK);
         } catch (RuntimeException e) 
         {
-            e.printStackTrace();
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Schedule not found with ID: " + id, e);
         } catch (Exception e) 
         {
-            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -75,16 +72,28 @@ public class ScheduleController {
     public ResponseEntity<Void> deleteSchedule(@PathVariable Integer id) {
         try {
             scheduleService.deleteSchedule(id);
-            return ResponseEntity.noContent().build();
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (RuntimeException e) 
         {
-            e.printStackTrace();
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Schedule not found with ID: " + id, e);
         } catch (Exception e) 
         {
-            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
+    @GetMapping("/class/{id}")
+    public ResponseEntity<?> getScheduleByClassId(@PathVariable Integer id) {
+        try {
+            List<Schedule> schedules = scheduleService.getScheduleByClassId(id);
+            if (schedules.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No schedules found for class ID: " + id);
+            }
+            return new ResponseEntity<>(schedules, HttpStatus.OK);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + e.getMessage());
+        }
+    }
+
 }
 
