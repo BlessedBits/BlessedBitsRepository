@@ -6,6 +6,8 @@ import lombok.EqualsAndHashCode;
 
 import java.time.LocalTime;
 
+import com.blessedbits.SchoolHub.misc.JsonReferenceAsId;
+
 @Entity
 @Table
 (
@@ -29,10 +31,12 @@ public class Schedule {
 
     @ManyToOne
     @JoinColumn(name = "class_id", nullable = false)
+    @JsonReferenceAsId
     private ClassEntity classEntity;
 
     @ManyToOne
     @JoinColumn(name = "course_id", nullable = false)
+    @JsonReferenceAsId
     private Course course;
 
     public static enum DayOfWeek {
