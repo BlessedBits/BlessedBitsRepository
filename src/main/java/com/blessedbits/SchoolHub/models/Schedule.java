@@ -2,6 +2,8 @@ package com.blessedbits.SchoolHub.models;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+
 import java.time.LocalTime;
 
 import com.blessedbits.SchoolHub.misc.JsonReferenceAsId;
@@ -20,10 +22,11 @@ import com.blessedbits.SchoolHub.misc.JsonReferenceAsId;
     }
 )
 @Data
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Schedule {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Integer id;
 
     @ManyToOne
@@ -50,6 +53,6 @@ public class Schedule {
     @Column(nullable = false)
     private LocalTime endTime;
 
-    @Column(name = "room_number", nullable = false, length = 20)
-    private String roomNumber;    
+    @Column(nullable = false, length = 20)
+    private String roomNumber;
 }
