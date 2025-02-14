@@ -176,13 +176,15 @@ public class SecurityConfig {
                                 "SCHOOL_ADMIN", "PLATFORM_ADMIN")
                         .requestMatchers(HttpMethod.GET, "/users/profile").hasAnyRole(
                                 "USER", "STUDENT", "TEACHER", "SCHOOL_ADMIN", "PLATFORM_ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/users/role").hasAnyRole(
+                        .requestMatchers(HttpMethod.GET, "/users/roles").hasAnyRole(
                                 "USER", "STUDENT", "TEACHER", "SCHOOL_ADMIN", "PLATFORM_ADMIN")
                         .requestMatchers(HttpMethod.GET, "/users/school-id").hasAnyRole(
                                 "USER", "STUDENT", "TEACHER", "SCHOOL_ADMIN", "PLATFORM_ADMIN")
                         .requestMatchers(HttpMethod.GET, "/users/my-id").hasAnyRole(
                                 "USER", "STUDENT", "TEACHER", "SCHOOL_ADMIN", "PLATFORM_ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/users/profile/id").hasAnyRole(
+                        .requestMatchers(HttpMethod.GET, "/users/profile/{id}").hasAnyRole(
+                                "USER", "STUDENT", "TEACHER", "SCHOOL_ADMIN", "PLATFORM_ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/users/{id}/update-roles").hasAnyRole(
                                 "USER", "STUDENT", "TEACHER", "SCHOOL_ADMIN", "PLATFORM_ADMIN")
                         .requestMatchers("/users/**").hasAnyRole(
                                 "USER", "STUDENT", "TEACHER", "SCHOOL_ADMIN", "PLATFORM_ADMIN")
@@ -269,6 +271,10 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/news/{id}").hasRole("SCHOOL_ADMIN")
                         .requestMatchers("/news/**").hasAnyRole(
                                 "STUDENT", "TEACHER", "SCHOOL_ADMIN", "PLATFORM_ADMIN")
+
+                        // RolesController
+                        .requestMatchers("/roles/**").hasAnyRole("SCHOOL_ADMIN", "PLATFORM_ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/roles/").hasAnyRole("SCHOOL_ADMIN", "PLATFORM_ADMIN")
                 )
                 .httpBasic(Customizer.withDefaults());
         http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
