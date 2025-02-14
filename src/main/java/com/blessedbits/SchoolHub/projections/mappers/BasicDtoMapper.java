@@ -150,7 +150,7 @@ public interface BasicDtoMapper {
         scheduleDto.setDayOfWeek(schedule.getDayOfWeek());
         scheduleDto.setStartTime(schedule.getStartTime());
         scheduleDto.setEndTime(schedule.getEndTime());
-        scheduleDto.setRoom(schedule.getRoom());
+        scheduleDto.setRoom(schedule.getRoomNumber());
         return scheduleDto;
     }
 

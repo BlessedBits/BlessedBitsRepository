@@ -50,5 +50,5 @@ public class Schedule {
     private LocalTime endTime;
 
     @Column(nullable = false, length = 20)
-    private String room;
+    private String roomNumber;
 }
