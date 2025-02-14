@@ -3,12 +3,14 @@ package com.blessedbits.SchoolHub.services;
 import com.blessedbits.SchoolHub.models.ClassEntity;
 import com.blessedbits.SchoolHub.models.Course;
 import com.blessedbits.SchoolHub.models.Schedule;
+import com.blessedbits.SchoolHub.projections.dto.ScheduleDto;
+import com.blessedbits.SchoolHub.projections.mappers.ScheduleMapper;
 import com.blessedbits.SchoolHub.repositories.ClassRepository;
 import com.blessedbits.SchoolHub.repositories.CourseRepository;
 import com.blessedbits.SchoolHub.repositories.ScheduleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.blessedbits.SchoolHub.dto.ScheduleDto;
+import com.blessedbits.SchoolHub.dto.CreateScheduleDto;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,9 +27,9 @@ public class ScheduleService {
     @Autowired
     private CourseRepository courseRepository;
 
-    public void createSchedule(ScheduleDto scheduleDTO) {
-        Optional<ClassEntity> classEntityOpt = classRepository.findById(scheduleDTO.getClassId());
-        Optional<Course> courseOpt = courseRepository.findById(scheduleDTO.getCourseId());
+    public void createSchedule(CreateScheduleDto createScheduleDTO) {
+        Optional<ClassEntity> classEntityOpt = classRepository.findById(createScheduleDTO.getClassId());
+        Optional<Course> courseOpt = courseRepository.findById(createScheduleDTO.getCourseId());
 
         if (classEntityOpt.isEmpty()) 
         {
@@ -40,10 +42,10 @@ public class ScheduleService {
         Schedule schedule = new Schedule();
         schedule.setClassEntity(classEntityOpt.get());
         schedule.setCourse(courseOpt.get()); 
-        schedule.setDayOfWeek(Schedule.DayOfWeek.valueOf(scheduleDTO.getDayOfWeek()));
-        schedule.setStartTime(scheduleDTO.getStartTime());
-        schedule.setEndTime(scheduleDTO.getEndTime());
-        schedule.setRoomNumber(scheduleDTO.getRoomNumber());
+        schedule.setDayOfWeek(Schedule.DayOfWeek.valueOf(createScheduleDTO.getDayOfWeek()));
+        schedule.setStartTime(createScheduleDTO.getStartTime());
+        schedule.setEndTime(createScheduleDTO.getEndTime());
+        schedule.setRoomNumber(createScheduleDTO.getRoomNumber());
 
         scheduleRepository.save(schedule);
     }
@@ -57,11 +59,11 @@ public class ScheduleService {
                 .orElseThrow(() -> new RuntimeException("Schedule not found with ID: " + id));
     }
 
-    public Schedule updateSchedule(Integer id, ScheduleDto scheduleDTO) {
+    public Schedule updateSchedule(Integer id, CreateScheduleDto createScheduleDTO) {
         Schedule schedule = getScheduleById(id);
 
-        Optional<ClassEntity> classEntityOpt = classRepository.findById(scheduleDTO.getClassId());
-        Optional<Course> courseOpt = courseRepository.findById(scheduleDTO.getCourseId());
+        Optional<ClassEntity> classEntityOpt = classRepository.findById(createScheduleDTO.getClassId());
+        Optional<Course> courseOpt = courseRepository.findById(createScheduleDTO.getCourseId());
 
         if (classEntityOpt.isEmpty() || courseOpt.isEmpty()) {
             throw new RuntimeException("Class or Course not found with the provided ID.");
@@ -69,10 +71,10 @@ public class ScheduleService {
 
         schedule.setClassEntity(classEntityOpt.get()); 
         schedule.setCourse(courseOpt.get()); 
-        schedule.setDayOfWeek(Schedule.DayOfWeek.valueOf(scheduleDTO.getDayOfWeek()));
-        schedule.setStartTime(scheduleDTO.getStartTime());
-        schedule.setEndTime(scheduleDTO.getEndTime());
-        schedule.setRoomNumber(scheduleDTO.getRoomNumber());
+        schedule.setDayOfWeek(Schedule.DayOfWeek.valueOf(createScheduleDTO.getDayOfWeek()));
+        schedule.setStartTime(createScheduleDTO.getStartTime());
+        schedule.setEndTime(createScheduleDTO.getEndTime());
+        schedule.setRoomNumber(createScheduleDTO.getRoomNumber());
 
         return scheduleRepository.save(schedule);
     }
@@ -84,6 +86,12 @@ public class ScheduleService {
     public List<Schedule> getScheduleByClassId(Integer classId)
     {
         return scheduleRepository.findByClassEntityId(classId);
+    }
+
+    public List<ScheduleDto> mapAllToDto(List<Schedule> schedules, List<String> include) {
+        return schedules.stream()
+                .map(schedule -> ScheduleMapper.INSTANCE.toScheduleDto(schedule, include))
+                .toList();
     }
 
 }

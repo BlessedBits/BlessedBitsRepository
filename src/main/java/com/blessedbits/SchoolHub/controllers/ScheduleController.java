@@ -1,8 +1,7 @@
 package com.blessedbits.SchoolHub.controllers;
 
 import com.blessedbits.SchoolHub.models.Schedule;
-import com.blessedbits.SchoolHub.repositories.ScheduleRepository;
-import com.blessedbits.SchoolHub.dto.ScheduleDto;
+import com.blessedbits.SchoolHub.dto.CreateScheduleDto;
 import com.blessedbits.SchoolHub.services.ScheduleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,10 +19,10 @@ public class ScheduleController {
     private ScheduleService scheduleService;
 
     @PostMapping("/")
-    public ResponseEntity<String> createSchedule(@RequestBody ScheduleDto scheduleDto) {
+    public ResponseEntity<String> createSchedule(@RequestBody CreateScheduleDto createScheduleDto) {
         try 
         {
-            scheduleService.createSchedule(scheduleDto);
+            scheduleService.createSchedule(createScheduleDto);
             return new ResponseEntity<String>("Schedule was successfully created!", HttpStatus.CREATED);
         } catch (Exception e) 
         {
@@ -55,9 +54,9 @@ public class ScheduleController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<String> updateSchedule(@PathVariable Integer id, @RequestBody ScheduleDto scheduleDto) {
+    public ResponseEntity<String> updateSchedule(@PathVariable Integer id, @RequestBody CreateScheduleDto createScheduleDto) {
         try {
-            scheduleService.updateSchedule(id, scheduleDto);
+            scheduleService.updateSchedule(id, createScheduleDto);
             return new ResponseEntity<>("Schedule was successfully updated!", HttpStatus.OK);
         } catch (RuntimeException e) 
         {
