@@ -6,6 +6,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -15,7 +16,7 @@ public class CustomUserDetails extends UserEntity implements UserDetails {
         this.setId(user.getId());
         this.setUsername(user.getUsername());
         this.setPassword(user.getPassword());
-        this.setRoles(user.getRoles());
+        this.setRole(user.getRole());
         this.setEmail(user.getEmail());
         this.setIsConfirmed(user.getIsConfirmed());
         this.setProfileImage(user.getProfileImage());
@@ -26,9 +27,7 @@ public class CustomUserDetails extends UserEntity implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return getRoles().stream()
-                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName()))
-                .collect(Collectors.toList());
+        return Collections.singleton(new SimpleGrantedAuthority("ROLE_" + getRole()));
     }
 
     @Override

@@ -40,12 +40,8 @@ public class UserEntity {
     
     private String duty;
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinTable(name = "user_roles",
-            joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id")
-    )
-    private List<Role> roles = new ArrayList<>();
+    @Enumerated(EnumType.STRING)
+    private RoleType role;
 
     @JsonReferenceAsId
     @ManyToOne(fetch = FetchType.LAZY)
@@ -62,6 +58,6 @@ public class UserEntity {
     private Set<Course> courses;
 
     public boolean hasRole(RoleType role) {
-        return roles.stream().anyMatch(r -> r.getName().equals(role.name()));
+        return role.equals(this.role);
     }
 }

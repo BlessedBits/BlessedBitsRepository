@@ -7,7 +7,6 @@ import com.blessedbits.SchoolHub.dto.UpdateNameDto;
 import com.blessedbits.SchoolHub.dto.UserProfileDto;
 import com.blessedbits.SchoolHub.misc.CloudFolder;
 import com.blessedbits.SchoolHub.misc.RoleBasedAccessUtils;
-import com.blessedbits.SchoolHub.models.Role;
 import com.blessedbits.SchoolHub.models.Submission;
 import com.blessedbits.SchoolHub.models.UserEntity;
 import com.blessedbits.SchoolHub.models.VerificationToken;
@@ -22,7 +21,6 @@ import com.blessedbits.SchoolHub.services.StorageService;
 import com.blessedbits.SchoolHub.services.UserService;
 import jakarta.validation.Valid;
 
-import org.apache.http.protocol.HTTP;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -236,10 +234,14 @@ public class UserController {
 
     @GetMapping("/{id}/grades")
     public ResponseEntity<List<Submission>> getGrades(
+            @PathVariable Integer id,
             @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             @AuthenticationPrincipal UserEntity user) {
-        UserEntity targetUser = userService.getByIdOrUser(user.getId(), user);
+        UserEntity targetUser = userService.getByIdOrUser(id, user);
+        if (!roleBasedAccessUtils.canAccessUser(user, targetUser)) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
         try {
             List<Submission> submissions = submissionRepository.findSubmissionsByStudentIdAndDateRange(
                     targetUser.getId(), startDate.atStartOfDay(), endDate.atStartOfDay()
@@ -264,13 +266,13 @@ public class UserController {
         
     }
 
-    @GetMapping("/roles")
+    @GetMapping("/role")
     public ResponseEntity<?> getUserRoles(@RequestHeader("Authorization") String authorizationHeader) 
     {
         UserEntity user = userService.getUserFromHeader(authorizationHeader);
         try
         {
-            return new ResponseEntity<>(user.getRoles(), HttpStatus.OK);
+            return new ResponseEntity<>(user.getRole(), HttpStatus.OK);
         }catch (Exception e)
         {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -325,15 +327,23 @@ public class UserController {
         }
     }
 
-    @PutMapping("/{id}/update-roles")
+    @PutMapping("/{id}/role")
     public ResponseEntity<String> updateRole(
-            @PathVariable int id,
-            @RequestBody RoleUpdateRequest roleUpdateRequest) {
+            @PathVariable Integer id,
+            @RequestBody RoleUpdateRequest roleUpdateRequest,
+            @AuthenticationPrincipal UserEntity user
+    ) {
+        UserEntity targetUser = userService.getById(id);
+        if (!roleBasedAccessUtils.canModifyUserRole(user, targetUser)) {
+            return new ResponseEntity<>("You are not allowed to modify this user's role", HttpStatus.FORBIDDEN);
+        }
+        targetUser.setRole(roleUpdateRequest.getRole());
         try {
-            userService.updateRole(id, roleUpdateRequest.getRoleId(), roleUpdateRequest.isAdd());
-            return new ResponseEntity<String>("Role updated successfully.", HttpStatus.OK);
+            userRepository.save(targetUser);
+            return new ResponseEntity<>("Role updated successfully.", HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>("Error: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+            System.out.println(e.getMessage());
+            return new ResponseEntity<>("Unable to update user's role", HttpStatus.BAD_REQUEST);
         }
     }
 

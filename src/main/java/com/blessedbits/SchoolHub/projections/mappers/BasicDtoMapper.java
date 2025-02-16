@@ -14,6 +14,7 @@ public interface BasicDtoMapper {
         userDto.setConfirmed(user.getIsConfirmed());
         userDto.setProfileImage(user.getProfileImage());
         userDto.setDuty(user.getDuty());
+        userDto.setRole(String.valueOf(user.getRole()));
         return userDto;
     }
 
@@ -26,18 +27,6 @@ public interface BasicDtoMapper {
             userDto.setSchoolId(user.getSchool().getId());
         }
         return userDto;
-    }
-
-    static RoleDto toBasicRoleDto(Role role) {
-        RoleDto roleDto = new RoleDto();
-        roleDto.setId(role.getId());
-        roleDto.setName(role.getName());
-        return roleDto;
-    }
-
-    static RoleDto toRoleDto(Role role) {
-        RoleDto roleDto = toBasicRoleDto(role);
-        return roleDto;
     }
 
     static SchoolDto toBasicSchoolDto(School school) {

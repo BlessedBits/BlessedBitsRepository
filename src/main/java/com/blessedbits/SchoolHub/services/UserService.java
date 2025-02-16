@@ -1,12 +1,10 @@
 package com.blessedbits.SchoolHub.services;
 
 import com.blessedbits.SchoolHub.misc.EntityManagerUtils;
-import com.blessedbits.SchoolHub.models.Role;
 import com.blessedbits.SchoolHub.models.UserEntity;
 import com.blessedbits.SchoolHub.projections.dto.UserDto;
 import com.blessedbits.SchoolHub.projections.mappers.UserMapper;
 import com.blessedbits.SchoolHub.dto.UserProfileDto;
-import com.blessedbits.SchoolHub.repositories.RoleRepository;
 import com.blessedbits.SchoolHub.repositories.UserRepository;
 import com.blessedbits.SchoolHub.security.JWTUtils;
 import jakarta.persistence.EntityManager;
@@ -20,23 +18,19 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Set;
-import java.util.Optional;
 
 @Service
 public class UserService {
     private final UserRepository userRepository;
     private final JWTUtils jwtUtils;
-    private final RoleRepository roleRepository;
 
     @PersistenceContext
     private EntityManager entityManager;
 
     @Autowired
-    public UserService(UserRepository userRepository, JWTUtils jwtUtils, RoleRepository roleRepository) {
+    public UserService(UserRepository userRepository, JWTUtils jwtUtils) {
         this.userRepository = userRepository;
         this.jwtUtils = jwtUtils;
-        this.roleRepository = roleRepository;
-
     }
 
     public UserEntity getUserFromHeader(String authHeader) {
@@ -168,35 +162,11 @@ public class UserService {
         userProfileDto.setFirstName(user.getFirstName());
         userProfileDto.setLastName(user.getLastName());
         userProfileDto.setEmail(user.getEmail());
-        userProfileDto.setRole(user.getRoles().isEmpty() ? "No role" : user.getRoles().get(0).getName());
+        userProfileDto.setRole(user.getRole() == null ? "No role" : String.valueOf(user.getRole()));
         userProfileDto.setDuty(user.getDuty());
         userProfileDto.setProfileImage(user.getProfileImage());
         userProfileDto.setSchool(user.getSchool() != null ? user.getSchool().getName() : "No school");
         return userProfileDto;
-    }
-
-    public void updateRole(int userId, int roleId, boolean add) {
-        UserEntity user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
-
-        Role role = roleRepository.findById(roleId)
-                .orElseThrow(() -> new RuntimeException("Role not found with id: " + roleId));
-
-        if (add) {
-            if (!user.getRoles().contains(role)) {
-                user.getRoles().add(role);
-                userRepository.save(user);
-            } else {
-                throw new RuntimeException("User already has this role.");
-            }
-        } else {
-            if (user.getRoles().contains(role)) {
-                user.getRoles().remove(role);
-                userRepository.save(user);
-            } else {
-                throw new RuntimeException("User does not have this role.");
-            }
-        }
     }
  
 }

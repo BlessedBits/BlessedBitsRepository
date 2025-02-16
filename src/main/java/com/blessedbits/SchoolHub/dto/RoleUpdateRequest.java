@@ -1,9 +1,9 @@
 package com.blessedbits.SchoolHub.dto;
 
+import com.blessedbits.SchoolHub.misc.RoleType;
 import lombok.Data;
 
 @Data
 public class RoleUpdateRequest {
-    private int roleId;
-    private boolean add;
+    private RoleType role;
 }

@@ -1,5 +1,6 @@
 package com.blessedbits.SchoolHub.repositories;
 
+import com.blessedbits.SchoolHub.misc.RoleType;
 import com.blessedbits.SchoolHub.models.UserEntity;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -18,21 +19,13 @@ public interface UserRepository extends JpaRepository<UserEntity, Integer> {
 
     Optional<UserEntity> findByEmail(String email);
 
-    @EntityGraph(attributePaths = {"roles"})
-    @Query("select u from UserEntity u where u.username=:username")
-    Optional<UserEntity> findWithRolesByUsername(@Param("username") String username);
-
-    @EntityGraph(attributePaths = {"roles"})
-    @Query("select u from UserEntity u where u.username=:username")
-    <T> T findWithRolesByUsername(@Param("username") String username, Class<T> clazz);
-
     Boolean existsByEmail(String email);
 
     Boolean existsByUsername(String username);
 
-    @Query("SELECT COUNT(u) FROM UserEntity u JOIN u.roles r WHERE u.school.id = :schoolId AND r.name = :role")
-    long countBySchoolIdAndRole(int schoolId, String role);
+    @Query("SELECT COUNT(u) FROM UserEntity u WHERE u.school.id = :schoolId AND u.role = :role")
+    long countBySchoolIdAndRole(int schoolId, RoleType role);
 
-    @Query("SELECT u FROM UserEntity u JOIN u.roles r WHERE u.school.id = :schoolId AND r.name = 'TEACHER'")
-    List<UserEntity> findTeachersBySchoolId(int schoolId);
+    @Query("SELECT u FROM UserEntity u WHERE u.school.id = :schoolId AND u.role = :role")
+    List<UserEntity> findBySchoolIdAndRole(int schoolId, RoleType role);
 }

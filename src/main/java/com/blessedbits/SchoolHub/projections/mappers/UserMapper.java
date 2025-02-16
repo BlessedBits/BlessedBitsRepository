@@ -19,11 +19,6 @@ public interface UserMapper {
         } else {
             userDto = BasicDtoMapper.toBasicUserDto(user);
         }
-        if (include.contains("roles")) {
-            userDto.setRoles(user.getRoles().stream()
-                    .map(BasicDtoMapper::toRoleDto)
-                    .toList());
-        }
         if (include.contains("userClass")) {
             userDto.setUserClass(BasicDtoMapper.toClassDto(user.getUserClass()));
         } else {
