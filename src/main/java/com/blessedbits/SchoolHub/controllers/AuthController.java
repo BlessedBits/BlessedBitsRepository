@@ -6,16 +6,13 @@ import com.blessedbits.SchoolHub.dto.RegisterDto;
 import com.blessedbits.SchoolHub.dto.UsernameDto;
 import com.blessedbits.SchoolHub.dto.ChangePasswordDto;
 import com.blessedbits.SchoolHub.misc.RoleType;
-import com.blessedbits.SchoolHub.models.Role;
 import com.blessedbits.SchoolHub.models.UserEntity;
 import com.blessedbits.SchoolHub.models.VerificationToken;
-import com.blessedbits.SchoolHub.repositories.RoleRepository;
 import com.blessedbits.SchoolHub.repositories.UserRepository;
 import com.blessedbits.SchoolHub.repositories.VerificationTokenRepository;
 import com.blessedbits.SchoolHub.security.JWTUtils;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -47,15 +44,14 @@ public class AuthController {
     private JWTUtils jwtUtils;
     private EmailService emailService;
     private UserService userService;
-    private RoleRepository roleRepository;
     private PasswordEncoder passwordEncoder;
     private StorageService storageService;
 
     @Autowired
     public AuthController(AuthenticationManager authenticationManager, UserRepository userRepository,
                           VerificationTokenRepository tokenRepository, JWTUtils jwtUtils,
-                          EmailService emailService, RoleRepository roleRepository,
-                          PasswordEncoder passwordEncoder, UserService userService, StorageService storageService) 
+                          EmailService emailService, PasswordEncoder passwordEncoder,
+                          UserService userService, StorageService storageService)
     {
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
@@ -63,7 +59,6 @@ public class AuthController {
         this.jwtUtils = jwtUtils;
         this.emailService = emailService;
         this.userService = userService;
-        this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
         this.storageService = storageService;
     }

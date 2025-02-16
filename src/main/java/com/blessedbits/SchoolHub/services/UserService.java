@@ -1,12 +1,10 @@
 package com.blessedbits.SchoolHub.services;
 
 import com.blessedbits.SchoolHub.misc.EntityManagerUtils;
-import com.blessedbits.SchoolHub.models.Role;
 import com.blessedbits.SchoolHub.models.UserEntity;
 import com.blessedbits.SchoolHub.projections.dto.UserDto;
 import com.blessedbits.SchoolHub.projections.mappers.UserMapper;
 import com.blessedbits.SchoolHub.dto.UserProfileDto;
-import com.blessedbits.SchoolHub.repositories.RoleRepository;
 import com.blessedbits.SchoolHub.repositories.UserRepository;
 import com.blessedbits.SchoolHub.security.JWTUtils;
 import jakarta.persistence.EntityManager;
@@ -20,23 +18,19 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Set;
-import java.util.Optional;
 
 @Service
 public class UserService {
     private final UserRepository userRepository;
     private final JWTUtils jwtUtils;
-    private final RoleRepository roleRepository;
 
     @PersistenceContext
     private EntityManager entityManager;
 
     @Autowired
-    public UserService(UserRepository userRepository, JWTUtils jwtUtils, RoleRepository roleRepository) {
+    public UserService(UserRepository userRepository, JWTUtils jwtUtils) {
         this.userRepository = userRepository;
         this.jwtUtils = jwtUtils;
-        this.roleRepository = roleRepository;
-
     }
 
     public UserEntity getUserFromHeader(String authHeader) {
