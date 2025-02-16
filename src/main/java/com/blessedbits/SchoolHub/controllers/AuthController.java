@@ -5,6 +5,7 @@ import com.blessedbits.SchoolHub.dto.LoginDto;
 import com.blessedbits.SchoolHub.dto.RegisterDto;
 import com.blessedbits.SchoolHub.dto.UsernameDto;
 import com.blessedbits.SchoolHub.dto.ChangePasswordDto;
+import com.blessedbits.SchoolHub.misc.RoleType;
 import com.blessedbits.SchoolHub.models.Role;
 import com.blessedbits.SchoolHub.models.UserEntity;
 import com.blessedbits.SchoolHub.models.VerificationToken;
@@ -127,8 +128,7 @@ public class AuthController {
         user.setLastName(request.getLastName());
         user.setUsername(request.getUsername());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        Role roles = roleRepository.findByName("USER").get();
-        user.setRoles(Collections.singletonList(roles));
+        user.setRole(RoleType.USER);
         if(request.getEmail() != null && !request.getEmail().isEmpty())
         {
             user.setEmail(request.getEmail());

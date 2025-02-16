@@ -13,8 +13,7 @@ public class UserDto {
     private boolean isConfirmed;
     private String profileImage;
     private String duty;
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    private List<RoleDto> roles;
+    private String role;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private Integer userClassId;
     @JsonInclude(JsonInclude.Include.NON_NULL)

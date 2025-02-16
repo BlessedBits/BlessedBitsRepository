@@ -109,4 +109,14 @@ public class RoleBasedAccessUtils {
         }
         return false;
     }
+
+    public boolean canModifyUserRole(UserEntity user, UserEntity targetUser) {
+        if (user.hasRole(RoleType.PLATFORM_ADMIN)) {
+            return true;
+        }
+        if (user.hasRole(RoleType.SCHOOL_ADMIN)) {
+            return Objects.equals(targetUser.getSchool().getId(), user.getSchool().getId());
+        }
+        return false;
+    }
 }

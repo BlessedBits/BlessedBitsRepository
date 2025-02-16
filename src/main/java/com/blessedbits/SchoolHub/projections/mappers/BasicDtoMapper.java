@@ -14,6 +14,7 @@ public interface BasicDtoMapper {
         userDto.setConfirmed(user.getIsConfirmed());
         userDto.setProfileImage(user.getProfileImage());
         userDto.setDuty(user.getDuty());
+        userDto.setRole(String.valueOf(user.getRole()));
         return userDto;
     }
 

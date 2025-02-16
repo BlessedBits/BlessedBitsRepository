@@ -1,6 +1,7 @@
 package com.blessedbits.SchoolHub.services;
 
 import com.blessedbits.SchoolHub.misc.EntityManagerUtils;
+import com.blessedbits.SchoolHub.misc.RoleType;
 import com.blessedbits.SchoolHub.models.*;
 import com.blessedbits.SchoolHub.projections.dto.SchoolDto;
 import com.blessedbits.SchoolHub.projections.mappers.SchoolMapper;
@@ -218,8 +219,8 @@ public class SchoolService {
         School school = schoolRepository.findById(schoolId)
                 .orElseThrow(() -> new RuntimeException("School not found"));
 
-        long studentCount = userRepository.countBySchoolIdAndRole(schoolId, "STUDENT");
-        long teacherCount = userRepository.countBySchoolIdAndRole(schoolId, "TEACHER");
+        long studentCount = userRepository.countBySchoolIdAndRole(schoolId, RoleType.STUDENT);
+        long teacherCount = userRepository.countBySchoolIdAndRole(schoolId, RoleType.TEACHER);
 
         SchoolInfoDto dto = new SchoolInfoDto();
         dto.setName(school.getName());
@@ -271,13 +272,13 @@ public class SchoolService {
         dto.setLastName(teacher.getLastName());
         dto.setProfileImage(teacher.getProfileImage());
         dto.setDuty(teacher.getDuty());
-        dto.setRole(teacher.getRoles().get(0).getName());
+        dto.setRole(String.valueOf(teacher.getRole()));
 
         return dto;
     }
 
     public List<TeacherInfoDto> getTeachersBySchool(Integer schoolId) {
-        List<UserEntity> teachers = userRepository.findTeachersBySchoolId(schoolId);
+        List<UserEntity> teachers = userRepository.findBySchoolIdAndRole(schoolId, RoleType.TEACHER);
         return teachers.stream().map(this::convertToTeacherInfoDto).collect(Collectors.toList());
     }
 
