@@ -9,6 +9,7 @@ import com.blessedbits.SchoolHub.dto.SchoolInfoDto;
 import com.blessedbits.SchoolHub.dto.UpdateSchoolInfoDto;
 import com.blessedbits.SchoolHub.misc.CloudFolder;
 import com.blessedbits.SchoolHub.misc.RoleBasedAccessUtils;
+import com.blessedbits.SchoolHub.misc.RoleType;
 import com.blessedbits.SchoolHub.models.News;
 import com.blessedbits.SchoolHub.models.Achievement;
 import com.blessedbits.SchoolHub.models.School;
@@ -34,10 +35,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -248,6 +246,9 @@ public class SchoolController {
         School school = schoolService.getByIdOrUser(id, user);
         if (!roleBasedAccessUtils.canAccessSchool(user, school)) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+        if (user.hasRole(RoleType.STUDENT)) {
+            include = new ArrayList<>();
         }
         List<ClassDto> classes = classService
                 .mapAllToDto(schoolService.getSchoolClassesLoaded(id, include), include);

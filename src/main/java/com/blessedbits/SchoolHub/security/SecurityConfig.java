@@ -118,7 +118,7 @@ public class SecurityConfig {
                                 "PLATFORM_ADMIN", "SCHOOL_ADMIN", "TEACHER"
                         )
                         .requestMatchers(HttpMethod.GET, "/schools/{id}/classes").hasAnyRole(
-                                "PLATFORM_ADMIN", "SCHOOL_ADMIN", "TEACHER"
+                                "PLATFORM_ADMIN", "SCHOOL_ADMIN", "TEACHER", "STUDENTS"
                         )
                         .requestMatchers(HttpMethod.GET, "/schools/{id}/courses").hasAnyRole(
                                 "PLATFORM_ADMIN", "SCHOOL_ADMIN", "TEACHER"
