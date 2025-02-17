@@ -12,6 +12,7 @@ import com.blessedbits.SchoolHub.projections.dto.ClassDto;
 import com.blessedbits.SchoolHub.projections.dto.CourseDto;
 import com.blessedbits.SchoolHub.projections.dto.ScheduleDto;
 import com.blessedbits.SchoolHub.projections.dto.UserDto;
+import com.blessedbits.SchoolHub.projections.mappers.BasicDtoMapper;
 import com.blessedbits.SchoolHub.projections.mappers.ClassMapper;
 import com.blessedbits.SchoolHub.repositories.ClassRepository;
 import com.blessedbits.SchoolHub.repositories.UserRepository;
@@ -92,7 +93,7 @@ public class ClassesController {
     ) {
         ClassEntity classEntity = classService.getLoadedById(classId, include);
         if (!roleBasedAccessUtils.canAccessClass(user, classEntity)) {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+            return new ResponseEntity<>(BasicDtoMapper.toBasicClassDto(classEntity), HttpStatus.OK);
         }
         return new ResponseEntity<>(ClassMapper.INSTANCE.toClassDto(classEntity, include), HttpStatus.OK);
     }
