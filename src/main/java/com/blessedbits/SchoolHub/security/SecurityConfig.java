@@ -68,25 +68,35 @@ public class SecurityConfig {
                         // ClassController
                         .requestMatchers(HttpMethod.GET, "/classes").hasRole("PLATFORM_ADMIN")
                         .requestMatchers(HttpMethod.POST, "/classes").hasAnyRole(
-                                "PLATFORM_ADMIN", "SCHOOL_ADMIN")
+                                "PLATFORM_ADMIN", "SCHOOL_ADMIN"
+                        )
                         .requestMatchers(HttpMethod.GET, "/classes/{id}").hasAnyRole(
-                                "PLATFORM_ADMIN", "SCHOOL_ADMIN", "TEACHER", "STUDENT")
+                                "PLATFORM_ADMIN", "SCHOOL_ADMIN", "TEACHER", "STUDENT"
+                        )
                         .requestMatchers(HttpMethod.PUT, "/classes/{id}").hasAnyRole(
-                                "PLATFORM_ADMIN", "SCHOOL_ADMIN")
+                                "PLATFORM_ADMIN", "SCHOOL_ADMIN"
+                        )
                         .requestMatchers(HttpMethod.DELETE, "/classes/{id}").hasAnyRole(
-                                "PLATFORM_ADMIN", "SCHOOL_ADMIN")
+                                "PLATFORM_ADMIN", "SCHOOL_ADMIN"
+                        )
                         .requestMatchers(HttpMethod.POST, "/classes/{id}/courses").hasAnyRole(
-                                "PLATFORM_ADMIN", "SCHOOL_ADMIN")
+                                "PLATFORM_ADMIN", "SCHOOL_ADMIN"
+                        )
                         .requestMatchers(HttpMethod.GET, "/classes/{id}/courses").hasAnyRole(
-                                "PLATFORM_ADMIN", "SCHOOL_ADMIN", "TEACHER", "STUDENT")
+                                "PLATFORM_ADMIN", "SCHOOL_ADMIN", "TEACHER", "STUDENT"
+                        )
                         .requestMatchers(HttpMethod.DELETE, "/classes/{id}/courses").hasAnyRole(
-                                "PLATFORM_ADMIN", "SCHOOL_ADMIN")
+                                "PLATFORM_ADMIN", "SCHOOL_ADMIN"
+                        )
                         .requestMatchers(HttpMethod.POST, "/classes/{id}/students").hasAnyRole(
-                                "PLATFORM_ADMIN", "SCHOOL_ADMIN")
+                                "PLATFORM_ADMIN", "SCHOOL_ADMIN"
+                        )
                         .requestMatchers(HttpMethod.GET, "/classes/{id}/students").hasAnyRole(
-                                "PLATFORM_ADMIN", "SCHOOL_ADMIN", "TEACHER", "STUDENT")
+                                "PLATFORM_ADMIN", "SCHOOL_ADMIN", "TEACHER", "STUDENT"
+                        )
                         .requestMatchers(HttpMethod.DELETE, "/classes/{id}/students").hasAnyRole(
-                                "PLATFORM_ADMIN", "SCHOOL_ADMIN")
+                                "PLATFORM_ADMIN", "SCHOOL_ADMIN"
+                        )
                         .requestMatchers(HttpMethod.GET, "/classes/{id}/schedules").hasAnyRole(
                                 "PLATFORM_ADMIN", "SCHOOL_ADMIN", "TEACHER", "STUDENT"
                         )
@@ -118,7 +128,7 @@ public class SecurityConfig {
                                 "PLATFORM_ADMIN", "SCHOOL_ADMIN", "TEACHER"
                         )
                         .requestMatchers(HttpMethod.GET, "/schools/{id}/classes").hasAnyRole(
-                                "PLATFORM_ADMIN", "SCHOOL_ADMIN", "TEACHER", "STUDENTS"
+                                "PLATFORM_ADMIN", "SCHOOL_ADMIN", "TEACHER", "STUDENT"
                         )
                         .requestMatchers(HttpMethod.GET, "/schools/{id}/courses").hasAnyRole(
                                 "PLATFORM_ADMIN", "SCHOOL_ADMIN", "TEACHER"
@@ -127,31 +137,44 @@ public class SecurityConfig {
                                 "PLATFORM_ADMIN", "SCHOOL_ADMIN", "TEACHER", "STUDENT", "USER"
                         )
                         .requestMatchers(HttpMethod.GET, "/schools/contacts").hasAnyRole(
-                                "USER", "STUDENT", "TEACHER", "SCHOOL_ADMIN", "PLATFORM_ADMIN")
+                                "USER", "STUDENT", "TEACHER", "SCHOOL_ADMIN", "PLATFORM_ADMIN"
+                        )
                         .requestMatchers(HttpMethod.PUT, "/schools/update-contacts").hasAnyRole(
-                                "SCHOOL_ADMIN", "PLATFORM_ADMIN")
+                                "SCHOOL_ADMIN", "PLATFORM_ADMIN"
+                        )
                         .requestMatchers(HttpMethod.PUT, "/schools/update-info").hasAnyRole(
-                                "SCHOOL_ADMIN", "PLATFORM_ADMIN")
+                                "SCHOOL_ADMIN", "PLATFORM_ADMIN"
+                        )
                         .requestMatchers(HttpMethod.PUT, "/schools/update-logo").hasAnyRole(
-                                "SCHOOL_ADMIN", "PLATFORM_ADMIN")
+                                "SCHOOL_ADMIN", "PLATFORM_ADMIN"
+                        )
                         .requestMatchers(HttpMethod.GET, "/schools/school").hasAnyRole(
-                                "USER", "STUDENT", "TEACHER", "SCHOOL_ADMIN", "PLATFORM_ADMIN")
-                        .requestMatchers(HttpMethod.GET, "schools/teachers").hasAnyRole(
-                                "USER", "STUDENT", "TEACHER", "SCHOOL_ADMIN", "PLATFORM_ADMIN")    
+                                "USER", "STUDENT", "TEACHER", "SCHOOL_ADMIN", "PLATFORM_ADMIN"
+                        )
+                        .requestMatchers(HttpMethod.GET, "/schools/{id}/teachers").hasAnyRole(
+                                "USER", "STUDENT", "TEACHER", "SCHOOL_ADMIN", "PLATFORM_ADMIN"
+                        )
                         .requestMatchers(HttpMethod.POST, "schools/achievements/create").hasAnyRole(
-                                "SCHOOL_ADMIN", "PLATFORM_ADMIN")  
+                                "SCHOOL_ADMIN", "PLATFORM_ADMIN"
+                        )
                         .requestMatchers(HttpMethod.GET, "schools/achievements").hasAnyRole(
-                                "USER", "STUDENT", "TEACHER", "SCHOOL_ADMIN", "PLATFORM_ADMIN")  
+                                "USER", "STUDENT", "TEACHER", "SCHOOL_ADMIN", "PLATFORM_ADMIN"
+                        )
                         .requestMatchers(HttpMethod.PUT, "schools/achievements/{id}").hasAnyRole(
-                                "SCHOOL_ADMIN", "PLATFORM_ADMIN") 
+                                "SCHOOL_ADMIN", "PLATFORM_ADMIN"
+                        )
                         .requestMatchers(HttpMethod.DELETE, "schools/achievements/{id}").hasAnyRole(
-                                "SCHOOL_ADMIN", "PLATFORM_ADMIN") 
+                                "SCHOOL_ADMIN", "PLATFORM_ADMIN"
+                        )
                         .requestMatchers(HttpMethod.GET, "schools/all-gallery-image").hasAnyRole(
-                                        "USER", "STUDENT", "TEACHER", "SCHOOL_ADMIN", "PLATFORM_ADMIN") 
+                                        "USER", "STUDENT", "TEACHER", "SCHOOL_ADMIN", "PLATFORM_ADMIN"
+                        )
                         .requestMatchers(HttpMethod.POST, "schools/add-gallery-image").hasAnyRole(
-                                "SCHOOL_ADMIN", "PLATFORM_ADMIN")
+                                "SCHOOL_ADMIN", "PLATFORM_ADMIN"
+                        )
                         .requestMatchers(HttpMethod.DELETE, "schools/delete-gallery-image").hasAnyRole(
-                                "SCHOOL_ADMIN", "PLATFORM_ADMIN") 
+                                "SCHOOL_ADMIN", "PLATFORM_ADMIN"
+                        )
 
                         // UserController
                         .requestMatchers(HttpMethod.GET, "/users/{id}").hasAnyRole(
