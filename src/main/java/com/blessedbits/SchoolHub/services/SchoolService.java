@@ -4,6 +4,7 @@ import com.blessedbits.SchoolHub.misc.EntityManagerUtils;
 import com.blessedbits.SchoolHub.misc.RoleType;
 import com.blessedbits.SchoolHub.models.*;
 import com.blessedbits.SchoolHub.projections.dto.SchoolDto;
+import com.blessedbits.SchoolHub.projections.dto.UserDto;
 import com.blessedbits.SchoolHub.projections.mappers.SchoolMapper;
 import com.blessedbits.SchoolHub.repositories.SchoolRepository;
 import com.blessedbits.SchoolHub.repositories.SchoolContactsRepository;
@@ -80,7 +81,7 @@ public class SchoolService {
     }
 
     public School getByIdOrUser(Integer id, UserEntity user) {
-        if (id == null) {
+        if (id == 0) {
             return user.getSchool();
         }
         return getById(id);
@@ -277,9 +278,8 @@ public class SchoolService {
         return dto;
     }
 
-    public List<TeacherInfoDto> getTeachersBySchool(Integer schoolId) {
-        List<UserEntity> teachers = userRepository.findBySchoolIdAndRole(schoolId, RoleType.TEACHER);
-        return teachers.stream().map(this::convertToTeacherInfoDto).collect(Collectors.toList());
+    public List<UserEntity> getTeachersBySchool(Integer schoolId) {
+        return userRepository.findBySchoolIdAndRole(schoolId, RoleType.TEACHER);
     }
 
 
