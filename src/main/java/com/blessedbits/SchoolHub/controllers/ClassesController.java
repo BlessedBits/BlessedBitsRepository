@@ -67,7 +67,7 @@ public class ClassesController {
             return new ResponseEntity<>("You can't modify this school", HttpStatus.FORBIDDEN);
         }
         UserEntity teacher = userService.getByUsername(classDto.getHomeroomTeacher());
-        if (!teacher.getSchool().equals(school)) {
+        if (!roleBasedAccessUtils.canModifyUser(user, teacher)) {
             return new ResponseEntity<>("You can't modify this user", HttpStatus.FORBIDDEN);
         }
         ClassEntity classEntity = new ClassEntity();

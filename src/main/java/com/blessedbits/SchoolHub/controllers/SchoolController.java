@@ -341,17 +341,15 @@ public class SchoolController {
         }
     }
     
-    @GetMapping("/teachers")
-    public ResponseEntity<?> getTeachersList(@RequestHeader("Authorization") String authorizationHeader) {
-        try{
-            Integer schoolId = userService.getUserFromHeader(authorizationHeader).getSchool().getId();
-            return new ResponseEntity<>(schoolService.getTeachersBySchool(schoolId), HttpStatus.OK);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND); 
-        } catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); 
-        }
-        
+    @GetMapping("/{id}/teachers")
+    public ResponseEntity<List<UserDto>> getTeachersList(
+            @PathVariable Integer id,
+            @RequestParam(required = false) List<String> include,
+            @AuthenticationPrincipal UserEntity user
+    ) {
+        School school = schoolService.getByIdOrUser(id, user);
+        List<UserEntity> teachers = schoolService.getTeachersBySchool(school.getId());
+        return new ResponseEntity<>(userService.mapAllToDto(teachers, include), HttpStatus.OK);
     }
 
     @PostMapping("/achievements/create")
