@@ -34,9 +34,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.PathVariable;
 
 
 
@@ -347,4 +344,23 @@ public class UserController {
         }
     }
 
+    @PutMapping("/{id}/change-password")
+    public ResponseEntity<String> changePassword(@PathVariable Integer id, 
+                                                 @AuthenticationPrincipal UserEntity admin, 
+                                                 @RequestBody String password) 
+    {
+        UserEntity user = userService.getById(id);
+        
+        if (!roleBasedAccessUtils.canModifyUser(admin, user)) {  
+            return new ResponseEntity<>("Error: User cannot modify user with provided ID.", HttpStatus.FORBIDDEN);
+        }
+    
+        try {
+            userService.changePassword(user, password);
+            return new ResponseEntity<>("Password changed successfully.", HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
 }
