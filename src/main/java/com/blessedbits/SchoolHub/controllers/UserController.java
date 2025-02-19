@@ -7,6 +7,7 @@ import com.blessedbits.SchoolHub.dto.UpdateNameDto;
 import com.blessedbits.SchoolHub.dto.UserProfileDto;
 import com.blessedbits.SchoolHub.misc.CloudFolder;
 import com.blessedbits.SchoolHub.misc.RoleBasedAccessUtils;
+import com.blessedbits.SchoolHub.misc.RoleType;
 import com.blessedbits.SchoolHub.models.Submission;
 import com.blessedbits.SchoolHub.models.UserEntity;
 import com.blessedbits.SchoolHub.models.VerificationToken;
@@ -244,6 +245,27 @@ public class UserController {
         }
     }
 
+    @PutMapping("/{id}/role")
+    public ResponseEntity<String> updateRole(
+            @PathVariable Integer id,
+            @RequestBody RoleUpdateRequest roleUpdateRequest,
+            @AuthenticationPrincipal UserEntity user
+    ) {
+        UserEntity targetUser = userService.getByIdOrUser(id, user);
+        RoleType targetRole = roleUpdateRequest.getRole();
+        if (!roleBasedAccessUtils.canModifyUserRole(user, targetUser, targetRole)) {
+            return new ResponseEntity<>("You are not allowed to modify this user's role", HttpStatus.FORBIDDEN);
+        }
+        targetUser.setRole(roleUpdateRequest.getRole());
+        try {
+            userRepository.save(targetUser);
+            return new ResponseEntity<>("Role updated successfully.", HttpStatus.OK);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return new ResponseEntity<>("Unable to update user's role", HttpStatus.BAD_REQUEST);
+        }
+    }
+
     @GetMapping("/{id}/grades")
     public ResponseEntity<List<SubmissionDto>> getGrades(
             @PathVariable Integer id,
@@ -262,70 +284,6 @@ public class UserController {
         } catch (Exception e) {
             System.out.println(e.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @GetMapping("/role")
-    public ResponseEntity<?> getUserRole(@RequestHeader("Authorization") String authorizationHeader)
-    {
-        UserEntity user = userService.getUserFromHeader(authorizationHeader);
-        try
-        {
-            return new ResponseEntity<>(user.getRole(), HttpStatus.OK);
-        }catch (Exception e)
-        {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @GetMapping("/school-id")
-    public ResponseEntity<?> getUserSchoolId(@RequestHeader("Authorization") String authorizationHeader) 
-    {
-        UserEntity user = userService.getUserFromHeader(authorizationHeader);
-        try 
-        {
-            Integer id = user.getSchool() != null ? user.getSchool().getId() : null;
-            if(id == null)
-            {
-                return new ResponseEntity<>("Error: User don't have any school.", HttpStatus.NOT_FOUND);
-            }
-            return new ResponseEntity<>(id, HttpStatus.OK);
-        }catch (Exception e)
-        {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-    
-    @GetMapping("/my-id")
-    public ResponseEntity<?> getUserId(@RequestHeader("Authorization") String authorizationHeader) 
-    {
-        try{
-            UserEntity user = userService.getUserFromHeader(authorizationHeader);
-            return new ResponseEntity<>(user.getId(), HttpStatus.OK);
-        }catch (Exception e)
-        {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-        
-    }
-
-    @PutMapping("/{id}/role")
-    public ResponseEntity<String> updateRole(
-            @PathVariable Integer id,
-            @RequestBody RoleUpdateRequest roleUpdateRequest,
-            @AuthenticationPrincipal UserEntity user
-    ) {
-        UserEntity targetUser = userService.getById(id);
-        if (!roleBasedAccessUtils.canModifyUserRole(user, targetUser)) {
-            return new ResponseEntity<>("You are not allowed to modify this user's role", HttpStatus.FORBIDDEN);
-        }
-        targetUser.setRole(roleUpdateRequest.getRole());
-        try {
-            userRepository.save(targetUser);
-            return new ResponseEntity<>("Role updated successfully.", HttpStatus.OK);
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            return new ResponseEntity<>("Unable to update user's role", HttpStatus.BAD_REQUEST);
         }
     }
 
