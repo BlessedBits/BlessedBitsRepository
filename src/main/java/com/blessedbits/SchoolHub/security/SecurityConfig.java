@@ -189,6 +189,8 @@ public class SecurityConfig {
                                 "USER", "STUDENT", "TEACHER", "SCHOOL_ADMIN", "PLATFORM_ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/users/{id}/update-roles").hasAnyRole(
                                 "USER", "STUDENT", "TEACHER", "SCHOOL_ADMIN", "PLATFORM_ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/users/{id}/change-password").hasAnyRole(
+                                "SCHOOL_ADMIN", "PLATFORM_ADMIN")
                         .requestMatchers("/users/**").hasAnyRole(
                                 "USER", "STUDENT", "TEACHER", "SCHOOL_ADMIN", "PLATFORM_ADMIN")
 
