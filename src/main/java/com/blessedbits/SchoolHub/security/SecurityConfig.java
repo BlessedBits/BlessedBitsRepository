@@ -198,7 +198,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/users/{id}/grades").hasAnyRole(
                                 "PLATFORM_ADMIN", "SCHOOL_ADMIN", "TEACHER", "STUDENT", "USER"
                         )
-                        .requestMatchers(HttpMethod.PUT, "/users/update-name/{id}").hasAnyRole(
+                        .requestMatchers(HttpMethod.PUT, "/users/{id}/name").hasAnyRole(
                                 "SCHOOL_ADMIN", "PLATFORM_ADMIN")
                         .requestMatchers(HttpMethod.GET, "/users/profile").hasAnyRole(
                                 "USER", "STUDENT", "TEACHER", "SCHOOL_ADMIN", "PLATFORM_ADMIN")

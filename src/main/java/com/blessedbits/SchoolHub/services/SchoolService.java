@@ -81,10 +81,10 @@ public class SchoolService {
     }
 
     public School getByIdOrUser(Integer id, UserEntity user) {
-        if (id == 0) {
-            return user.getSchool();
+        if (id != 0) {
+            return getById(id);
         }
-        return getById(id);
+        return user.getSchool();
     }
 
     public List<School> getAllLoaded(List<String> include) {
