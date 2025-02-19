@@ -25,42 +25,37 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import com.blessedbits.SchoolHub.services.StorageService;
 import com.blessedbits.SchoolHub.services.EmailService;
-import com.blessedbits.SchoolHub.services.UserService;
 
 import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
-    private AuthenticationManager authenticationManager;
-    private UserRepository userRepository;
-    private VerificationTokenRepository tokenRepository;
-    private JWTUtils jwtUtils;
-    private EmailService emailService;
-    private UserService userService;
-    private PasswordEncoder passwordEncoder;
-    private StorageService storageService;
+    private final AuthenticationManager authenticationManager;
+    private final UserRepository userRepository;
+    private final VerificationTokenRepository tokenRepository;
+    private final JWTUtils jwtUtils;
+    private final EmailService emailService;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public AuthController(AuthenticationManager authenticationManager, UserRepository userRepository,
-                          VerificationTokenRepository tokenRepository, JWTUtils jwtUtils,
-                          EmailService emailService, PasswordEncoder passwordEncoder,
-                          UserService userService, StorageService storageService)
-    {
+    public AuthController(
+            AuthenticationManager authenticationManager, UserRepository userRepository,
+            VerificationTokenRepository tokenRepository, JWTUtils jwtUtils,
+            EmailService emailService, PasswordEncoder passwordEncoder
+    ) {
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
         this.tokenRepository = tokenRepository;
         this.jwtUtils = jwtUtils;
         this.emailService = emailService;
-        this.userService = userService;
         this.passwordEncoder = passwordEncoder;
-        this.storageService = storageService;
     }
 
     @PostMapping("/login")
@@ -86,6 +81,7 @@ public class AuthController {
         }
         else {
             cookie = ResponseCookie.from("refreshToken", refreshToken)
+                    .maxAge(60*60*24)
                     .httpOnly(true)
                     .secure(true)
                     .path("/")
@@ -199,8 +195,10 @@ public class AuthController {
     }
 
     @PostMapping("/reset-password")
-    public ResponseEntity<String> resetPassword(@RequestParam("token") String token, 
-                                                @RequestParam("newPassword") String newPassword) {
+    public ResponseEntity<String> resetPassword(
+            @RequestParam("token") String token,
+            @RequestParam("newPassword") String newPassword
+    ) {
         Optional<VerificationToken> resetTokenOptional = tokenRepository.findByToken(token);
         if (resetTokenOptional.isEmpty()) {
             return new ResponseEntity<>("Invalid or expired token", HttpStatus.BAD_REQUEST);
@@ -222,9 +220,10 @@ public class AuthController {
     }
 
     @PostMapping("/change-password")
-    public ResponseEntity<String> changePassword(@RequestHeader("Authorization") String authorizationHeader, @RequestBody ChangePasswordDto changePasswordDto) 
-    {
-        UserEntity user = userService.getUserFromHeader(authorizationHeader);
+    public ResponseEntity<String> changePassword(
+            @RequestBody ChangePasswordDto changePasswordDto,
+            @AuthenticationPrincipal UserEntity user
+    ) {
         if (!passwordEncoder.matches(changePasswordDto.getOldPassword(), user.getPassword())) 
         {
             return new ResponseEntity<>("Old password is incorrect", HttpStatus.BAD_REQUEST);

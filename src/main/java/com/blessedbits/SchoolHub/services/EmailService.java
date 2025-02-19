@@ -15,12 +15,12 @@ public class EmailService {
 
     public String buildConfirmEmail(String username, String token) {
         return "Hello " + username + ",\n\nPlease confirm your email by clicking the link below:\n" +
-               "http://localhost:8080/api/auth/confirm?token=" + token;
+               "https://ypgblessedbits.azurewebsites.net/auth/confirm?token=" + token;
     }
 
     public String buildResetPasswordEmail(String username, String token) {
         return "Hello " + username + ",\n\nWe received a request to reset your password. Please click the link below to reset it:\n" +
-               "http://localhost:8080/api/auth/reset-password?token=" + token;
+               "https://ypgblessedbits.azurewebsites.net/auth/reset-password?token=" + token;
     }
 
     public void sendEmail(String to, String subject, String content) {

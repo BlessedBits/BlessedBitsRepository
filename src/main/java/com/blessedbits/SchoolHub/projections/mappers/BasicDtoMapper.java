@@ -10,6 +10,8 @@ public interface BasicDtoMapper {
         UserDto userDto = new UserDto();
         userDto.setId(user.getId());
         userDto.setUsername(user.getUsername());
+        userDto.setFirstName(user.getFirstName());
+        userDto.setLastName(user.getLastName());
         userDto.setEmail(user.getEmail());
         userDto.setConfirmed(user.getIsConfirmed());
         userDto.setProfileImage(user.getProfileImage());

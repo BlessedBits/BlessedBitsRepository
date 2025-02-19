@@ -2,6 +2,8 @@ package com.blessedbits.SchoolHub.services;
 
 import com.blessedbits.SchoolHub.misc.EntityManagerUtils;
 import com.blessedbits.SchoolHub.models.Submission;
+import com.blessedbits.SchoolHub.projections.dto.SubmissionDto;
+import com.blessedbits.SchoolHub.projections.mappers.SubmissionMapper;
 import com.blessedbits.SchoolHub.repositories.SubmissionRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
@@ -44,5 +46,11 @@ public class SubmissionService {
             System.out.println(e.getMessage());
             return getById(id);
         }
+    }
+
+    public List<SubmissionDto> mapAllToDto(List<Submission> submissions, List<String> include) {
+        return submissions.stream()
+                .map(submission -> SubmissionMapper.INSTANCE.toSubmissionDto(submission, include))
+                .toList();
     }
 }

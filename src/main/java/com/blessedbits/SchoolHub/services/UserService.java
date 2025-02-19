@@ -61,14 +61,14 @@ public class UserService {
     }
 
     public UserEntity getByIdOrUser(Integer id, UserEntity user) {
-        if (id != null) {
+        if (id != 0) {
             return getById(id);
         }
         return user;
     }
 
     public UserEntity getLoadedByIdOrUsername(Integer id, String username, List<String> include) {
-        if (id != null) {
+        if (id != 0) {
             return getLoadedById(id, include);
         }
         return getLoadedByUsername(username, include);
