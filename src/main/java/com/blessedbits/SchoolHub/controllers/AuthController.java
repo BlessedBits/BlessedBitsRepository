@@ -66,11 +66,11 @@ public class AuthController {
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         String accessToken = jwtUtils.generateAccessJWT(authentication.getName());
-        String refreshToken = jwtUtils.generateRefreshJWT(authentication.getName());
 
         ResponseCookie cookie;
 
         if (remember) {
+            String refreshToken = jwtUtils.generateRefreshJWT(authentication.getName());
             cookie = ResponseCookie.from("refreshToken", refreshToken)
                     .maxAge(SecurityConstants.REFRESH_TOKEN_VALIDITY/1000)
                     .httpOnly(true)
@@ -80,8 +80,9 @@ public class AuthController {
                     .build();
         }
         else {
+            String refreshToken = jwtUtils.generateShortRefreshJWT(authentication.getName());
             cookie = ResponseCookie.from("refreshToken", refreshToken)
-                    .maxAge(60*60*24)
+                    .maxAge(SecurityConstants.REFRESH_TOKEN_VALIDITY/1000/30)
                     .httpOnly(true)
                     .secure(true)
                     .path("/")
