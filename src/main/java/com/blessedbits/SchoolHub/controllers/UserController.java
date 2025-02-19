@@ -265,6 +265,25 @@ public class UserController {
             return new ResponseEntity<>("Unable to update user's role", HttpStatus.BAD_REQUEST);
         }
     }
+  
+    @PutMapping("/{id}/password")
+    public ResponseEntity<String> changePassword(@PathVariable Integer id, 
+                                                 @AuthenticationPrincipal UserEntity admin, 
+                                                 @RequestBody String password
+    ) {
+        UserEntity user = userService.getById(id);
+        
+        if (!roleBasedAccessUtils.canModifyUser(admin, user)) {  
+            return new ResponseEntity<>("Error: User cannot modify user with provided ID.", HttpStatus.FORBIDDEN);
+        }
+    
+        try {
+            userService.changePassword(user, password);
+            return new ResponseEntity<>("Password changed successfully.", HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
     @GetMapping("/{id}/grades")
     public ResponseEntity<List<SubmissionDto>> getGrades(
@@ -286,5 +305,5 @@ public class UserController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
+  
 }
