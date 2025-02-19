@@ -13,6 +13,7 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -23,14 +24,16 @@ import java.util.Set;
 public class UserService {
     private final UserRepository userRepository;
     private final JWTUtils jwtUtils;
+    private final PasswordEncoder passwordEncoder;
 
     @PersistenceContext
     private EntityManager entityManager;
 
     @Autowired
-    public UserService(UserRepository userRepository, JWTUtils jwtUtils) {
+    public UserService(UserRepository userRepository, JWTUtils jwtUtils, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.jwtUtils = jwtUtils;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public UserEntity getUserFromHeader(String authHeader) {
@@ -167,6 +170,12 @@ public class UserService {
         userProfileDto.setProfileImage(user.getProfileImage());
         userProfileDto.setSchool(user.getSchool() != null ? user.getSchool().getName() : "No school");
         return userProfileDto;
+    }
+
+    public void changePassword(UserEntity user, String password)
+    {
+            user.setPassword(passwordEncoder.encode(password));
+            userRepository.save(user);
     }
  
 }
