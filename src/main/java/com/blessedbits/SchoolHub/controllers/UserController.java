@@ -267,9 +267,10 @@ public class UserController {
     }
   
     @PutMapping("/{id}/password")
-    public ResponseEntity<String> changePassword(@PathVariable Integer id, 
-                                                 @AuthenticationPrincipal UserEntity admin, 
-                                                 @RequestBody String password
+    public ResponseEntity<String> changePassword(
+            @PathVariable Integer id,
+            @AuthenticationPrincipal UserEntity admin,
+            @RequestBody String password
     ) {
         UserEntity user = userService.getById(id);
         
@@ -290,7 +291,8 @@ public class UserController {
             @PathVariable Integer id,
             @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
-            @AuthenticationPrincipal UserEntity user) {
+            @AuthenticationPrincipal UserEntity user
+    ) {
         UserEntity targetUser = userService.getByIdOrUser(id, user);
         if (!roleBasedAccessUtils.canAccessUser(user, targetUser)) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);

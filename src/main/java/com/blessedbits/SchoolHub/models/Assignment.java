@@ -37,6 +37,6 @@ public class Assignment {
     private ModuleEntity module;
 
     @JsonReferenceAsId
-    @OneToMany(mappedBy = "assignment")
+    @OneToMany(mappedBy = "assignment", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Submission> submissions;
 }
