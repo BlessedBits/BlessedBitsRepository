@@ -19,37 +19,23 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 
 @RestController
 @RequestMapping("/courses")
 public class CourseController {
     private final CourseRepository courseRepository;
-    private final UserService userService;
-    private final ModuleRepository moduleRepository;
-    private final MaterialRepository materialRepository;
-    private final AssignmentRepository assignmentRepository;
-    private final SubmissionRepository submissionRepository;
     private final CourseService courseService;
-    private final SchoolService schoolService;
     private final ModuleService moduleService;
     private final RoleBasedAccessUtils roleBasedAccessUtils;
 
     @Autowired
-    public CourseController(CourseRepository courseRepository,
-                            UserService userService, ModuleRepository moduleRepository,
-                            MaterialRepository materialRepository, AssignmentRepository assignmentRepository, SubmissionRepository submissionRepository, CourseService courseService, SchoolService schoolService, ModuleService moduleService, RoleBasedAccessUtils roleBasedAccessUtils) {
+    public CourseController(
+            CourseRepository courseRepository, CourseService courseService,
+            ModuleService moduleService, RoleBasedAccessUtils roleBasedAccessUtils
+    ) {
         this.courseRepository = courseRepository;
-        this.userService = userService;
-        this.moduleRepository = moduleRepository;
-        this.materialRepository = materialRepository;
-        this.assignmentRepository = assignmentRepository;
-        this.submissionRepository = submissionRepository;
         this.courseService = courseService;
-        this.schoolService = schoolService;
         this.moduleService = moduleService;
         this.roleBasedAccessUtils = roleBasedAccessUtils;
     }
@@ -108,11 +94,12 @@ public class CourseController {
             @PathVariable Integer id,
             @AuthenticationPrincipal UserEntity user
     ) {
-        Course course = courseService.getById(id);
+        Course course = courseService.getLoadedById(id, List.of("school", "classes", "teachers"));
         if (!roleBasedAccessUtils.canModifyCourse(user, course)) {
             return new ResponseEntity<>("You can't modify this course", HttpStatus.FORBIDDEN);
         }
         try {
+            courseService.deleteCourseRelations(course);
             courseRepository.delete(course);
             return new ResponseEntity<>("Course deleted", HttpStatus.OK);
         } catch (Exception e) {

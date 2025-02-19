@@ -7,12 +7,7 @@ import com.blessedbits.SchoolHub.models.*;
 import com.blessedbits.SchoolHub.projections.dto.CourseDto;
 import com.blessedbits.SchoolHub.projections.dto.ModuleDto;
 import com.blessedbits.SchoolHub.projections.mappers.CourseMapper;
-import com.blessedbits.SchoolHub.repositories.AssignmentRepository;
-import com.blessedbits.SchoolHub.repositories.CourseRepository;
-import com.blessedbits.SchoolHub.repositories.ModuleRepository;
-import com.blessedbits.SchoolHub.repositories.SchoolRepository;
-import com.blessedbits.SchoolHub.repositories.SubmissionRepository;
-import com.blessedbits.SchoolHub.repositories.UserRepository;
+import com.blessedbits.SchoolHub.repositories.*;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
@@ -21,6 +16,7 @@ import jakarta.persistence.TypedQuery;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.HashSet;
@@ -37,11 +33,12 @@ public class CourseService {
     private final SchoolRepository schoolRepository;
     private final UserRepository userRepository;
     private final RoleBasedAccessUtils roleBasedAccessUtils;
+    private final ClassRepository classRepository;
 
     @PersistenceContext
     private EntityManager entityManager;
 
-    public CourseService(UserRepository userRepository, SchoolRepository schoolRepository, CourseRepository courseRepository, ModuleRepository moduleRepository, AssignmentRepository assignmentRepository, SubmissionRepository submissionRepository, RoleBasedAccessUtils roleBasedAccessUtils) {
+    public CourseService(UserRepository userRepository, SchoolRepository schoolRepository, CourseRepository courseRepository, ModuleRepository moduleRepository, AssignmentRepository assignmentRepository, SubmissionRepository submissionRepository, RoleBasedAccessUtils roleBasedAccessUtils, ClassRepository classRepository) {
         this.courseRepository = courseRepository;
         this.moduleRepository = moduleRepository;
         this.assignmentRepository = assignmentRepository;
@@ -49,6 +46,7 @@ public class CourseService {
         this.userRepository = userRepository;
         this.schoolRepository = schoolRepository;
         this.roleBasedAccessUtils = roleBasedAccessUtils;
+        this.classRepository = classRepository;
     }
 
     public Course getById(Integer id) {
@@ -208,6 +206,21 @@ public class CourseService {
         return courses.stream()
                 .map(course -> CourseMapper.INSTANCE.toCourseDto(course, include))
                 .toList();
+    }
+
+    @Transactional
+    public void deleteCourseRelations(Course course) {
+        for (ClassEntity classEntity : course.getClasses()) {
+            classEntity.getCourses().remove(course);
+            classRepository.save(classEntity);
+        }
+        for (UserEntity teacher : course.getTeachers()) {
+            teacher.getCourses().remove(course);
+            userRepository.save(teacher);
+        }
+        School school = course.getSchool();
+        school.getCourses().remove(course);
+        schoolRepository.save(school);
     }
 
     public ResponseEntity<String> createCourse(CreateCourseDto courseDto, UserEntity user) {
