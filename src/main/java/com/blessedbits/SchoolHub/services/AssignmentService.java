@@ -2,8 +2,10 @@ package com.blessedbits.SchoolHub.services;
 
 import com.blessedbits.SchoolHub.misc.EntityManagerUtils;
 import com.blessedbits.SchoolHub.models.Assignment;
+import com.blessedbits.SchoolHub.models.ModuleEntity;
 import com.blessedbits.SchoolHub.models.Submission;
 import com.blessedbits.SchoolHub.repositories.AssignmentRepository;
+import com.blessedbits.SchoolHub.repositories.ModuleRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
@@ -17,12 +19,14 @@ import java.util.List;
 @Service
 public class AssignmentService {
     private final AssignmentRepository assignmentRepository;
+    private final ModuleRepository moduleRepository;
 
     @PersistenceContext
     private EntityManager entityManager;
 
-    public AssignmentService(AssignmentRepository assignmentRepository) {
+    public AssignmentService(AssignmentRepository assignmentRepository, ModuleRepository moduleRepository) {
         this.assignmentRepository = assignmentRepository;
+        this.moduleRepository = moduleRepository;
     }
 
     public Assignment getById(Long id) {
@@ -58,6 +62,12 @@ public class AssignmentService {
             System.out.println("Unable to execute query for submissions");
             return getById(assignmentId).getSubmissions().stream().toList();
         }
+    }
+
+    public void deleteRelations(Assignment assignment) {
+        ModuleEntity module = assignment.getModule();
+        module.getAssignments().remove(assignment);
+        moduleRepository.save(module);
     }
 
 }

@@ -142,7 +142,7 @@ public class CourseService {
     }
 
     @Transactional
-    public void deleteCourseRelations(Course course) {
+    public void deleteRelations(Course course) {
         for (ClassEntity classEntity : getCourseClassesLoaded(course.getId(), List.of("courses"))) {
             classEntity.getCourses().remove(course);
             classRepository.save(classEntity);

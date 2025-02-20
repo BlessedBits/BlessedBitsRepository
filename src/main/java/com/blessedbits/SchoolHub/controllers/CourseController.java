@@ -96,12 +96,12 @@ public class CourseController {
             @PathVariable Integer id,
             @AuthenticationPrincipal UserEntity user
     ) {
-        Course course = courseService.getLoadedById(id, List.of("school", "classes", "teachers"));
+        Course course = courseService.getLoadedById(id, List.of("school"));
         if (!roleBasedAccessUtils.canModifyCourse(user, course)) {
             return new ResponseEntity<>("You can't modify this course", HttpStatus.FORBIDDEN);
         }
         try {
-            courseService.deleteCourseRelations(course);
+            courseService.deleteRelations(course);
             courseRepository.delete(course);
             return new ResponseEntity<>("Course deleted", HttpStatus.OK);
         } catch (Exception e) {
