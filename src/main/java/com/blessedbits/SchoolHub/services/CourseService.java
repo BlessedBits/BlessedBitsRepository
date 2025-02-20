@@ -147,7 +147,7 @@ public class CourseService {
             classEntity.getCourses().remove(course);
             classRepository.save(classEntity);
         }
-        for (UserEntity teacher : getCourseTeachersLoaded(course.getId(), List.of("teachers"))) {
+        for (UserEntity teacher : getCourseTeachersLoaded(course.getId(), List.of("courses"))) {
             teacher.getCourses().remove(course);
             userRepository.save(teacher);
         }
