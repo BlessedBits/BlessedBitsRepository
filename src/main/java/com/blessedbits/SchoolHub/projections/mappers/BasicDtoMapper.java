@@ -151,4 +151,19 @@ public interface BasicDtoMapper {
         scheduleDto.setSchoolClassId(schedule.getClassEntity().getId());
         return scheduleDto;
     }
+
+    static AchievementDto toBasicAchievementDto(Achievement achievement) {
+        AchievementDto achievementDto = new AchievementDto();
+        achievementDto.setId(achievement.getId());
+        achievementDto.setTitle(achievement.getTitle());
+        achievementDto.setDescription(achievement.getDescription());
+        achievementDto.setImage(achievement.getImage());
+        return achievementDto;
+    }
+
+    static AchievementDto toAchievementDto(Achievement achievement) {
+        AchievementDto achievementDto = toBasicAchievementDto(achievement);
+        achievementDto.setSchoolId(achievement.getSchool().getId());
+        return achievementDto;
+    }
 }

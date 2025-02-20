@@ -17,5 +17,7 @@ public class SchoolDto {
     private List<CourseDto> courses;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private List<UserDto> users;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private List<AchievementDto> achievements;
     // Todo add news
 }

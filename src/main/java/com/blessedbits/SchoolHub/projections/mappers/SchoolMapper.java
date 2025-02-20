@@ -35,6 +35,11 @@ public interface SchoolMapper {
                     .map(BasicDtoMapper::toUserDto)
                     .toList());
         }
+        if (include.contains("achievements")) {
+            schoolDto.setAchievements(school.getAchievements().stream()
+                    .map(BasicDtoMapper::toAchievementDto)
+                    .toList());
+        }
         return schoolDto;
     }
 }
