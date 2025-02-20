@@ -42,6 +42,9 @@ public interface BasicDtoMapper {
 
     static SchoolDto toSchoolDto(School school) {
         SchoolDto schoolDto = toBasicSchoolDto(school);
+        if (school.getContacts() != null) {
+            schoolDto.setContactsId(school.getContacts().getId());
+        }
         return schoolDto;
     }
 
@@ -150,5 +153,38 @@ public interface BasicDtoMapper {
         scheduleDto.setCourseId(schedule.getCourse().getId());
         scheduleDto.setSchoolClassId(schedule.getClassEntity().getId());
         return scheduleDto;
+    }
+
+    static AchievementDto toBasicAchievementDto(Achievement achievement) {
+        AchievementDto achievementDto = new AchievementDto();
+        achievementDto.setId(achievement.getId());
+        achievementDto.setTitle(achievement.getTitle());
+        achievementDto.setDescription(achievement.getDescription());
+        achievementDto.setImage(achievement.getImage());
+        return achievementDto;
+    }
+
+    static AchievementDto toAchievementDto(Achievement achievement) {
+        AchievementDto achievementDto = toBasicAchievementDto(achievement);
+        achievementDto.setSchoolId(achievement.getSchool().getId());
+        return achievementDto;
+    }
+
+    static SchoolContactsDto toBasicSchoolContactsDto(SchoolContacts schoolContacts) {
+        SchoolContactsDto schoolContactsDto = new SchoolContactsDto();
+        schoolContactsDto.setId(schoolContacts.getId());
+        schoolContactsDto.setPhoneNumber(schoolContacts.getPhoneNumber());
+        schoolContactsDto.setEmail(schoolContacts.getEmail());
+        schoolContactsDto.setYoutubeLink(schoolContacts.getYoutubeLink());
+        schoolContactsDto.setFacebookLink(schoolContacts.getFacebookLink());
+        schoolContactsDto.setInstagramLink(schoolContacts.getInstagramLink());
+        schoolContactsDto.setTiktokLink(schoolContacts.getTiktokLink());
+        return schoolContactsDto;
+    }
+
+    static SchoolContactsDto toSchoolContactsDto(SchoolContacts schoolContacts) {
+        SchoolContactsDto schoolContactsDto = toBasicSchoolContactsDto(schoolContacts);
+        schoolContactsDto.setSchoolId(schoolContacts.getSchool().getId());
+        return schoolContactsDto;
     }
 }

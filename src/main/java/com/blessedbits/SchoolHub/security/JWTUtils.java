@@ -36,6 +36,19 @@ public class JWTUtils {
         return token;
     }
 
+    public String generateShortRefreshJWT(String username) {
+        Date currentDate = new Date();
+        Date expirationDate = new Date(currentDate.getTime() + SecurityConstants.REFRESH_TOKEN_VALIDITY/30);
+
+        String token = Jwts.builder()
+                .subject(username)
+                .issuedAt(currentDate)
+                .expiration(expirationDate)
+                .signWith(SecurityConstants.SIGNING_KEY)
+                .compact();
+        return token;
+    }
+
     public String getUsernameFromJWT(String token) {
         JwtParser jwtParser = Jwts.parser().setSigningKey(SecurityConstants.SIGNING_KEY).build();
         Claims claims = jwtParser.parseClaimsJws(token).getBody();

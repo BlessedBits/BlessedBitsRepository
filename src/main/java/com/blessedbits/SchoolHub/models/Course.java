@@ -32,6 +32,10 @@ public class Course {
     private Set<ModuleEntity> modules;
 
     @JsonReferenceAsId
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Schedule> schedules;
+
+    @JsonReferenceAsId
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "school_id")
     private School school;

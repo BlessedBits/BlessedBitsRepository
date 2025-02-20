@@ -70,97 +70,6 @@ public class CourseService {
         }
     }
 
-    public ModuleEntity getModuleById(Long moduleId) {
-        Optional<ModuleEntity> moduleOptional = moduleRepository.findById(moduleId);
-        if (moduleOptional.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-                    "Specified module does not exist");
-        }
-        return moduleOptional.get();
-    }
-
-    public Assignment getAssignmentById(Long assignmentId) {
-        Optional<Assignment> assignmentOptional = assignmentRepository.findById(assignmentId);
-        if (assignmentOptional.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-                    "Specified assignment does not exist");
-        }
-        return assignmentOptional.get();
-    }
-
-    public Submission getSubmissionById(Long submissionId) {
-        Optional<Submission> submissionOptional = submissionRepository.findById(submissionId);
-        if (submissionOptional.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-                    "Specified submission does not exist");
-        }
-        return submissionOptional.get();
-    }
-
-    public Course getCourseByNameAndSchoolId(String courseName, Integer schoolId) {
-        Optional<Course> courseOptional = courseRepository.
-                findCourseByNameAndSchoolId(courseName, schoolId);
-        if (courseOptional.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-                    "Specified course does not exist in your school");
-        }
-        return courseOptional.get();
-    }
-
-    public ModuleEntity getModuleByNameAndCourseId(String moduleName, Integer courseId) {
-        Optional<ModuleEntity> moduleOptional = moduleRepository.
-                findByNameAndCourseId(moduleName, courseId);
-        if (moduleOptional.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-                    "Specified module does not exist in this course");
-        }
-        return moduleOptional.get();
-    }
-
-    public Assignment getAssignmentByTitleAndModuleId(String assignmentTitle, Long moduleId) {
-        Optional<Assignment> assignmentOptional = assignmentRepository.
-                findByTitleAndModuleId(assignmentTitle, moduleId);
-        if (assignmentOptional.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-                    "Specified assignment does not exist in this module");
-        }
-        return assignmentOptional.get();
-    }
-
-    public Course getCourseByNameOrIdAndSchoolId(Integer courseId, String courseName, Integer schoolId) {
-        if (courseId != null) {
-            return getById(courseId);
-        } else if (courseName != null) {
-            return getCourseByNameAndSchoolId(courseName, schoolId);
-        } else {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Either course name or id must be specified");
-        }
-    }
-
-    public ModuleEntity getModuleByNameOrIdAndCourseId(Long moduleId, String moduleName, Integer courseId) {
-        if (moduleId != null) {
-            return getModuleById(moduleId);
-        } else if (moduleName != null) {
-            return getModuleByNameAndCourseId(moduleName, courseId);
-        } else {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Either module name or id must be specified");
-        }
-    }
-
-    public Assignment getAssignmentByTitleOrIdAndModuleId(
-            Long assignmentId, String assignmentTitle, Long moduleId) {
-        if (assignmentId != null) {
-            return getAssignmentById(assignmentId);
-        } else if (assignmentTitle != null) {
-            return getAssignmentByTitleAndModuleId(assignmentTitle, moduleId);
-        } else {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Either assignment title or id must be specified");
-        }
-    }
-
     public List<ModuleEntity> getCourseModulesLoaded(Integer courseId, List<String> include) {
         String jpql = "SELECT m FROM ModuleEntity m WHERE m.course.id = :courseId";
         TypedQuery<ModuleEntity> query = EntityManagerUtils
@@ -173,6 +82,36 @@ public class CourseService {
         } catch (Exception e) {
             System.out.println("Unable to execute query with entity graph");
             return getById(courseId).getModules().stream().toList();
+        }
+    }
+
+    public List<ClassEntity> getCourseClassesLoaded(Integer courseId, List<String> include) {
+        String jpql = "SELECT c.classes FROM Course c WHERE c.id = :courseId";
+        TypedQuery<ClassEntity> query = EntityManagerUtils
+                .createTypedQueryWithGraph(ClassEntity.class, entityManager, jpql, include);
+        query.setParameter("courseId", courseId);
+        try {
+            return query.getResultList();
+        } catch (NoResultException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No results found for the query");
+        } catch (Exception e) {
+            System.out.println("Unable to execute query with entity graph");
+            return getById(courseId).getClasses().stream().toList();
+        }
+    }
+
+    public List<UserEntity> getCourseTeachersLoaded(Integer courseId, List<String> include) {
+        String jpql = "SELECT c.teachers FROM Course c WHERE c.id = :courseId";
+        TypedQuery<UserEntity> query = EntityManagerUtils
+                .createTypedQueryWithGraph(UserEntity.class, entityManager, jpql, include);
+        query.setParameter("courseId", courseId);
+        try {
+            return query.getResultList();
+        } catch (NoResultException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No results found for the query");
+        } catch (Exception e) {
+            System.out.println("Unable to execute query with entity graph");
+            return getById(courseId).getTeachers().stream().toList();
         }
     }
 
@@ -196,12 +135,6 @@ public class CourseService {
                 .toList();
     }
 
-    public List<CourseDto> mapAllToDto(Set<Course> courses, List<String> include) {
-        return courses.stream()
-                .map(course -> CourseMapper.INSTANCE.toCourseDto(course, include))
-                .toList();
-    }
-
     public List<CourseDto> mapAllToDto(List<Course> courses, List<String> include) {
         return courses.stream()
                 .map(course -> CourseMapper.INSTANCE.toCourseDto(course, include))
@@ -209,12 +142,12 @@ public class CourseService {
     }
 
     @Transactional
-    public void deleteCourseRelations(Course course) {
-        for (ClassEntity classEntity : course.getClasses()) {
+    public void deleteRelations(Course course) {
+        for (ClassEntity classEntity : getCourseClassesLoaded(course.getId(), List.of("courses"))) {
             classEntity.getCourses().remove(course);
             classRepository.save(classEntity);
         }
-        for (UserEntity teacher : course.getTeachers()) {
+        for (UserEntity teacher : getCourseTeachersLoaded(course.getId(), List.of("courses"))) {
             teacher.getCourses().remove(course);
             userRepository.save(teacher);
         }

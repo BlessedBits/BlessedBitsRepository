@@ -34,6 +34,11 @@ public interface CourseMapper {
                     .map(BasicDtoMapper::toClassDto)
                     .toList());
         }
+        if (include.contains("teachers")) {
+            courseDto.setTeachers(course.getTeachers().stream()
+                    .map(BasicDtoMapper::toUserDto)
+                    .toList());
+        }
         return courseDto;
     }
 }

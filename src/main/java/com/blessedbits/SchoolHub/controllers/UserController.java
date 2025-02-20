@@ -167,8 +167,8 @@ public class UserController {
             return new ResponseEntity<>("You can't modify this user", HttpStatus.FORBIDDEN);
         }
         try {
-            if (user.getProfileImage() != null && !user.getProfileImage().isEmpty()) {
-                storageService.deleteFile(user.getProfileImage());
+            if (targetUser.getProfileImage() != null && !targetUser.getProfileImage().isEmpty()) {
+                storageService.deleteFile(targetUser.getProfileImage());
             }
             String url = storageService.uploadFile(profileImage, CloudFolder.PROFILE_IMAGES);
             targetUser.setProfileImage(url);
@@ -237,7 +237,7 @@ public class UserController {
             targetUser.setLastName(lastName);
         }
         try {
-            userRepository.save(user);
+            userRepository.save(targetUser);
             return new ResponseEntity<>("User's name was successfully updated.", HttpStatus.OK);
         }
         catch (Exception e) {
@@ -291,6 +291,7 @@ public class UserController {
             @PathVariable Integer id,
             @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @RequestParam(required = false) List<String> include,
             @AuthenticationPrincipal UserEntity user
     ) {
         UserEntity targetUser = userService.getByIdOrUser(id, user);
@@ -298,10 +299,10 @@ public class UserController {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
         try {
-            List<Submission> submissions = submissionRepository.findSubmissionsByStudentIdAndDateRange(
-                    targetUser.getId(), startDate.atStartOfDay(), endDate.atStartOfDay()
+            List<Submission> submissions = submissionService.getLoadedByStudentIdAndDateRange(
+                    targetUser.getId(), startDate.atStartOfDay(), endDate.atStartOfDay(), include
             );
-            return new ResponseEntity<>(submissionService.mapAllToDto(submissions, null), HttpStatus.OK);
+            return new ResponseEntity<>(submissionService.mapAllToDto(submissions, include), HttpStatus.OK);
         } catch (Exception e) {
             System.out.println(e.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
