@@ -20,6 +20,11 @@ public interface SchoolMapper {
         } else {
             schoolDto = BasicDtoMapper.toBasicSchoolDto(school);
         }
+        if (include.contains("contacts")) {
+            schoolDto.setContacts(BasicDtoMapper.toSchoolContactsDto(school.getContacts()));
+        } else {
+            schoolDto.setContactsId(school.getContacts().getId());
+        }
         if (include.contains("classes")) {
             schoolDto.setClasses(school.getClasses().stream()
                     .map(BasicDtoMapper::toClassDto)

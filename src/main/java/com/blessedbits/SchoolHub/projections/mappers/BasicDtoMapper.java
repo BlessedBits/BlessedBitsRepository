@@ -42,6 +42,7 @@ public interface BasicDtoMapper {
 
     static SchoolDto toSchoolDto(School school) {
         SchoolDto schoolDto = toBasicSchoolDto(school);
+        schoolDto.setContactsId(school.getContacts().getId());
         return schoolDto;
     }
 
@@ -165,5 +166,23 @@ public interface BasicDtoMapper {
         AchievementDto achievementDto = toBasicAchievementDto(achievement);
         achievementDto.setSchoolId(achievement.getSchool().getId());
         return achievementDto;
+    }
+
+    static SchoolContactsDto toBasicSchoolContactsDto(SchoolContacts schoolContacts) {
+        SchoolContactsDto schoolContactsDto = new SchoolContactsDto();
+        schoolContactsDto.setId(schoolContacts.getId());
+        schoolContactsDto.setPhoneNumber(schoolContacts.getPhoneNumber());
+        schoolContactsDto.setEmail(schoolContacts.getEmail());
+        schoolContactsDto.setYoutubeLink(schoolContacts.getYoutubeLink());
+        schoolContactsDto.setFacebookLink(schoolContacts.getFacebookLink());
+        schoolContactsDto.setInstagramLink(schoolContacts.getInstagramLink());
+        schoolContactsDto.setTiktokLink(schoolContacts.getTiktokLink());
+        return schoolContactsDto;
+    }
+
+    static SchoolContactsDto toSchoolContactsDto(SchoolContacts schoolContacts) {
+        SchoolContactsDto schoolContactsDto = toBasicSchoolContactsDto(schoolContacts);
+        schoolContactsDto.setSchoolId(schoolContacts.getSchool().getId());
+        return schoolContactsDto;
     }
 }

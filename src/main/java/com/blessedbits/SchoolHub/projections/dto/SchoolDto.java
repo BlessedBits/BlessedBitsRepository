@@ -12,6 +12,10 @@ public class SchoolDto {
     private String address;
     private String logo;
     @JsonInclude(JsonInclude.Include.NON_NULL)
+    private Integer contactsId;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private SchoolContactsDto contacts;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private List<ClassDto> classes;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private List<CourseDto> courses;
