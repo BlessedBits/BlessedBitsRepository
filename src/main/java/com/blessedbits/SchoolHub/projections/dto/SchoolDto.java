@@ -23,5 +23,7 @@ public class SchoolDto {
     private List<UserDto> users;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private List<AchievementDto> achievements;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private List<String> gallery;
     // Todo add news
 }
