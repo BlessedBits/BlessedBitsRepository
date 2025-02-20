@@ -42,7 +42,9 @@ public interface BasicDtoMapper {
 
     static SchoolDto toSchoolDto(School school) {
         SchoolDto schoolDto = toBasicSchoolDto(school);
-        schoolDto.setContactsId(school.getContacts().getId());
+        if (school.getContacts() != null) {
+            schoolDto.setContactsId(school.getContacts().getId());
+        }
         return schoolDto;
     }
 

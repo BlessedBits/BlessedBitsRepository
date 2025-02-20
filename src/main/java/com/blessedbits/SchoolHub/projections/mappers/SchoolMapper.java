@@ -22,9 +22,13 @@ public interface SchoolMapper {
             schoolDto = BasicDtoMapper.toBasicSchoolDto(school);
         }
         if (include.contains("contacts")) {
-            schoolDto.setContacts(BasicDtoMapper.toSchoolContactsDto(school.getContacts()));
+            if (school.getContacts() != null) {
+                schoolDto.setContacts(BasicDtoMapper.toSchoolContactsDto(school.getContacts()));
+            }
         } else {
-            schoolDto.setContactsId(school.getContacts().getId());
+            if (school.getContacts() != null) {
+                schoolDto.setContactsId(school.getContacts().getId());
+            }
         }
         if (include.contains("classes")) {
             schoolDto.setClasses(school.getClasses().stream()
