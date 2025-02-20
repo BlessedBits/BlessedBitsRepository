@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -45,6 +46,31 @@ public class SubmissionService {
         } catch (Exception e) {
             System.out.println(e.getMessage());
             return getById(id);
+        }
+    }
+
+    public List<Submission> getLoadedByStudentIdAndDateRange(
+            Integer studentId, LocalDateTime startDate, LocalDateTime endDate, List<String> include
+    ) {
+        String jpql = """
+    SELECT sub FROM Submission sub
+    WHERE sub.student.id = :studentId
+    AND sub.grade IS NOT NULL
+    AND sub.gradedAt BETWEEN :startDate AND :endDate
+    ORDER BY sub.gradedAt
+    """;
+        TypedQuery<Submission> query = EntityManagerUtils
+                .createTypedQueryWithGraph(Submission.class, entityManager, jpql, include);
+        query.setParameter("studentId", studentId);
+        query.setParameter("startDate", startDate);
+        query.setParameter("endDate", endDate);
+        try {
+            return query.getResultList();
+        } catch (NoResultException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Couldn't find submission with specified id");
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return submissionRepository.findSubmissionsByStudentIdAndDateRange(studentId, startDate, endDate);
         }
     }
 

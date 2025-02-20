@@ -291,6 +291,7 @@ public class UserController {
             @PathVariable Integer id,
             @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @RequestParam(required = false) List<String> include,
             @AuthenticationPrincipal UserEntity user
     ) {
         UserEntity targetUser = userService.getByIdOrUser(id, user);
@@ -298,10 +299,10 @@ public class UserController {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
         try {
-            List<Submission> submissions = submissionRepository.findSubmissionsByStudentIdAndDateRange(
-                    targetUser.getId(), startDate.atStartOfDay(), endDate.atStartOfDay()
+            List<Submission> submissions = submissionService.getLoadedByStudentIdAndDateRange(
+                    targetUser.getId(), startDate.atStartOfDay(), endDate.atStartOfDay(), include
             );
-            return new ResponseEntity<>(submissionService.mapAllToDto(submissions, null), HttpStatus.OK);
+            return new ResponseEntity<>(submissionService.mapAllToDto(submissions, include), HttpStatus.OK);
         } catch (Exception e) {
             System.out.println(e.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
