@@ -167,8 +167,8 @@ public class UserController {
             return new ResponseEntity<>("You can't modify this user", HttpStatus.FORBIDDEN);
         }
         try {
-            if (user.getProfileImage() != null && !user.getProfileImage().isEmpty()) {
-                storageService.deleteFile(user.getProfileImage());
+            if (targetUser.getProfileImage() != null && !targetUser.getProfileImage().isEmpty()) {
+                storageService.deleteFile(targetUser.getProfileImage());
             }
             String url = storageService.uploadFile(profileImage, CloudFolder.PROFILE_IMAGES);
             targetUser.setProfileImage(url);
@@ -237,7 +237,7 @@ public class UserController {
             targetUser.setLastName(lastName);
         }
         try {
-            userRepository.save(user);
+            userRepository.save(targetUser);
             return new ResponseEntity<>("User's name was successfully updated.", HttpStatus.OK);
         }
         catch (Exception e) {
