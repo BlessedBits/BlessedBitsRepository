@@ -4,13 +4,11 @@ import com.blessedbits.SchoolHub.misc.EntityManagerUtils;
 import com.blessedbits.SchoolHub.misc.RoleType;
 import com.blessedbits.SchoolHub.models.*;
 import com.blessedbits.SchoolHub.projections.dto.SchoolDto;
-import com.blessedbits.SchoolHub.projections.dto.UserDto;
 import com.blessedbits.SchoolHub.projections.mappers.SchoolMapper;
 import com.blessedbits.SchoolHub.repositories.SchoolRepository;
 import com.blessedbits.SchoolHub.repositories.SchoolContactsRepository;
 import com.blessedbits.SchoolHub.repositories.SchoolGalleryRepository;
 import com.blessedbits.SchoolHub.repositories.AchievementRepository;
-import com.blessedbits.SchoolHub.repositories.SchoolRepository;
 import com.blessedbits.SchoolHub.repositories.UserRepository;
 import com.blessedbits.SchoolHub.dto.SchoolContactsDto;
 import com.blessedbits.SchoolHub.dto.SchoolInfoDto;
@@ -28,11 +26,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.multipart.MultipartFile;
-import io.jsonwebtoken.io.IOException;
 
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 public class SchoolService {
@@ -54,7 +50,6 @@ public class SchoolService {
     @PersistenceContext
     private EntityManager entityManager;
 
-    @Autowired
     public SchoolService(SchoolRepository schoolRepository) {
         this.schoolRepository = schoolRepository;
     }

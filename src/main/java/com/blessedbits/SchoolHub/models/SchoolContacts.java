@@ -1,7 +1,6 @@
 package com.blessedbits.SchoolHub.models;
 
 import com.blessedbits.SchoolHub.misc.JsonReferenceAsId;
-import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import jakarta.persistence.*;
 import lombok.Data;

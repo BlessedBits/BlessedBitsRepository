@@ -3,7 +3,6 @@ package com.blessedbits.SchoolHub.misc;
 import com.blessedbits.SchoolHub.dto.GradeDto;
 import com.blessedbits.SchoolHub.models.ClassEntity;
 import com.blessedbits.SchoolHub.models.Course;
-import com.blessedbits.SchoolHub.models.Grade;
 import com.blessedbits.SchoolHub.models.School;
 import com.blessedbits.SchoolHub.models.Submission;
 import com.blessedbits.SchoolHub.models.UserEntity;

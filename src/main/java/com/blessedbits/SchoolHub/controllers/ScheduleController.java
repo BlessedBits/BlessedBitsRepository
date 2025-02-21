@@ -18,7 +18,7 @@ public class ScheduleController {
     @Autowired
     private ScheduleService scheduleService;
 
-    @PostMapping("/")
+    @PostMapping("")
     public ResponseEntity<String> createSchedule(@RequestBody CreateScheduleDto createScheduleDto) {
         try 
         {
@@ -30,7 +30,7 @@ public class ScheduleController {
         }
     }
 
-    @GetMapping("/")
+    @GetMapping("")
     public ResponseEntity<List<Schedule>> getAllSchedules() {
         try {
             return new ResponseEntity<>(scheduleService.getAllSchedules(), HttpStatus.OK);

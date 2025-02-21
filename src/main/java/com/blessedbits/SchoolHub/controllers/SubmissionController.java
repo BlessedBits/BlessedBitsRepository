@@ -2,9 +2,7 @@ package com.blessedbits.SchoolHub.controllers;
 
 import com.blessedbits.SchoolHub.dto.CreateSubmissionDto;
 import com.blessedbits.SchoolHub.misc.RoleBasedAccessUtils;
-import com.blessedbits.SchoolHub.misc.RoleType;
 import com.blessedbits.SchoolHub.models.Assignment;
-import com.blessedbits.SchoolHub.models.Course;
 import com.blessedbits.SchoolHub.models.Submission;
 import com.blessedbits.SchoolHub.models.UserEntity;
 import com.blessedbits.SchoolHub.projections.dto.SubmissionDto;
@@ -12,7 +10,6 @@ import com.blessedbits.SchoolHub.projections.mappers.SubmissionMapper;
 import com.blessedbits.SchoolHub.repositories.SubmissionRepository;
 import com.blessedbits.SchoolHub.services.AssignmentService;
 import com.blessedbits.SchoolHub.services.SubmissionService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -29,7 +26,6 @@ public class SubmissionController {
     private final SubmissionService submissionService;
     private final RoleBasedAccessUtils roleBasedAccessUtils;
 
-    @Autowired
     public SubmissionController(AssignmentService assignmentService, SubmissionRepository submissionRepository, SubmissionService submissionService, RoleBasedAccessUtils roleBasedAccessUtils) {
         this.assignmentService = assignmentService;
         this.submissionRepository = submissionRepository;

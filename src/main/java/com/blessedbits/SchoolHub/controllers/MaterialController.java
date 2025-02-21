@@ -11,7 +11,6 @@ import com.blessedbits.SchoolHub.projections.mappers.MaterialMapper;
 import com.blessedbits.SchoolHub.repositories.MaterialRepository;
 import com.blessedbits.SchoolHub.services.MaterialService;
 import com.blessedbits.SchoolHub.services.ModuleService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -28,7 +27,6 @@ public class MaterialController {
     private final MaterialService materialService;
     private final RoleBasedAccessUtils roleBasedAccessUtils;
 
-    @Autowired
     public MaterialController(ModuleService moduleService, MaterialRepository materialRepository, MaterialService materialService, RoleBasedAccessUtils roleBasedAccessUtils) {
         this.moduleService = moduleService;
         this.materialRepository = materialRepository;

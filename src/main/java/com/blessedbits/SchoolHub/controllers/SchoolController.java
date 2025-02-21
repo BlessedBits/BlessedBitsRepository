@@ -2,18 +2,14 @@ package com.blessedbits.SchoolHub.controllers;
 
 import com.blessedbits.SchoolHub.dto.AchievementDto;
 import com.blessedbits.SchoolHub.dto.AddSchoolUserDto;
-import com.blessedbits.SchoolHub.dto.CreateNewsDTO;
 import com.blessedbits.SchoolHub.dto.CreateSchoolDto;
 import com.blessedbits.SchoolHub.dto.SchoolContactsDto;
-import com.blessedbits.SchoolHub.dto.SchoolInfoDto;
-import com.blessedbits.SchoolHub.dto.UpdateSchoolInfoDto;
 import com.blessedbits.SchoolHub.misc.CloudFolder;
 import com.blessedbits.SchoolHub.misc.RoleBasedAccessUtils;
 import com.blessedbits.SchoolHub.misc.RoleType;
 import com.blessedbits.SchoolHub.models.News;
 import com.blessedbits.SchoolHub.models.Achievement;
 import com.blessedbits.SchoolHub.models.School;
-import com.blessedbits.SchoolHub.models.SchoolContacts;
 import com.blessedbits.SchoolHub.models.SchoolGallery;
 import com.blessedbits.SchoolHub.models.UserEntity;
 import com.blessedbits.SchoolHub.projections.dto.ClassDto;
@@ -24,20 +20,14 @@ import com.blessedbits.SchoolHub.projections.mappers.BasicDtoMapper;
 import com.blessedbits.SchoolHub.projections.mappers.SchoolMapper;
 import com.blessedbits.SchoolHub.repositories.SchoolRepository;
 import com.blessedbits.SchoolHub.repositories.UserRepository;
-import com.blessedbits.SchoolHub.repositories.SchoolGalleryRepository;
 import com.blessedbits.SchoolHub.services.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
 
-import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/schools")
@@ -49,11 +39,9 @@ public class SchoolController {
     private final SchoolService schoolService;
     private final ClassService classService;
     private final CourseService courseService;
-    private final SchoolGalleryRepository schoolGalleryRepository;
     private final RoleBasedAccessUtils roleBasedAccessUtils;
 
-    @Autowired
-    public SchoolController(SchoolService schoolService, SchoolRepository schoolRepository, StorageService storageService, UserService userService, UserRepository userRepository, ClassService classService, CourseService courseService, SchoolGalleryRepository schoolGalleryRepository, RoleBasedAccessUtils roleBasedAccessUtils) {
+    public SchoolController(SchoolService schoolService, SchoolRepository schoolRepository, StorageService storageService, UserService userService, UserRepository userRepository, ClassService classService, CourseService courseService, RoleBasedAccessUtils roleBasedAccessUtils) {
         this.schoolRepository = schoolRepository;
         this.storageService = storageService;
         this.userService = userService;
@@ -61,7 +49,6 @@ public class SchoolController {
         this.schoolService = schoolService;
         this.classService = classService;
         this.courseService = courseService;
-        this.schoolGalleryRepository = schoolGalleryRepository;
         this.roleBasedAccessUtils = roleBasedAccessUtils;
     }
 

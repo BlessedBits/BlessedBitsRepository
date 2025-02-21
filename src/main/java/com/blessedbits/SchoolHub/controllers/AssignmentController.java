@@ -5,7 +5,6 @@ import com.blessedbits.SchoolHub.dto.GradeDto;
 import com.blessedbits.SchoolHub.dto.UpdateAssignmentDto;
 import com.blessedbits.SchoolHub.misc.RoleBasedAccessUtils;
 import com.blessedbits.SchoolHub.models.Assignment;
-import com.blessedbits.SchoolHub.models.Grade;
 import com.blessedbits.SchoolHub.models.ModuleEntity;
 import com.blessedbits.SchoolHub.models.Submission;
 import com.blessedbits.SchoolHub.models.UserEntity;

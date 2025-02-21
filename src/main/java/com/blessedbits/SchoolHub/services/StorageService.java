@@ -2,7 +2,6 @@ package com.blessedbits.SchoolHub.services;
 
 import com.blessedbits.SchoolHub.misc.CloudFolder;
 import com.cloudinary.Cloudinary;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -13,7 +12,6 @@ import java.util.Map;
 public class StorageService {
     private final Cloudinary cloudinary;
 
-    @Autowired
     public StorageService(Cloudinary cloudinary) {
         this.cloudinary = cloudinary;
     }
