@@ -1,5 +1,6 @@
 package com.blessedbits.SchoolHub.models;
 
+import com.blessedbits.SchoolHub.misc.GradeType;
 import com.blessedbits.SchoolHub.misc.JsonReferenceAsId;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -13,22 +14,38 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class Submission {
+public class Grade {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @EqualsAndHashCode.Include
     private long id;
 
-    private String url;
-    private LocalDateTime submittedAt;
+    @Column(nullable = false)
+    private Integer grade; 
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private GradeType type;  
+
+    private LocalDateTime gradedAt;  
 
     @JsonReferenceAsId
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "student_id")
-    private UserEntity student;
+    private UserEntity student;  
+
+    @JsonReferenceAsId
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "teacher_id")
+    private UserEntity teacher;  
 
     @JsonReferenceAsId
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "assignment_id")
-    private Assignment assignment;
+    private Assignment assignment;  
+
+    @JsonReferenceAsId
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "course_id")
+    private Course course; 
 }

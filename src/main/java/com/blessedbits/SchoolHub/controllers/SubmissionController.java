@@ -3,7 +3,9 @@ package com.blessedbits.SchoolHub.controllers;
 import com.blessedbits.SchoolHub.dto.CreateSubmissionDto;
 import com.blessedbits.SchoolHub.dto.GradeSubmissionDto;
 import com.blessedbits.SchoolHub.misc.RoleBasedAccessUtils;
+import com.blessedbits.SchoolHub.misc.RoleType;
 import com.blessedbits.SchoolHub.models.Assignment;
+import com.blessedbits.SchoolHub.models.Course;
 import com.blessedbits.SchoolHub.models.Submission;
 import com.blessedbits.SchoolHub.models.UserEntity;
 import com.blessedbits.SchoolHub.projections.dto.SubmissionDto;
@@ -92,36 +94,14 @@ public class SubmissionController {
         }
     }
 
-    @PutMapping("/{id}/grade")
-    public ResponseEntity<String> gradeSubmission(
-            @PathVariable Long id,
-            @RequestBody GradeSubmissionDto gradeSubmissionDto,
-            @AuthenticationPrincipal UserEntity user
-    ) {
-        Submission submission = submissionService.getById(id);
-        if (!(submission.getTeacher().getId() == user.getId())) {
-            return new ResponseEntity<>("You can't grade this submission", HttpStatus.FORBIDDEN);
-        }
-        submission.setGrade(gradeSubmissionDto.getGrade());
-        submission.setTeacher(user);
-        submission.setGradedAt(LocalDateTime.now());
-        try {
-            submissionRepository.save(submission);
-            return new ResponseEntity<>("Submission updated", HttpStatus.OK);
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            return new ResponseEntity<>("Unable to update submission", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteSubmission(
             @PathVariable Long id,
             @AuthenticationPrincipal UserEntity user
     ) {
         Submission submission = submissionService.getById(id);
-        if (!(submission.getStudent().getId() == user.getId() || submission.getTeacher().getId() == user.getId())) {
-            return new ResponseEntity<>("You can't modify this submission", HttpStatus.FORBIDDEN);
+        if (!roleBasedAccessUtils.canDeleteSubmission(submission, user)) {
+            return new ResponseEntity<>("You can't delete this submission", HttpStatus.FORBIDDEN);
         }
         try {
             submissionRepository.delete(submission);
