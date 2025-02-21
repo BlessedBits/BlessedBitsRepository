@@ -24,11 +24,6 @@ public interface SubmissionMapper {
         } else {
             submissionDto.setStudentId(submission.getStudent().getId());
         }
-        if (include.contains("teacher")) {
-            submissionDto.setTeacher(BasicDtoMapper.toUserDto(submission.getTeacher()));
-        } else {
-            submissionDto.setTeacherId(submission.getTeacher().getId());
-        }
         if (include.contains("assignment")) {
             submissionDto.setAssignment(BasicDtoMapper.toAssignmentDto(submission.getAssignment()));
         } else {

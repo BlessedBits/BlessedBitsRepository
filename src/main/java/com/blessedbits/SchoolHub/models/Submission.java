@@ -21,18 +21,11 @@ public class Submission {
 
     private String url;
     private LocalDateTime submittedAt;
-    private Integer grade;
-    private LocalDateTime gradedAt;
 
     @JsonReferenceAsId
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "student_id")
     private UserEntity student;
-
-    @JsonReferenceAsId
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "teacher_id")
-    private UserEntity teacher;
 
     @JsonReferenceAsId
     @ManyToOne(fetch = FetchType.LAZY)

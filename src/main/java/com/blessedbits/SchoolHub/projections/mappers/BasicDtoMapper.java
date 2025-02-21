@@ -120,15 +120,12 @@ public interface BasicDtoMapper {
         submissionDto.setId(submission.getId());
         submissionDto.setUrl(submission.getUrl());
         submissionDto.setSubmittedAt(submission.getSubmittedAt());
-        submissionDto.setGrade(submission.getGrade());
-        submissionDto.setGradedAt(submission.getGradedAt());
         return submissionDto;
     }
 
     static SubmissionDto toSubmissionDto(Submission submission) {
         SubmissionDto submissionDto = toBasicSubmissionDto(submission);
         submissionDto.setStudentId(submission.getStudent().getId());
-        submissionDto.setTeacherId(submission.getTeacher().getId());
         submissionDto.setAssignmentId(submission.getAssignment().getId());
         return submissionDto;
     }
