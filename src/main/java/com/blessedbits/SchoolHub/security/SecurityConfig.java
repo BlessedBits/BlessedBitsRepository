@@ -261,6 +261,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/assignments/{id}/submissions").hasAnyRole(
                                 "PLATFORM_ADMIN", "SCHOOL_ADMIN", "TEACHER", "USER"
                         )
+                        .requestMatchers(HttpMethod.POST, "/assignments/{id}/grade").hasAnyRole(
+                                "TEACHER", "SCHOOL_ADMIN", "PLATFORM_ADMIN"
+                        )
 
                         // SubmissionController
                         .requestMatchers(HttpMethod.POST, "/submissions").hasRole("STUDENT")
@@ -268,7 +271,6 @@ public class SecurityConfig {
                                 "PLATFORM_ADMIN", "SCHOOL_ADMIN", "TEACHER", "STUDENT"
                         )
                         .requestMatchers(HttpMethod.PUT, "/submissions/{id}").hasRole("STUDENT")
-                        .requestMatchers(HttpMethod.PUT, "/submissions/{id}/grade").hasRole("TEACHER")
                         .requestMatchers(HttpMethod.DELETE, "/submissions/{id}").hasAnyRole(
                                 "TEACHER", "STUDENT"
                         )
@@ -297,6 +299,14 @@ public class SecurityConfig {
                         // RolesController
                         .requestMatchers("/roles/**").hasAnyRole("SCHOOL_ADMIN", "PLATFORM_ADMIN")
                         .requestMatchers(HttpMethod.GET, "/roles/").hasAnyRole("SCHOOL_ADMIN", "PLATFORM_ADMIN")
+
+                        //GradeController
+                        .requestMatchers("/grades/**").hasAnyRole("TEACHER", "SCHOOL_ADMIN", "PLATFORM_ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/grades").hasAnyRole("TEACHER", "SCHOOL_ADMIN", "PLATFORM_ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/grades").hasAnyRole("TEACHER", "SCHOOL_ADMIN", "PLATFORM_ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/grades/id").hasAnyRole("TEACHER", "SCHOOL_ADMIN", "PLATFORM_ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/grades/id").hasAnyRole("TEACHER", "SCHOOL_ADMIN", "PLATFORM_ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/grades/id").hasAnyRole("TEACHER", "SCHOOL_ADMIN", "PLATFORM_ADMIN")
                 )
                 .httpBasic(Customizer.withDefaults());
         http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
