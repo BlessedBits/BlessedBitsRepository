@@ -59,7 +59,7 @@ public class UserService {
     }
 
     public UserEntity getByIdOrUser(Integer id, UserEntity user) {
-        if (id != 0) {
+        if (id != null && id != 0) {
             return getById(id);
         }
         return user;
