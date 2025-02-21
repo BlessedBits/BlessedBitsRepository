@@ -1,6 +1,5 @@
 package com.blessedbits.SchoolHub.security;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -23,7 +22,6 @@ public class SecurityConfig {
     private JwtAuthEntryPoint authEntryPoint;
     private JwtAccessDeniedHandler accessDeniedHandler;
 
-    @Autowired
     public SecurityConfig(JwtAuthEntryPoint authEntryPoint, JwtAccessDeniedHandler accessDeniedHandler) {
         this.authEntryPoint = authEntryPoint;
         this.accessDeniedHandler = accessDeniedHandler;
@@ -266,41 +264,42 @@ public class SecurityConfig {
                         )
 
                         // SubmissionController
-                        .requestMatchers(HttpMethod.POST, "/submissions").hasRole("STUDENT")
+                        .requestMatchers(HttpMethod.POST, "/submissions").hasAnyRole("STUDENT", "PLATFORM_ADMIN", "SCHOOL_ADMIN")
                         .requestMatchers(HttpMethod.GET, "/submissions/{id}").hasAnyRole(
                                 "PLATFORM_ADMIN", "SCHOOL_ADMIN", "TEACHER", "STUDENT"
                         )
-                        .requestMatchers(HttpMethod.PUT, "/submissions/{id}").hasRole("STUDENT")
+                        .requestMatchers(HttpMethod.PUT, "/submissions/{id}").hasAnyRole("STUDENT", "PLATFORM_ADMIN", "SCHOOL_ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/submissions/{id}").hasAnyRole(
-                                "TEACHER", "STUDENT"
+                                "TEACHER", "STUDENT", "PLATFORM_ADMIN", "SCHOOL_ADMIN"
                         )
 
                         // ScheduleController
-                        .requestMatchers(HttpMethod.POST, "/schedules/").hasRole("SCHOOL_ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/schedules").hasAnyRole("PLATFORM_ADMIN", "SCHOOL_ADMIN")
                         .requestMatchers(HttpMethod.GET, "/schedules/{id}").hasAnyRole(
-                                "STUDENT", "TEACHER", "SCHOOL_ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/schedules/").hasAnyRole(
-                                "STUDENT", "TEACHER", "SCHOOL_ADMIN")
+                                "STUDENT", "TEACHER", "SCHOOL_ADMIN", "PLATFORM_ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/schedules").hasAnyRole(
+                                "STUDENT", "TEACHER", "SCHOOL_ADMIN", "PLATFORM_ADMIN")
                         .requestMatchers(HttpMethod.GET, "/schedules/class/{id}").hasAnyRole(
-                                "STUDENT", "TEACHER", "SCHOOL_ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/schedules/{id}").hasRole("SCHOOL_ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/schedules/{id}").hasRole("SCHOOL_ADMIN")
+                                "STUDENT", "TEACHER", "SCHOOL_ADMIN", "PLATFORM_ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/schedules/{id}").hasAnyRole("SCHOOL_ADMIN", "PLATFORM_ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/schedules/{id}").hasAnyRole("SCHOOL_ADMIN", "PLATFORM_ADMIN")
                         .requestMatchers("/schedules/**").hasAnyRole(
-                                "STUDENT", "TEACHER", "SCHOOL_ADMIN")
+                                "STUDENT", "TEACHER", "SCHOOL_ADMIN", "PLATFORM_ADMIN")
 
                         // NewsController
-                        .requestMatchers("/news/new").hasRole("SCHOOL_ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/news/{id}").hasRole("SCHOOL_ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/news/{id}").hasRole("SCHOOL_ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/news/{id}").hasRole("SCHOOL_ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/news").hasAnyRole("SCHOOL_ADMIN", "PLATFORM_ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/news/{id}").hasAnyRole("STUDENT", "TEACHER", "SCHOOL_ADMIN", "PLATFORM_ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/news").hasAnyRole("STUDENT", "TEACHER", "SCHOOL_ADMIN", "PLATFORM_ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/news/{id}").hasAnyRole("SCHOOL_ADMIN", "PLATFORM_ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/news/{id}").hasAnyRole("SCHOOL_ADMIN", "PLATFORM_ADMIN")
                         .requestMatchers("/news/**").hasAnyRole(
                                 "STUDENT", "TEACHER", "SCHOOL_ADMIN", "PLATFORM_ADMIN")
 
                         //GradeController
                         .requestMatchers("/grades/**").hasAnyRole("TEACHER", "SCHOOL_ADMIN", "PLATFORM_ADMIN")
                         .requestMatchers(HttpMethod.POST, "/grades").hasAnyRole("TEACHER", "SCHOOL_ADMIN", "PLATFORM_ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/grades").hasAnyRole("TEACHER", "SCHOOL_ADMIN", "PLATFORM_ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/grades/id").hasAnyRole("TEACHER", "SCHOOL_ADMIN", "PLATFORM_ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/grades").hasAnyRole("STUDENT", "TEACHER", "SCHOOL_ADMIN", "PLATFORM_ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/grades/id").hasAnyRole("STUDENT", "TEACHER", "SCHOOL_ADMIN", "PLATFORM_ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/grades/id").hasAnyRole("TEACHER", "SCHOOL_ADMIN", "PLATFORM_ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/grades/id").hasAnyRole("TEACHER", "SCHOOL_ADMIN", "PLATFORM_ADMIN")
                 )
