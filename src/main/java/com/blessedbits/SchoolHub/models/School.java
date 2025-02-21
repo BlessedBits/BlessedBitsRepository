@@ -47,13 +47,14 @@ public class School {
 
     @JsonReferenceAsId
     @OneToMany(mappedBy = "school", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Achievement> achievements;
+    private Set<Achievement> achievements;
 
     @JsonReferenceAsId
-    @OneToOne(mappedBy = "school", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "contacts_id", referencedColumnName = "id")
     private SchoolContacts contacts;
 
     @JsonReferenceAsId
     @OneToMany(mappedBy = "school", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<SchoolGallery> gallery;
+    private Set<SchoolGallery> gallery;
 }

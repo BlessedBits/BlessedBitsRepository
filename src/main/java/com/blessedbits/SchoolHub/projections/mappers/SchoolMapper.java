@@ -1,6 +1,7 @@
 package com.blessedbits.SchoolHub.projections.mappers;
 
 import com.blessedbits.SchoolHub.models.School;
+import com.blessedbits.SchoolHub.models.SchoolGallery;
 import com.blessedbits.SchoolHub.projections.dto.CourseDto;
 import com.blessedbits.SchoolHub.projections.dto.SchoolDto;
 import org.mapstruct.Mapper;
@@ -20,6 +21,15 @@ public interface SchoolMapper {
         } else {
             schoolDto = BasicDtoMapper.toBasicSchoolDto(school);
         }
+        if (include.contains("contacts")) {
+            if (school.getContacts() != null) {
+                schoolDto.setContacts(BasicDtoMapper.toSchoolContactsDto(school.getContacts()));
+            }
+        } else {
+            if (school.getContacts() != null) {
+                schoolDto.setContactsId(school.getContacts().getId());
+            }
+        }
         if (include.contains("classes")) {
             schoolDto.setClasses(school.getClasses().stream()
                     .map(BasicDtoMapper::toClassDto)
@@ -33,6 +43,16 @@ public interface SchoolMapper {
         if (include.contains("users")) {
             schoolDto.setUsers(school.getUsers().stream()
                     .map(BasicDtoMapper::toUserDto)
+                    .toList());
+        }
+        if (include.contains("achievements")) {
+            schoolDto.setAchievements(school.getAchievements().stream()
+                    .map(BasicDtoMapper::toAchievementDto)
+                    .toList());
+        }
+        if (include.contains("gallery")) {
+            schoolDto.setGallery(school.getGallery().stream()
+                    .map(SchoolGallery::getGalleryImage)
                     .toList());
         }
         return schoolDto;

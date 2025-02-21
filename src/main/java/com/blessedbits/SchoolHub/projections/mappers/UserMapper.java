@@ -20,7 +20,9 @@ public interface UserMapper {
             userDto = BasicDtoMapper.toBasicUserDto(user);
         }
         if (include.contains("userClass")) {
-            userDto.setUserClass(BasicDtoMapper.toClassDto(user.getUserClass()));
+            if (user.getUserClass() != null) {
+                userDto.setUserClass(BasicDtoMapper.toClassDto(user.getUserClass()));
+            }
         } else {
             if (user.getUserClass() != null) {
                 userDto.setUserClassId(user.getUserClass().getId());
@@ -31,7 +33,9 @@ public interface UserMapper {
                 userDto.setSchool(BasicDtoMapper.toSchoolDto(user.getSchool()));
             }
         } else {
-            userDto.setSchoolId(user.getUserClass().getId());
+            if (user.getSchool() != null) {
+                userDto.setSchoolId(user.getSchool().getId());
+            }
         }
         return userDto;
     }

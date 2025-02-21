@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -93,16 +94,18 @@ public class MaterialController {
         }
     }
 
+    @Transactional
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteMaterial(
             @PathVariable Long id,
             @AuthenticationPrincipal UserEntity user
     ) {
-        Material materialEntity = materialService.getById(id);
+        Material materialEntity = materialService.getLoadedById(id, List.of("module"));
         if (!roleBasedAccessUtils.canModifyCourse(user, materialEntity.getModule().getCourse())) {
             return new ResponseEntity<>("You can't modify this course", HttpStatus.FORBIDDEN);
         }
         try {
+            materialService.deleteRelations(materialEntity);
             materialRepository.delete(materialEntity);
             return new ResponseEntity<>("Material deleted", HttpStatus.OK);
         } catch (Exception e) {

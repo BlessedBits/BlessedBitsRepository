@@ -9,6 +9,8 @@ import java.util.List;
 public class UserDto {
     private Integer id;
     private String username;
+    private String firstName;
+    private String lastName;
     private String email;
     private boolean isConfirmed;
     private String profileImage;

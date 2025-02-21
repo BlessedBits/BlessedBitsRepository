@@ -100,11 +100,12 @@ public class AssignmentController {
             @PathVariable Long id,
             @AuthenticationPrincipal UserEntity user
     ) {
-        Assignment assignment = assignmentService.getById(id);
+        Assignment assignment = assignmentService.getLoadedById(id, List.of("module"));
         if (!roleBasedAccessUtils.canModifyCourse(user, assignment.getModule().getCourse())) {
             return new ResponseEntity<>("You can't modify this course", HttpStatus.FORBIDDEN);
         }
         try {
+            assignmentService.deleteRelations(assignment);
             assignmentRepository.delete(assignment);
             return new ResponseEntity<>("Assignment deleted", HttpStatus.OK);
         } catch (Exception e) {

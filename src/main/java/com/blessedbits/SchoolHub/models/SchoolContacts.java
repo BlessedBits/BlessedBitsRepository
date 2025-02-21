@@ -5,19 +5,21 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "school_contacts")
 @Data
 @NoArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class SchoolContacts {
+    @EqualsAndHashCode.Include
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @OneToOne
-    @JoinColumn(name = "school_id", referencedColumnName = "id")
+    @OneToOne(mappedBy = "contacts")
     @JsonReferenceAsId
     private School school;
 

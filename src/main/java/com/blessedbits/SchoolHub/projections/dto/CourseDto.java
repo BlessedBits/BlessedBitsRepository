@@ -17,4 +17,6 @@ public class CourseDto {
     private List<ModuleDto> modules;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private List<ClassDto> classes;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private List<UserDto> teachers;
 }
