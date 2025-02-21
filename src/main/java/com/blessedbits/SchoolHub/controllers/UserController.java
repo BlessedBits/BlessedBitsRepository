@@ -4,10 +4,10 @@ import com.blessedbits.SchoolHub.dto.RoleUpdateRequest;
 import com.blessedbits.SchoolHub.dto.UpdateDutyDto;
 import com.blessedbits.SchoolHub.dto.UpdateInfoDto;
 import com.blessedbits.SchoolHub.dto.UpdateNameDto;
-import com.blessedbits.SchoolHub.dto.UserProfileDto;
 import com.blessedbits.SchoolHub.misc.CloudFolder;
 import com.blessedbits.SchoolHub.misc.RoleBasedAccessUtils;
 import com.blessedbits.SchoolHub.misc.RoleType;
+import com.blessedbits.SchoolHub.models.Grade;
 import com.blessedbits.SchoolHub.models.Submission;
 import com.blessedbits.SchoolHub.models.UserEntity;
 import com.blessedbits.SchoolHub.models.VerificationToken;
@@ -19,12 +19,12 @@ import com.blessedbits.SchoolHub.repositories.SubmissionRepository;
 import com.blessedbits.SchoolHub.repositories.UserRepository;
 import com.blessedbits.SchoolHub.repositories.VerificationTokenRepository;
 import com.blessedbits.SchoolHub.services.EmailService;
+import com.blessedbits.SchoolHub.services.GradeService;
 import com.blessedbits.SchoolHub.services.StorageService;
 import com.blessedbits.SchoolHub.services.SubmissionService;
 import com.blessedbits.SchoolHub.services.UserService;
 import jakarta.validation.Valid;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,7 +38,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -49,27 +48,27 @@ public class UserController {
     private final UserService userService;
     private final EmailService emailService;
     private final StorageService storageService;
-    private final SubmissionRepository submissionRepository;
     private final RoleBasedAccessUtils roleBasedAccessUtils;
     private final SubmissionService submissionService;
+    private final GradeService gradeService;
 
-    @Autowired
     public UserController(
             UserRepository userRepository,
             VerificationTokenRepository verificationTokenRepository,
             UserService userService, EmailService emailService,
             StorageService storageService, SubmissionRepository submissionRepository,
             RoleBasedAccessUtils roleBasedAccessUtils,
-            SubmissionService submissionService
+            SubmissionService submissionService,
+            GradeService gradeService
     ) {
         this.userRepository = userRepository;
         this.verificationTokenRepository = verificationTokenRepository;
         this.userService = userService;
         this.emailService = emailService;
         this.storageService = storageService;
-        this.submissionRepository = submissionRepository;
         this.roleBasedAccessUtils = roleBasedAccessUtils;
         this.submissionService = submissionService;
+        this.gradeService = gradeService;
     }
 
     @GetMapping("/{id}")
@@ -287,7 +286,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}/grades")
-    public ResponseEntity<List<SubmissionDto>> getGrades(
+    public ResponseEntity<List<Grade>> getGrades(
             @PathVariable Integer id,
             @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
@@ -299,14 +298,13 @@ public class UserController {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
         try {
-            List<Submission> submissions = submissionService.getLoadedByStudentIdAndDateRange(
+            List<Grade> grades = gradeService.getLoadedByStudentIdAndDateRange(
                     targetUser.getId(), startDate.atStartOfDay(), endDate.atStartOfDay(), include
             );
-            return new ResponseEntity<>(submissionService.mapAllToDto(submissions, include), HttpStatus.OK);
+            return new ResponseEntity<>(grades, HttpStatus.OK);
         } catch (Exception e) {
             System.out.println(e.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-  
 }
