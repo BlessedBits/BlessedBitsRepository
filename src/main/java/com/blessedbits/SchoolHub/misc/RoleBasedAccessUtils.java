@@ -1,9 +1,14 @@
 package com.blessedbits.SchoolHub.misc;
 
+import com.blessedbits.SchoolHub.dto.GradeDto;
 import com.blessedbits.SchoolHub.models.ClassEntity;
 import com.blessedbits.SchoolHub.models.Course;
+import com.blessedbits.SchoolHub.models.Grade;
 import com.blessedbits.SchoolHub.models.School;
+import com.blessedbits.SchoolHub.models.Submission;
 import com.blessedbits.SchoolHub.models.UserEntity;
+import com.blessedbits.SchoolHub.repositories.UserRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -14,6 +19,8 @@ public class RoleBasedAccessUtils {
     private MiscRepository miscRepository;
 
     @Autowired
+    private UserRepository userRepository;
+
     public RoleBasedAccessUtils(MiscRepository miscRepository) {
         this.miscRepository = miscRepository;
     }
@@ -125,4 +132,39 @@ public class RoleBasedAccessUtils {
         }
         return false;
     }
+
+    public boolean canModifyGrade(UserEntity teacher, GradeDto dto)
+    {
+        if (teacher.hasRole(RoleType.PLATFORM_ADMIN)) {
+            return true;
+        }
+        if (teacher.hasRole(RoleType.SCHOOL_ADMIN)) {
+            UserEntity student = userRepository.findById(dto.getStudentId())
+                .orElseThrow(() -> new RuntimeException("Student with ID " + dto.getStudentId() + " wasn't found"));
+            return Objects.equals(student.getSchool().getId(), teacher.getSchool().getId());
+        }
+        if(teacher.hasRole(RoleType.TEACHER))
+        {
+            return teacher.getCourses().stream().anyMatch(course -> course.getId() == dto.getCourseId());
+        }
+        return false;
+    }
+
+    public boolean canDeleteSubmission(Submission submission, UserEntity user)
+    {
+        if(user.hasRole(RoleType.STUDENT) || user.hasRole(RoleType.TEACHER))
+        {
+            Course course = submission.getAssignment().getModule().getCourse();
+            boolean isTeacher = course.getTeachers().stream()
+            .anyMatch(teacher -> teacher.getId() == user.getId());
+            
+            if(submission.getStudent().getId() == user.getId() || isTeacher)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+
 }
