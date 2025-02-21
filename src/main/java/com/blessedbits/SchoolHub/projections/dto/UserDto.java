@@ -3,7 +3,6 @@ package com.blessedbits.SchoolHub.projections.dto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
-import java.util.List;
 
 @Data
 public class UserDto {

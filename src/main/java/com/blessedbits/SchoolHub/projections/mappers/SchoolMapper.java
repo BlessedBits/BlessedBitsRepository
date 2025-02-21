@@ -2,7 +2,6 @@ package com.blessedbits.SchoolHub.projections.mappers;
 
 import com.blessedbits.SchoolHub.models.School;
 import com.blessedbits.SchoolHub.models.SchoolGallery;
-import com.blessedbits.SchoolHub.projections.dto.CourseDto;
 import com.blessedbits.SchoolHub.projections.dto.SchoolDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;

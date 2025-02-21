@@ -29,7 +29,7 @@ public class NewsController {
         }
     }
 
-    @GetMapping("/")
+    @GetMapping("")
     public ResponseEntity<?> getNews(
         @RequestParam Long schoolId,
         @RequestParam(required = false) String category,
@@ -43,7 +43,7 @@ public class NewsController {
         }
     }
 
-    @PostMapping("/new")
+    @PostMapping("")
     public ResponseEntity<?> createNews(@RequestParam("image") MultipartFile image, @ModelAttribute CreateNewsDTO newsDto) {
         try {
             News news = newsService.createNews(image, newsDto);

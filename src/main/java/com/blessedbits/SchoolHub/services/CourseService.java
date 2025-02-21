@@ -5,7 +5,6 @@ import com.blessedbits.SchoolHub.misc.EntityManagerUtils;
 import com.blessedbits.SchoolHub.misc.RoleBasedAccessUtils;
 import com.blessedbits.SchoolHub.models.*;
 import com.blessedbits.SchoolHub.projections.dto.CourseDto;
-import com.blessedbits.SchoolHub.projections.dto.ModuleDto;
 import com.blessedbits.SchoolHub.projections.mappers.CourseMapper;
 import com.blessedbits.SchoolHub.repositories.*;
 
@@ -21,15 +20,11 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 @Service
 public class CourseService {
     private final CourseRepository courseRepository;
-    private final ModuleRepository moduleRepository;
-    private final AssignmentRepository assignmentRepository;
-    private final SubmissionRepository submissionRepository;
     private final SchoolRepository schoolRepository;
     private final UserRepository userRepository;
     private final RoleBasedAccessUtils roleBasedAccessUtils;
@@ -38,11 +33,8 @@ public class CourseService {
     @PersistenceContext
     private EntityManager entityManager;
 
-    public CourseService(UserRepository userRepository, SchoolRepository schoolRepository, CourseRepository courseRepository, ModuleRepository moduleRepository, AssignmentRepository assignmentRepository, SubmissionRepository submissionRepository, RoleBasedAccessUtils roleBasedAccessUtils, ClassRepository classRepository) {
+    public CourseService(UserRepository userRepository, SchoolRepository schoolRepository, CourseRepository courseRepository, RoleBasedAccessUtils roleBasedAccessUtils, ClassRepository classRepository) {
         this.courseRepository = courseRepository;
-        this.moduleRepository = moduleRepository;
-        this.assignmentRepository = assignmentRepository;
-        this.submissionRepository = submissionRepository;
         this.userRepository = userRepository;
         this.schoolRepository = schoolRepository;
         this.roleBasedAccessUtils = roleBasedAccessUtils;

@@ -20,7 +20,10 @@ public interface NewsRepository extends JpaRepository<News, Long> {
     List<News> findBySchoolIdAndKeyword(Long schoolId, String keyword);
 
     @Query("SELECT n FROM News n WHERE n.school.id = :schoolId ORDER BY n.updatedAt DESC")
-    List<News> findBySchoolIdSortedByDate(Long schoolId);
+    List<News> findBySchoolIdSortedByDateDesc(Long schoolId);
+
+    @Query("SELECT n FROM News n WHERE n.school.id = :schoolId ORDER BY n.updatedAt ASC")
+    List<News> findBySchoolIdSortedByDateAsc(Long schoolId);
 
     @Query("SELECT n FROM News n WHERE n.school.id = :schoolId AND " +
            "LOWER(n.category) LIKE LOWER(CONCAT('%', :category, '%')) AND " +
@@ -29,14 +32,27 @@ public interface NewsRepository extends JpaRepository<News, Long> {
 
     @Query("SELECT n FROM News n WHERE n.school.id = :schoolId AND " +
            "LOWER(n.category) LIKE LOWER(CONCAT('%', :category, '%')) ORDER BY n.updatedAt DESC")
-    List<News> findBySchoolIdAndCategorySorted(Long schoolId, String category);
+    List<News> findBySchoolIdAndCategorySortedDesc(Long schoolId, String category);
+
+    @Query("SELECT n FROM News n WHERE n.school.id = :schoolId AND " +
+           "LOWER(n.category) LIKE LOWER(CONCAT('%', :category, '%')) ORDER BY n.updatedAt ASC")
+    List<News> findBySchoolIdAndCategorySortedAsc(Long schoolId, String category);
 
     @Query("SELECT n FROM News n WHERE n.school.id = :schoolId AND " +
            "LOWER(n.title) LIKE LOWER(CONCAT('%', :keyword, '%')) ORDER BY n.updatedAt DESC")
-    List<News> findBySchoolIdAndKeywordSorted(Long schoolId, String keyword);
+    List<News> findBySchoolIdAndKeywordSortedDesc(Long schoolId, String keyword);
+
+    @Query("SELECT n FROM News n WHERE n.school.id = :schoolId AND " +
+           "LOWER(n.title) LIKE LOWER(CONCAT('%', :keyword, '%')) ORDER BY n.updatedAt ASC")
+    List<News> findBySchoolIdAndKeywordSortedAsc(Long schoolId, String keyword);
 
     @Query("SELECT n FROM News n WHERE n.school.id = :schoolId AND " +
            "LOWER(n.category) LIKE LOWER(CONCAT('%', :category, '%')) AND " +
            "LOWER(n.title) LIKE LOWER(CONCAT('%', :keyword, '%')) ORDER BY n.updatedAt DESC")
-    List<News> findBySchoolIdAndCategoryAndKeywordSorted(Long schoolId, String category, String keyword);
+    List<News> findBySchoolIdAndCategoryAndKeywordSortedDesc(Long schoolId, String category, String keyword);
+
+    @Query("SELECT n FROM News n WHERE n.school.id = :schoolId AND " +
+           "LOWER(n.category) LIKE LOWER(CONCAT('%', :category, '%')) AND " +
+           "LOWER(n.title) LIKE LOWER(CONCAT('%', :keyword, '%')) ORDER BY n.updatedAt ASC")
+    List<News> findBySchoolIdAndCategoryAndKeywordSortedAsc(Long schoolId, String category, String keyword);
 }

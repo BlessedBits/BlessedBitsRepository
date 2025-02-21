@@ -12,14 +12,11 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -29,7 +26,6 @@ public class ClassService {
     @PersistenceContext
     private EntityManager entityManager;
 
-    @Autowired
     public ClassService(ClassRepository classRepository) {
         this.classRepository = classRepository;
     }

@@ -1,6 +1,5 @@
 package com.blessedbits.SchoolHub.security;
 
-import jakarta.security.auth.message.AuthException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

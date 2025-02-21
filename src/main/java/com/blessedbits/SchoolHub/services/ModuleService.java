@@ -11,7 +11,6 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -25,7 +24,6 @@ public class ModuleService {
     @PersistenceContext
     private EntityManager entityManager;
 
-    @Autowired
     public ModuleService(ModuleRepository moduleRepository) {
         this.moduleRepository = moduleRepository;
     }

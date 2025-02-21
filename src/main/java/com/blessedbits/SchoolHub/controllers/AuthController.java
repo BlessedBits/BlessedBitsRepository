@@ -17,7 +17,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 import com.blessedbits.SchoolHub.security.SecurityConstants;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
@@ -44,7 +43,6 @@ public class AuthController {
     private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
 
-    @Autowired
     public AuthController(
             AuthenticationManager authenticationManager, UserRepository userRepository,
             VerificationTokenRepository tokenRepository, JWTUtils jwtUtils,

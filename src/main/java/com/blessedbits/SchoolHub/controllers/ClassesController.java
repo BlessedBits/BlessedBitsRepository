@@ -17,7 +17,6 @@ import com.blessedbits.SchoolHub.projections.mappers.ClassMapper;
 import com.blessedbits.SchoolHub.repositories.ClassRepository;
 import com.blessedbits.SchoolHub.repositories.UserRepository;
 import com.blessedbits.SchoolHub.services.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -37,7 +36,6 @@ public class ClassesController {
     private final RoleBasedAccessUtils roleBasedAccessUtils;
     private final ScheduleService scheduleService;
 
-    @Autowired
     public ClassesController(ClassRepository classRepository, UserRepository userRepository,
                              UserService userService, CourseService courseService, ClassService classService, SchoolService schoolService, RoleBasedAccessUtils roleBasedAccessUtils, ScheduleService scheduleService) {
         this.classRepository = classRepository;

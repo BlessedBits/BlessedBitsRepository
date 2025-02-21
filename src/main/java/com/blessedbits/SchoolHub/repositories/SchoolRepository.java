@@ -1,7 +1,6 @@
 package com.blessedbits.SchoolHub.repositories;
 
 import com.blessedbits.SchoolHub.models.School;
-import com.blessedbits.SchoolHub.models.Grade;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

@@ -6,13 +6,9 @@ import com.blessedbits.SchoolHub.models.*;
 import com.blessedbits.SchoolHub.projections.dto.CourseDto;
 import com.blessedbits.SchoolHub.projections.dto.ModuleDto;
 import com.blessedbits.SchoolHub.projections.mappers.CourseMapper;
-import com.blessedbits.SchoolHub.projections.mappers.ModuleMapper;
 import com.blessedbits.SchoolHub.repositories.*;
 import com.blessedbits.SchoolHub.services.CourseService;
 import com.blessedbits.SchoolHub.services.ModuleService;
-import com.blessedbits.SchoolHub.services.SchoolService;
-import com.blessedbits.SchoolHub.services.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -30,7 +26,6 @@ public class CourseController {
     private final ModuleService moduleService;
     private final RoleBasedAccessUtils roleBasedAccessUtils;
 
-    @Autowired
     public CourseController(
             CourseRepository courseRepository, CourseService courseService,
             ModuleService moduleService, RoleBasedAccessUtils roleBasedAccessUtils

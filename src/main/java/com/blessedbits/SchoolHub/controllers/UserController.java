@@ -8,10 +8,8 @@ import com.blessedbits.SchoolHub.misc.CloudFolder;
 import com.blessedbits.SchoolHub.misc.RoleBasedAccessUtils;
 import com.blessedbits.SchoolHub.misc.RoleType;
 import com.blessedbits.SchoolHub.models.Grade;
-import com.blessedbits.SchoolHub.models.Submission;
 import com.blessedbits.SchoolHub.models.UserEntity;
 import com.blessedbits.SchoolHub.models.VerificationToken;
-import com.blessedbits.SchoolHub.projections.dto.SubmissionDto;
 import com.blessedbits.SchoolHub.projections.dto.UserDto;
 import com.blessedbits.SchoolHub.projections.mappers.BasicDtoMapper;
 import com.blessedbits.SchoolHub.projections.mappers.UserMapper;
@@ -21,7 +19,6 @@ import com.blessedbits.SchoolHub.repositories.VerificationTokenRepository;
 import com.blessedbits.SchoolHub.services.EmailService;
 import com.blessedbits.SchoolHub.services.GradeService;
 import com.blessedbits.SchoolHub.services.StorageService;
-import com.blessedbits.SchoolHub.services.SubmissionService;
 import com.blessedbits.SchoolHub.services.UserService;
 import jakarta.validation.Valid;
 
@@ -49,7 +46,6 @@ public class UserController {
     private final EmailService emailService;
     private final StorageService storageService;
     private final RoleBasedAccessUtils roleBasedAccessUtils;
-    private final SubmissionService submissionService;
     private final GradeService gradeService;
 
     public UserController(
@@ -58,7 +54,6 @@ public class UserController {
             UserService userService, EmailService emailService,
             StorageService storageService, SubmissionRepository submissionRepository,
             RoleBasedAccessUtils roleBasedAccessUtils,
-            SubmissionService submissionService,
             GradeService gradeService
     ) {
         this.userRepository = userRepository;
@@ -67,7 +62,6 @@ public class UserController {
         this.emailService = emailService;
         this.storageService = storageService;
         this.roleBasedAccessUtils = roleBasedAccessUtils;
-        this.submissionService = submissionService;
         this.gradeService = gradeService;
     }
 
