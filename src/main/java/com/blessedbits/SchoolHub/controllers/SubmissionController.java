@@ -1,7 +1,6 @@
 package com.blessedbits.SchoolHub.controllers;
 
 import com.blessedbits.SchoolHub.dto.CreateSubmissionDto;
-import com.blessedbits.SchoolHub.dto.GradeSubmissionDto;
 import com.blessedbits.SchoolHub.misc.RoleBasedAccessUtils;
 import com.blessedbits.SchoolHub.misc.RoleType;
 import com.blessedbits.SchoolHub.models.Assignment;

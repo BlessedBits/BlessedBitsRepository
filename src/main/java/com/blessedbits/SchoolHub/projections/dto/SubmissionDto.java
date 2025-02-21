@@ -10,8 +10,6 @@ public class SubmissionDto {
     private Long id;
     private String url;
     private LocalDateTime submittedAt;
-    private Integer grade;
-    private LocalDateTime gradedAt;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private Integer studentId;
     @JsonInclude(JsonInclude.Include.NON_NULL)

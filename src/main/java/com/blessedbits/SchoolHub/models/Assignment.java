@@ -39,4 +39,9 @@ public class Assignment {
     @JsonReferenceAsId
     @OneToMany(mappedBy = "assignment", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Submission> submissions;
+
+    @JsonReferenceAsId
+    @OneToMany(mappedBy = "assignment", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Grade> grades;
+
 }

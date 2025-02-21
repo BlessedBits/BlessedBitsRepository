@@ -296,10 +296,6 @@ public class SecurityConfig {
                         .requestMatchers("/news/**").hasAnyRole(
                                 "STUDENT", "TEACHER", "SCHOOL_ADMIN", "PLATFORM_ADMIN")
 
-                        // RolesController
-                        .requestMatchers("/roles/**").hasAnyRole("SCHOOL_ADMIN", "PLATFORM_ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/roles/").hasAnyRole("SCHOOL_ADMIN", "PLATFORM_ADMIN")
-
                         //GradeController
                         .requestMatchers("/grades/**").hasAnyRole("TEACHER", "SCHOOL_ADMIN", "PLATFORM_ADMIN")
                         .requestMatchers(HttpMethod.POST, "/grades").hasAnyRole("TEACHER", "SCHOOL_ADMIN", "PLATFORM_ADMIN")
