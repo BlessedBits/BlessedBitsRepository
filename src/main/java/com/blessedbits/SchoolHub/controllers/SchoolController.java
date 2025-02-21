@@ -28,6 +28,7 @@ import com.blessedbits.SchoolHub.repositories.SchoolGalleryRepository;
 import com.blessedbits.SchoolHub.services.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -181,23 +182,20 @@ public class SchoolController {
     }
 
     @GetMapping("/{id}/rating")
-    public ResponseEntity<Map<String, Object>> getRating(
+    public ResponseEntity<?> getRating(
             @PathVariable Integer id
     ) {
-        Object[] columns = schoolRepository.findSchoolAverageMarks(id);
-        Map<String, Object> result = new HashMap<>();
-        result.put("schoolName", columns[0]);
-        result.put("averageGrade", columns[1]);
-        return new ResponseEntity<>(result, HttpStatus.OK);
-//        List<Object[]> results = schoolRepository.findSchoolsWithAverageMarks();
-//        return new ResponseEntity<>(
-//                results.stream().map(row -> {
-//                    Map<String, Object> map = new HashMap<>();
-//                    map.put("schoolName", row[0]);
-//                    map.put("averageGrade", row[1]);
-//                    return map;
-//                }).collect(Collectors.toList()), HttpStatus.OK
-//        );
+        try
+        {
+            Object[] columns = schoolRepository.findSchoolAverageMarks(id).getFirst();
+            Map<String, Object> result = new HashMap<>();
+            result.put("schoolName", columns[0]);
+            result.put("averageGrade", columns[1]);
+            return new ResponseEntity<>(result, HttpStatus.OK);
+        } catch (Exception e)
+        {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @PostMapping("/{id}/users")
@@ -312,7 +310,6 @@ public class SchoolController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
 
     @GetMapping("/contacts")
     public ResponseEntity<?> getSchoolContacts(@RequestHeader("Authorization") String authorizationHeader) {
