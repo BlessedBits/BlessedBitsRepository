@@ -36,30 +36,32 @@ public class NewsService {
     public List<News> getNews(Long schoolId, String category, String keyword, Boolean sorted) {
         if (category != null && keyword != null) {
             if (sorted != null && sorted) {
-                return newsRepository.findBySchoolIdAndCategoryAndKeywordSorted(schoolId, category, keyword);
+                return newsRepository.findBySchoolIdAndCategoryAndKeywordSortedDesc(schoolId, category, keyword);
             } else {
-                return newsRepository.findBySchoolIdAndCategoryAndKeyword(schoolId, category, keyword);
+                return newsRepository.findBySchoolIdAndCategoryAndKeywordSortedAsc(schoolId, category, keyword);
             }
         } else if (category != null) {
             if (sorted != null && sorted) {
-                return newsRepository.findBySchoolIdAndCategorySorted(schoolId, category);
+                return newsRepository.findBySchoolIdAndCategorySortedDesc(schoolId, category);
             } else {
-                return newsRepository.findBySchoolIdAndCategory(schoolId, category);
+                return newsRepository.findBySchoolIdAndCategorySortedAsc(schoolId, category);
             }
         } else if (keyword != null) {
             if (sorted != null && sorted) {
-                return newsRepository.findBySchoolIdAndKeywordSorted(schoolId, keyword);
+                return newsRepository.findBySchoolIdAndKeywordSortedDesc(schoolId, keyword);
             } else {
-                return newsRepository.findBySchoolIdAndKeyword(schoolId, keyword);
+                return newsRepository.findBySchoolIdAndKeywordSortedAsc(schoolId, keyword);
             }
         } else {
             if (sorted != null && sorted) {
-                return newsRepository.findBySchoolIdSortedByDate(schoolId);
+                return newsRepository.findBySchoolIdSortedByDateDesc(schoolId);
             } else {
-                return newsRepository.findBySchoolId(schoolId);
+                return newsRepository.findBySchoolIdSortedByDateAsc(schoolId);
             }
         }
     }
+    
+    
     
     public News createNews(MultipartFile image, CreateNewsDTO newsDto)
     {

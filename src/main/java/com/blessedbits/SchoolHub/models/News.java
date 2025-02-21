@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import lombok.EqualsAndHashCode;
 import org.hibernate.validator.constraints.URL;
 
+import com.blessedbits.SchoolHub.misc.JsonReferenceAsId;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import jakarta.persistence.*;
@@ -38,6 +39,7 @@ public class News
     @ManyToOne(fetch = FetchType.EAGER, optional = false) 
     @JoinColumn(name = "school_id", nullable = false) 
     @NotNull
+    @JsonReferenceAsId
     private School school;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
