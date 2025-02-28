@@ -12,7 +12,6 @@ import com.blessedbits.SchoolHub.repositories.AchievementRepository;
 import com.blessedbits.SchoolHub.repositories.UserRepository;
 import com.blessedbits.SchoolHub.dto.SchoolContactsDto;
 import com.blessedbits.SchoolHub.dto.SchoolInfoDto;
-import com.blessedbits.SchoolHub.dto.TeacherInfoDto;
 import com.blessedbits.SchoolHub.dto.UpdateSchoolInfoDto;
 import com.blessedbits.SchoolHub.misc.CloudFolder;
 import com.blessedbits.SchoolHub.dto.AchievementDto;
@@ -258,19 +257,6 @@ public class SchoolService {
         school.setContacts(contacts);
 
         return schoolRepository.save(school);
-    }
-
-
-    private TeacherInfoDto convertToTeacherInfoDto(UserEntity teacher) {
-        TeacherInfoDto dto = new TeacherInfoDto();
-        dto.setId(teacher.getId());
-        dto.setFirstName(teacher.getFirstName());
-        dto.setLastName(teacher.getLastName());
-        dto.setProfileImage(teacher.getProfileImage());
-        dto.setDuty(teacher.getDuty());
-        dto.setRole(String.valueOf(teacher.getRole()));
-
-        return dto;
     }
 
     public List<UserEntity> getTeachersBySchool(Integer schoolId) {
