@@ -1,5 +1,7 @@
 package com.blessedbits.SchoolHub.projections.dto;
 
+import java.util.Set;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
@@ -23,4 +25,6 @@ public class UserDto {
     private Integer schoolId;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private SchoolDto school;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private Set<CourseDto> courses;
 }

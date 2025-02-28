@@ -2,6 +2,9 @@ package com.blessedbits.SchoolHub.projections.mappers;
 
 import com.blessedbits.SchoolHub.models.*;
 import com.blessedbits.SchoolHub.projections.dto.*;
+
+import java.util.stream.Collectors;
+
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
@@ -54,6 +57,23 @@ public interface BasicDtoMapper {
         courseDto.setName(course.getName());
         return courseDto;
     }
+
+    static CourseDto toTeacherCourseDto(Course course) {
+        CourseDto courseDto = new CourseDto();
+        courseDto.setId(course.getId());
+        courseDto.setName(course.getName());
+
+        if (course.getClasses() != null) {
+            courseDto.setClasses(
+                course.getClasses().stream()
+                    .map(BasicDtoMapper::toBasicClassDto)
+                    .collect(Collectors.toList()) 
+            );
+        }
+
+        return courseDto;
+    }
+
 
     static CourseDto toCourseDto(Course course) {
         CourseDto courseDto = toBasicCourseDto(course);
