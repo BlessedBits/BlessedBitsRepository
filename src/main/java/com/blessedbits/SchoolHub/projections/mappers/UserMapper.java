@@ -6,7 +6,6 @@ import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {
@@ -32,12 +31,6 @@ public interface UserMapper {
         if (include.contains("school")) {
             if (user.getSchool() != null) {
                 userDto.setSchool(BasicDtoMapper.toSchoolDto(user.getSchool()));
-            }
-        }if (include.contains("courses")) {
-            if (user.getCourses() != null) {
-                userDto.setCourses(user.getCourses().stream()
-                .map(BasicDtoMapper::toTeacherCourseDto)
-                    .collect(Collectors.toSet()));
             }
         } else {
             if (user.getSchool() != null) {

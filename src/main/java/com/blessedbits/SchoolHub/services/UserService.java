@@ -3,8 +3,10 @@ package com.blessedbits.SchoolHub.services;
 import com.blessedbits.SchoolHub.misc.EntityManagerUtils;
 import com.blessedbits.SchoolHub.models.UserEntity;
 import com.blessedbits.SchoolHub.projections.dto.UserDto;
+import com.blessedbits.SchoolHub.projections.mappers.BasicDtoMapper;
 import com.blessedbits.SchoolHub.projections.mappers.UserMapper;
 import com.blessedbits.SchoolHub.dto.UserProfileDto;
+import com.blessedbits.SchoolHub.repositories.TeacherCourseClassRepository;
 import com.blessedbits.SchoolHub.repositories.UserRepository;
 import com.blessedbits.SchoolHub.security.JWTUtils;
 import jakarta.persistence.EntityManager;
@@ -18,20 +20,23 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
     private final UserRepository userRepository;
     private final JWTUtils jwtUtils;
     private final PasswordEncoder passwordEncoder;
+    private final TeacherCourseClassRepository teacherCourseClassRepository;
 
     @PersistenceContext
     private EntityManager entityManager;
 
-    public UserService(UserRepository userRepository, JWTUtils jwtUtils, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, JWTUtils jwtUtils, PasswordEncoder passwordEncoder, TeacherCourseClassRepository teacherCourseClassRepository) {
         this.userRepository = userRepository;
         this.jwtUtils = jwtUtils;
         this.passwordEncoder = passwordEncoder;
+        this.teacherCourseClassRepository = teacherCourseClassRepository;
     }
 
     public UserEntity getUserFromHeader(String authHeader) {
@@ -176,4 +181,15 @@ public class UserService {
             userRepository.save(user);
     }
  
+    public void getTeacherCourseClasses(UserEntity user, UserDto userDto, List<String> include)
+    {
+        if (include.contains("courses")) {
+            if (user.getCourses() != null) {
+                userDto.setCourses(user.getCourses().stream()
+                    .map(course -> BasicDtoMapper.toTeacherCourseDto(course, user, teacherCourseClassRepository)) 
+                    .collect(Collectors.toSet()));
+            }
+        }
+    }
+
 }

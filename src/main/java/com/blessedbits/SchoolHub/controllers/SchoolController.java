@@ -18,6 +18,7 @@ import com.blessedbits.SchoolHub.projections.dto.SchoolDto;
 import com.blessedbits.SchoolHub.projections.dto.UserDto;
 import com.blessedbits.SchoolHub.projections.mappers.BasicDtoMapper;
 import com.blessedbits.SchoolHub.projections.mappers.SchoolMapper;
+import com.blessedbits.SchoolHub.projections.mappers.UserMapper;
 import com.blessedbits.SchoolHub.repositories.SchoolRepository;
 import com.blessedbits.SchoolHub.repositories.UserRepository;
 import com.blessedbits.SchoolHub.services.*;
@@ -28,6 +29,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/schools")
@@ -333,7 +335,14 @@ public class SchoolController {
     ) {
         School school = schoolService.getByIdOrUser(id, user);
         List<UserEntity> teachers = schoolService.getTeachersBySchool(school.getId());
-        return new ResponseEntity<>(userService.mapAllToDto(teachers, include), HttpStatus.OK);
+        List<UserDto> teacherDtos = teachers.stream()
+            .map(teacher -> {
+                UserDto teacherDto = UserMapper.INSTANCE.toUserDto(teacher, include);
+                userService.getTeacherCourseClasses(teacher, teacherDto, include);
+                return teacherDto;
+            })
+            .collect(Collectors.toList());
+        return new ResponseEntity<>(teacherDtos, HttpStatus.OK);
     }
 
     @PostMapping("/achievements/create")

@@ -73,7 +73,12 @@ public class UserController {
     ) {
         UserEntity loadedUser = userService.getLoadedByIdOrUsername(id, user.getUsername(), include);
         if (roleBasedAccessUtils.canAccessUser(user, loadedUser)) {
-            return new ResponseEntity<>(UserMapper.INSTANCE.toUserDto(loadedUser, include), HttpStatus.OK);
+            UserDto userDto = UserMapper.INSTANCE.toUserDto(loadedUser, include);
+            if(loadedUser.hasRole(RoleType.TEACHER))
+            {
+                userService.getTeacherCourseClasses(loadedUser, userDto, include);
+            }
+            return new ResponseEntity<>(userDto, HttpStatus.OK);
         }
         return new ResponseEntity<>(BasicDtoMapper.toUserDto(loadedUser), HttpStatus.OK);
     }
@@ -88,14 +93,21 @@ public class UserController {
         if (username != null) {
             UserEntity loadedUser = userService.getLoadedByUsername(username, include);
             if (roleBasedAccessUtils.canAccessUser(user, loadedUser)) {
-                return new ResponseEntity<>(UserMapper.INSTANCE.toUserDto(loadedUser, include), HttpStatus.OK);
+                UserDto userDto = UserMapper.INSTANCE.toUserDto(loadedUser, include);
+                if(loadedUser.hasRole(RoleType.TEACHER))
+                {
+                    userService.getTeacherCourseClasses(loadedUser, userDto, include);
+                }
+                return new ResponseEntity<>(userDto, HttpStatus.OK);
             }
             return new ResponseEntity<>(BasicDtoMapper.toUserDto(loadedUser), HttpStatus.OK);
         }
         if (email != null) {
             UserEntity loadedUser = userService.getLoadedByEmail(email, include);
             if (roleBasedAccessUtils.canAccessUser(user, loadedUser)) {
-                return new ResponseEntity<>(UserMapper.INSTANCE.toUserDto(loadedUser, include), HttpStatus.OK);
+                UserDto userDto = UserMapper.INSTANCE.toUserDto(loadedUser, include);
+                userService.getTeacherCourseClasses(loadedUser, userDto, include);
+                return new ResponseEntity<>(userDto, HttpStatus.OK);
             }
             return new ResponseEntity<>(BasicDtoMapper.toUserDto(loadedUser), HttpStatus.OK);
         }
