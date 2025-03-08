@@ -5,4 +5,5 @@ import lombok.Getter;
 @Getter
 public class AddCourseToClassDto {
     private Integer courseId;
+    private Integer teacherId;
 }
