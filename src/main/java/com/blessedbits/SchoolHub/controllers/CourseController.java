@@ -120,4 +120,28 @@ public class CourseController {
         return new ResponseEntity<>(modules, HttpStatus.OK);
     }
 
+    @PostMapping("/{id}/teachers")
+    public ResponseEntity<String> addTeacher(@PathVariable Integer id, @RequestParam Integer teacherId,
+    @AuthenticationPrincipal UserEntity user) {
+        try{
+            courseService.addTeacherToCourse(user, id, teacherId);
+            return new ResponseEntity<>("Teacher added successfully", HttpStatus.OK);               
+        }catch(Exception e)
+        {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @DeleteMapping("/{id}/teachers")
+    public ResponseEntity<String> removeTeacher(@PathVariable Integer id, @RequestParam Integer teacherId,
+    @AuthenticationPrincipal UserEntity user) {
+        try{
+        courseService.removeTeacherFromCourse(user, id, teacherId);
+        return new ResponseEntity<>("Teacher removed successfully", HttpStatus.OK);
+        }catch(Exception e)
+        {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 }
