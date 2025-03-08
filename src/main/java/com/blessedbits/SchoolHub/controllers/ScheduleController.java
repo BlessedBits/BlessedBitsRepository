@@ -82,13 +82,13 @@ public class ScheduleController {
     }
 
     @GetMapping("/class/{id}")
-    public ResponseEntity<?> getScheduleByClassId(@PathVariable Integer id) {
+    public ResponseEntity<?> getScheduleByClassId(@PathVariable Integer id, @RequestParam(required = false) List<String> include) {
         try {
             List<Schedule> schedules = scheduleService.getScheduleByClassId(id);
             if (schedules.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No schedules found for class ID: " + id);
             }
-            return new ResponseEntity<>(schedules, HttpStatus.OK);
+            return new ResponseEntity<>(scheduleService.mapAllToDto(schedules, include), HttpStatus.OK);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + e.getMessage());
         }
