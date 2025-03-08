@@ -57,11 +57,18 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/courses/{id}").hasAnyRole(
                                 "PLATFORM_ADMIN", "SCHOOL_ADMIN", "TEACHER"
                         )
+                        .requestMatchers(HttpMethod.DELETE, "/courses/{id}/teachers").hasAnyRole(
+                                "PLATFORM_ADMIN", "SCHOOL_ADMIN"
+                        )
+                        .requestMatchers(HttpMethod.GET, "/courses/{id}/teachers").hasAnyRole(
+                                "PLATFORM_ADMIN", "SCHOOL_ADMIN"
+                        )
                         .requestMatchers(HttpMethod.GET, "/courses/{id}/modules").hasAnyRole(
                                 "PLATFORM_ADMIN", "SCHOOL_ADMIN", "TEACHER", "STUDENT"
                         )
                         .requestMatchers("/courses/**").hasAnyRole(
                                 "STUDENT", "TEACHER", "SCHOOL_ADMIN", "PLATFORM_ADMIN")
+
 
                         // ClassController
                         .requestMatchers(HttpMethod.GET, "/classes").hasRole("PLATFORM_ADMIN")
@@ -97,6 +104,9 @@ public class SecurityConfig {
                         )
                         .requestMatchers(HttpMethod.GET, "/classes/{id}/schedules").hasAnyRole(
                                 "PLATFORM_ADMIN", "SCHOOL_ADMIN", "TEACHER", "STUDENT"
+                        )
+                        .requestMatchers(HttpMethod.DELETE, "/classes/{id}/courses/{courseId}/teachers").hasAnyRole(
+                                "PLATFORM_ADMIN", "SCHOOL_ADMIN"
                         )
                         .requestMatchers("/classes/**").hasAnyRole(
                                 "STUDENT", "TEACHER", "SCHOOL_ADMIN")
