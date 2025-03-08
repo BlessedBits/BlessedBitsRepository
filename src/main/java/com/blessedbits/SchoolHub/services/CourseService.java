@@ -3,17 +3,20 @@ package com.blessedbits.SchoolHub.services;
 import com.blessedbits.SchoolHub.dto.CreateCourseDto;
 import com.blessedbits.SchoolHub.misc.EntityManagerUtils;
 import com.blessedbits.SchoolHub.misc.RoleBasedAccessUtils;
+import com.blessedbits.SchoolHub.misc.RoleType;
 import com.blessedbits.SchoolHub.models.*;
 import com.blessedbits.SchoolHub.projections.dto.CourseDto;
 import com.blessedbits.SchoolHub.projections.mappers.CourseMapper;
 import com.blessedbits.SchoolHub.repositories.*;
 
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -29,16 +32,18 @@ public class CourseService {
     private final UserRepository userRepository;
     private final RoleBasedAccessUtils roleBasedAccessUtils;
     private final ClassRepository classRepository;
+    private final TeacherCourseClassRepository teacherCourseClassRepository;
 
     @PersistenceContext
     private EntityManager entityManager;
 
-    public CourseService(UserRepository userRepository, SchoolRepository schoolRepository, CourseRepository courseRepository, RoleBasedAccessUtils roleBasedAccessUtils, ClassRepository classRepository) {
+    public CourseService(UserRepository userRepository, SchoolRepository schoolRepository, CourseRepository courseRepository, RoleBasedAccessUtils roleBasedAccessUtils, ClassRepository classRepository, TeacherCourseClassRepository teacherCourseClassRepository) {
         this.courseRepository = courseRepository;
         this.userRepository = userRepository;
         this.schoolRepository = schoolRepository;
         this.roleBasedAccessUtils = roleBasedAccessUtils;
         this.classRepository = classRepository;
+        this.teacherCourseClassRepository = teacherCourseClassRepository;
     }
 
     public Course getById(Integer id) {
@@ -155,19 +160,16 @@ public class CourseService {
         if (!roleBasedAccessUtils.canAccessSchool(user, school)) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
-
+        Course course = new Course();
+        course.setName(courseDto.getName());
+        course.setSchool(school);
         Set<UserEntity> teachers = new HashSet<>();
         if (courseDto.getTeacherIds() != null) {
             for (Integer teacherId : courseDto.getTeacherIds()) {
                 userRepository.findById(teacherId).ifPresent(teachers::add);
             }
+            course.setTeachers(teachers);
         }
-
-        Course course = new Course();
-        course.setName(courseDto.getName());
-        course.setSchool(school);
-        course.setTeachers(teachers);
-
         try {
             courseRepository.save(course);
             return new ResponseEntity<>("Course created", HttpStatus.CREATED);
@@ -175,4 +177,44 @@ public class CourseService {
             return new ResponseEntity<>("Unable to create course", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    public void addTeacherToCourse(UserEntity user, Integer courseId, Integer teacherId) {
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new EntityNotFoundException("Course not found"));
+        if (!roleBasedAccessUtils.canAccessCourse(user, course)) {
+                throw new AccessDeniedException("You can't modify this course");
+        }
+        UserEntity teacher = userRepository.findById(teacherId)
+                .orElseThrow(() -> new EntityNotFoundException("Teacher not found"));
+
+        if (!teacher.hasRole(RoleType.TEACHER)) {
+            throw new IllegalArgumentException("User is not a teacher");
+        }
+        if (course.getTeachers().contains(teacher)) {
+            throw new IllegalArgumentException("Teacher is already assigned to this course");
+        }
+
+        course.getTeachers().add(teacher);
+        courseRepository.save(course);
+    }
+
+    @Transactional
+    public void removeTeacherFromCourse(UserEntity user, Integer courseId, Integer teacherId) {
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new EntityNotFoundException("Course not found"));
+        if (!roleBasedAccessUtils.canAccessCourse(user, course)) {
+                throw new AccessDeniedException("You can't modify this course");
+        }
+        UserEntity teacher = userRepository.findById(teacherId)
+                .orElseThrow(() -> new EntityNotFoundException("Teacher not found"));
+
+        if (!course.getTeachers().contains(teacher)) {
+            throw new IllegalArgumentException("Teacher is not assigned to this course");
+        }
+
+        course.getTeachers().remove(teacher);
+        courseRepository.save(course);
+        teacherCourseClassRepository.deleteByTeacherIdAndCourseId(teacherId, courseId);
+    }
+
 }

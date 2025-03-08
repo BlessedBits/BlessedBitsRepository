@@ -3,16 +3,21 @@ package com.blessedbits.SchoolHub.services;
 import com.blessedbits.SchoolHub.models.ClassEntity;
 import com.blessedbits.SchoolHub.models.Course;
 import com.blessedbits.SchoolHub.models.Schedule;
+import com.blessedbits.SchoolHub.models.TeacherCourseClass;
+import com.blessedbits.SchoolHub.models.UserEntity;
 import com.blessedbits.SchoolHub.projections.dto.ScheduleDto;
 import com.blessedbits.SchoolHub.projections.mappers.ScheduleMapper;
 import com.blessedbits.SchoolHub.repositories.ClassRepository;
 import com.blessedbits.SchoolHub.repositories.CourseRepository;
 import com.blessedbits.SchoolHub.repositories.ScheduleRepository;
+import com.blessedbits.SchoolHub.repositories.TeacherCourseClassRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.blessedbits.SchoolHub.dto.CreateScheduleDto;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -20,6 +25,9 @@ public class ScheduleService {
 
     @Autowired
     private ScheduleRepository scheduleRepository;
+
+    @Autowired
+    private TeacherCourseClassRepository teacherCourseClassRepository;
 
     @Autowired
     private ClassRepository classRepository; 
@@ -88,11 +96,29 @@ public class ScheduleService {
         return scheduleRepository.findByClassEntityId(classId);
     }
 
-    public List<ScheduleDto> mapAllToDto(List<Schedule> schedules, List<String> include) {
-        return schedules.stream()
-                .map(schedule -> ScheduleMapper.INSTANCE.toScheduleDto(schedule, include))
+    private List<Map<String, String>> getTeachersForSchedule(Schedule schedule) {
+        List<UserEntity> teachers = teacherCourseClassRepository
+                .findByCourseAndClassEntity(schedule.getCourse(), schedule.getClassEntity())
+                .stream()
+                .map(TeacherCourseClass::getTeacher)
+                .toList();
+
+        return teachers.stream()
+                .map(teacher -> Map.of("firstName", teacher.getFirstName(), "lastName", teacher.getLastName()))
                 .toList();
     }
+
+    public List<ScheduleDto> mapAllToDto(List<Schedule> schedules, List<String> include) {
+        return schedules.stream()
+                .map(schedule -> {
+                    ScheduleDto scheduleDto = ScheduleMapper.INSTANCE.toScheduleDto(schedule, include);
+                    List<Map<String, String>> teachers = getTeachersForSchedule(schedule);
+                    scheduleDto.setTeachers(teachers);
+                    return scheduleDto;
+                })
+                .toList();
+    }
+    
 
 }
 

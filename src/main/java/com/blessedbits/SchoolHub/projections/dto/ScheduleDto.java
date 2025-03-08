@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
 import java.time.LocalTime;
+import java.util.List;
+import java.util.Map;
 
 @Data
 public class ScheduleDto {
@@ -21,4 +23,6 @@ public class ScheduleDto {
     private Integer courseId;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private CourseDto course;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private List<Map<String, String>> teachers;
 }

@@ -7,6 +7,7 @@ import com.blessedbits.SchoolHub.misc.RoleBasedAccessUtils;
 import com.blessedbits.SchoolHub.models.ClassEntity;
 import com.blessedbits.SchoolHub.models.Course;
 import com.blessedbits.SchoolHub.models.School;
+import com.blessedbits.SchoolHub.models.TeacherCourseClass;
 import com.blessedbits.SchoolHub.models.UserEntity;
 import com.blessedbits.SchoolHub.projections.dto.ClassDto;
 import com.blessedbits.SchoolHub.projections.dto.CourseDto;
@@ -15,8 +16,12 @@ import com.blessedbits.SchoolHub.projections.dto.UserDto;
 import com.blessedbits.SchoolHub.projections.mappers.BasicDtoMapper;
 import com.blessedbits.SchoolHub.projections.mappers.ClassMapper;
 import com.blessedbits.SchoolHub.repositories.ClassRepository;
+import com.blessedbits.SchoolHub.repositories.TeacherCourseClassRepository;
 import com.blessedbits.SchoolHub.repositories.UserRepository;
 import com.blessedbits.SchoolHub.services.*;
+
+import jakarta.transaction.Transactional;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -35,8 +40,9 @@ public class ClassesController {
     private final SchoolService schoolService;
     private final RoleBasedAccessUtils roleBasedAccessUtils;
     private final ScheduleService scheduleService;
+    private final TeacherCourseClassRepository teacherCourseClassRepository;
 
-    public ClassesController(ClassRepository classRepository, UserRepository userRepository,
+    public ClassesController(ClassRepository classRepository, UserRepository userRepository, TeacherCourseClassRepository teacherCourseClassRepository,
                              UserService userService, CourseService courseService, ClassService classService, SchoolService schoolService, RoleBasedAccessUtils roleBasedAccessUtils, ScheduleService scheduleService) {
         this.classRepository = classRepository;
         this.userRepository = userRepository;
@@ -46,6 +52,7 @@ public class ClassesController {
         this.schoolService = schoolService;
         this.roleBasedAccessUtils = roleBasedAccessUtils;
         this.scheduleService = scheduleService;
+        this.teacherCourseClassRepository = teacherCourseClassRepository;
     }
 
     @GetMapping("")
@@ -151,6 +158,8 @@ public class ClassesController {
             @AuthenticationPrincipal UserEntity user
     ) {
         Course course = courseService.getById(addCourseToClassDto.getCourseId());
+        UserEntity teacher = userService.getById(addCourseToClassDto.getTeacherId());
+
         if (!roleBasedAccessUtils.canModifyCourse(user, course)) {
             return new ResponseEntity<>("You can't modify this course", HttpStatus.FORBIDDEN);
         }
@@ -162,16 +171,46 @@ public class ClassesController {
             return new ResponseEntity<>("Class and course belong to different schools",
                     HttpStatus.BAD_REQUEST);
         }
-        classEntity.addCourse(course);
+        if (!course.getTeachers().contains(teacher)) {
+            return new ResponseEntity<>("This teacher is not assigned to this course", HttpStatus.BAD_REQUEST);
+        }
+        boolean alreadyExists = teacherCourseClassRepository.existsByTeacherAndCourseAndClassEntity(teacher, course, classEntity);
+        if (alreadyExists) {
+            return new ResponseEntity<>("This teacher is already assigned to this course in this class", HttpStatus.BAD_REQUEST);
+        }
+        TeacherCourseClass teacherCourseClass = new TeacherCourseClass();
+        teacherCourseClass.setClassEntity(classEntity);
+        teacherCourseClass.setCourse(course);
+        teacherCourseClass.setTeacher(teacher);
+        if(!classEntity.getCourses().contains(course))
+        {
+            classEntity.addCourse(course);
+        }
         try {
             classRepository.save(classEntity);
+            teacherCourseClassRepository.save(teacherCourseClass);
         } catch (Exception e) {
-            System.out.println(e.getMessage());
-            return new ResponseEntity<>("Unable to add course to your class",
-                    HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>("Unable to add course to your class", HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<>("Course added to class successfully", HttpStatus.OK);
     }
+
+    @DeleteMapping("/{id}/courses/{courseId}/teachers")
+    public ResponseEntity<String> deleteTeacherFromClassCourse(
+            @AuthenticationPrincipal UserEntity user,
+            @PathVariable Integer id,
+            @PathVariable Integer courseId,
+            @RequestParam Integer teacherId) 
+    {
+        try {
+            classService.deleteTeacherFromClassCourse(user, id, courseId, teacherId);
+            return new ResponseEntity<>("Teacher successfully deleted from class course", HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Unable to delete teacher from class course", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }    
 
     @GetMapping("/{id}/courses")
     public ResponseEntity<List<CourseDto>> getClassCourses(
@@ -188,6 +227,7 @@ public class ClassesController {
         return new ResponseEntity<>(courses, HttpStatus.OK);
     }
 
+    @Transactional
     @DeleteMapping("/{id}/courses/{courseId}")
     public ResponseEntity<String> removeCourse(
             @PathVariable(name = "id") Integer classId,
@@ -208,6 +248,7 @@ public class ClassesController {
         try {
             classEntity.removeCourse(course);
             classRepository.save(classEntity);
+            teacherCourseClassRepository.deleteByClassEntityIdAndCourseId(classId, courseId);
         } catch (Exception e) {
             System.out.println(e.getMessage());
             return new ResponseEntity<>("Unable to remove course", HttpStatus.INTERNAL_SERVER_ERROR);

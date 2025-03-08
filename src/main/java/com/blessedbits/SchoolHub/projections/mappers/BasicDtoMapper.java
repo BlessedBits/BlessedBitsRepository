@@ -2,13 +2,16 @@ package com.blessedbits.SchoolHub.projections.mappers;
 
 import com.blessedbits.SchoolHub.models.*;
 import com.blessedbits.SchoolHub.projections.dto.*;
+import com.blessedbits.SchoolHub.repositories.TeacherCourseClassRepository;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
 public interface BasicDtoMapper {
+    
     static UserDto toBasicUserDto(UserEntity user) {
         UserDto userDto = new UserDto();
         userDto.setId(user.getId());
@@ -58,22 +61,20 @@ public interface BasicDtoMapper {
         return courseDto;
     }
 
-    static CourseDto toTeacherCourseDto(Course course) {
+    static CourseDto toTeacherCourseDto(Course course, UserEntity teacher, TeacherCourseClassRepository teacherCourseClassRepository) {
         CourseDto courseDto = new CourseDto();
         courseDto.setId(course.getId());
         courseDto.setName(course.getName());
+        
+        List<ClassDto> filteredClasses = teacherCourseClassRepository.findByTeacherAndCourse(teacher, course)
+        .stream()
+        .map(tcc -> BasicDtoMapper.toBasicClassDto(tcc.getClassEntity()))
+        .collect(Collectors.toList());
 
-        if (course.getClasses() != null) {
-            courseDto.setClasses(
-                course.getClasses().stream()
-                    .map(BasicDtoMapper::toBasicClassDto)
-                    .collect(Collectors.toList()) 
-            );
-        }
+        courseDto.setClasses(filteredClasses);
 
         return courseDto;
     }
-
 
     static CourseDto toCourseDto(Course course) {
         CourseDto courseDto = toBasicCourseDto(course);
