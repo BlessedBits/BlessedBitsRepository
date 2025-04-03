@@ -10,6 +10,8 @@ import lombok.Data;
 public class UserDto {
     private Integer id;
     private String username;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String password;
     private String firstName;
     private String lastName;
     private String email;

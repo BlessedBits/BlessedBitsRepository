@@ -1,14 +1,12 @@
 package com.blessedbits.SchoolHub.dto;
-import jakarta.validation.constraints.Email;
-
 import lombok.Data;
+import jakarta.validation.constraints.NotBlank;
 
 @Data
 public class RegisterDto {
+    @NotBlank(message = "First name cannot be empty")
     private String firstName;
+
+    @NotBlank(message = "Last name cannot be empty")
     private String lastName;
-    private String username;
-    @Email(message = "Invalid email format")
-    private String email;
-    private String password;
 }
