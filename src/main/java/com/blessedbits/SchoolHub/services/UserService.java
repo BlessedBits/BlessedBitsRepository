@@ -18,6 +18,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.security.SecureRandom;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -181,15 +183,46 @@ public class UserService {
             userRepository.save(user);
     }
  
-    public void getTeacherCourseClasses(UserEntity user, UserDto userDto, List<String> include)
-    {
-        if (include.contains("courses")) {
-            if (user.getCourses() != null) {
-                userDto.setCourses(user.getCourses().stream()
-                    .map(course -> BasicDtoMapper.toTeacherCourseDto(course, user, teacherCourseClassRepository)) 
-                    .collect(Collectors.toSet()));
-            }
+    public void getTeacherCourseClasses(UserEntity user, UserDto userDto, List<String> include) {
+        if (include == null || !include.contains("courses")) {
+            return;
+        }
+    
+        if (user.getCourses() != null) {
+            userDto.setCourses(user.getCourses().stream()
+                .map(course -> BasicDtoMapper.toTeacherCourseDto(course, user, teacherCourseClassRepository))
+                .collect(Collectors.toSet()));
+        } else {
+            userDto.setCourses(Collections.emptySet()); 
         }
     }
+
+    public String generateUsername(String firstName, String lastName)
+    {
+        return (firstName + "-" + lastName).toLowerCase();
+    }
+
+    public String generateRandomPassword(int length) {
+        String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        SecureRandom random = new SecureRandom();
+        StringBuilder password = new StringBuilder();
+
+        for (int i = 0; i < length; i++) {
+            password.append(chars.charAt(random.nextInt(chars.length())));
+        }
+        return password.toString();
+    }
+
+    public String generateUniqueUsername(String baseUsername) {
+        String uniqueUsername = baseUsername;
+        int counter = 1;
+    
+        while (userRepository.existsByUsername(uniqueUsername)) {
+            uniqueUsername = baseUsername + counter;
+            counter++;
+        }
+        return uniqueUsername;
+    }
+    
 
 }

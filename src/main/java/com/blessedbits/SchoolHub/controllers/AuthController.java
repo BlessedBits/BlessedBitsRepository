@@ -5,14 +5,19 @@ import com.blessedbits.SchoolHub.dto.LoginDto;
 import com.blessedbits.SchoolHub.dto.RegisterDto;
 import com.blessedbits.SchoolHub.dto.UsernameDto;
 import com.blessedbits.SchoolHub.dto.ChangePasswordDto;
+import com.blessedbits.SchoolHub.misc.RoleBasedAccessUtils;
 import com.blessedbits.SchoolHub.misc.RoleType;
 import com.blessedbits.SchoolHub.models.UserEntity;
 import com.blessedbits.SchoolHub.models.VerificationToken;
+import com.blessedbits.SchoolHub.projections.dto.UserDto;
+import com.blessedbits.SchoolHub.projections.mappers.UserMapper;
 import com.blessedbits.SchoolHub.repositories.UserRepository;
 import com.blessedbits.SchoolHub.repositories.VerificationTokenRepository;
 import com.blessedbits.SchoolHub.security.JWTUtils;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -30,6 +35,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import com.blessedbits.SchoolHub.services.EmailService;
+import com.blessedbits.SchoolHub.services.UserService;
 
 import jakarta.validation.Valid;
 
@@ -42,11 +48,15 @@ public class AuthController {
     private final JWTUtils jwtUtils;
     private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
+    private final RoleBasedAccessUtils roleBasedAccessUtils;
+    private final UserService userService;
 
     public AuthController(
             AuthenticationManager authenticationManager, UserRepository userRepository,
             VerificationTokenRepository tokenRepository, JWTUtils jwtUtils,
-            EmailService emailService, PasswordEncoder passwordEncoder
+            EmailService emailService, PasswordEncoder passwordEncoder,
+            RoleBasedAccessUtils roleBasedAccessUtils,
+            UserService userService
     ) {
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
@@ -54,6 +64,8 @@ public class AuthController {
         this.jwtUtils = jwtUtils;
         this.emailService = emailService;
         this.passwordEncoder = passwordEncoder;
+        this.roleBasedAccessUtils = roleBasedAccessUtils;
+        this.userService = userService;
     }
 
     @PostMapping("/login")
@@ -104,40 +116,43 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody @Valid RegisterDto request) {
-        if (userRepository.existsByUsername(request.getUsername())) 
+    public ResponseEntity<?> register(@RequestBody @Valid List<RegisterDto> users,
+                                           @RequestParam RoleType role,
+                                           @AuthenticationPrincipal UserEntity admin) 
+    {
+        final Integer passwordLength = 8;
+        List<UserDto> createdUsers = new ArrayList<>();
+        if(!roleBasedAccessUtils.canRegisterUser(admin))
         {
-            return new ResponseEntity<>("Username already taken!", HttpStatus.BAD_REQUEST);  
+            return new ResponseEntity<List<UserDto>>(createdUsers, HttpStatus.FORBIDDEN);
         }
-        if ((request.getEmail() != null && !request.getEmail().isEmpty()) && userRepository.existsByEmail(request.getEmail())) 
+        for (RegisterDto user : users)
         {
-            return new ResponseEntity<>("Email already taken!", HttpStatus.BAD_REQUEST); 
-        }
-        UserEntity user = new UserEntity();
-        user.setFirstName(request.getFirstName());
-        user.setLastName(request.getLastName());
-        user.setUsername(request.getUsername());
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setRole(RoleType.USER);
-        if(request.getEmail() != null && !request.getEmail().isEmpty())
-        {
-            user.setEmail(request.getEmail());
-            userRepository.save(user);
-            String token = UUID.randomUUID().toString();
-            VerificationToken verificationToken = new VerificationToken();
-            verificationToken.setToken(token);
-            verificationToken.setUser(user);
-            verificationToken.setExpiryDate(LocalDateTime.now().plusMinutes(15)); 
-            tokenRepository.save(verificationToken);
-            try{
-                emailService.sendEmail(request.getEmail(),"Please verify your email", emailService.buildConfirmEmail(user.getUsername(), token));
-            } catch (Exception e) {
-                return new ResponseEntity<>(("Failed to send verification token\n" + e), HttpStatus.INTERNAL_SERVER_ERROR);
+            String baseUsername = userService.generateUsername(user.getFirstName(), user.getLastName());
+            String uniqueUsername = userService.generateUniqueUsername(baseUsername);
+            String password = userService.generateRandomPassword(passwordLength);
+                
+            UserEntity newUser = new UserEntity();
+            newUser.setFirstName(user.getFirstName());
+            newUser.setLastName(user.getLastName());
+            newUser.setUsername(uniqueUsername);
+            newUser.setPassword(passwordEncoder.encode(password));
+            newUser.setRole(role);
+            if(admin.getRole().equals(RoleType.SCHOOL_ADMIN))
+            {
+                newUser.setSchool(admin.getSchool());
             }
-            return new ResponseEntity<>("User registered successfully! Please check your email for verification.", HttpStatus.CREATED);
+            try{
+                userRepository.save(newUser);
+            } catch(Exception e)
+            {
+                return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+            }
+            UserDto createdUserDto = UserMapper.INSTANCE.toUserDto(newUser, null);
+            createdUserDto.setPassword(password);
+            createdUsers.add(createdUserDto);  
         }
-        userRepository.save(user);
-        return new ResponseEntity<>("User registered successfully!", HttpStatus.CREATED);
+        return new ResponseEntity<>(createdUsers, HttpStatus.CREATED);
     }
 
     @GetMapping("/confirm")
