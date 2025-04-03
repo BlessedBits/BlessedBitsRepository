@@ -329,7 +329,7 @@ public class ClassesController {
             @AuthenticationPrincipal UserEntity user
     ) {
         ClassEntity classEntity = classService.getById(classId);
-        if (!roleBasedAccessUtils.canAccessClass(user, classEntity)) {
+        if (!roleBasedAccessUtils.canAccessClassSchedule(user, classEntity)) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
         List<ScheduleDto> schedules = scheduleService

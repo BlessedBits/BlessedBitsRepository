@@ -37,6 +37,16 @@ public class RoleBasedAccessUtils {
         return false;
     }
 
+    public boolean canAccessClassSchedule(UserEntity user, ClassEntity classEntity) {
+        if (user.hasRole(RoleType.PLATFORM_ADMIN)) {
+            return true;
+        }
+        if (user.hasRole(RoleType.SCHOOL_ADMIN) || user.hasRole(RoleType.TEACHER) || user.hasRole(RoleType.STUDENT)) {
+            return Objects.equals(classEntity.getSchool().getId(), user.getSchool().getId());
+        }
+        return false;
+    }
+
     public boolean canModifyClass(UserEntity user, ClassEntity classEntity) {
         if (user.hasRole(RoleType.PLATFORM_ADMIN)) {
             return true;
@@ -115,6 +125,13 @@ public class RoleBasedAccessUtils {
         }
         return false;
     }
+
+    public boolean canRegisterUser(UserEntity user) {
+        if (user.hasRole(RoleType.PLATFORM_ADMIN) || user.hasRole(RoleType.SCHOOL_ADMIN)) {
+            return true;
+        }
+        return false;
+    }   
 
     public boolean canModifyUserRole(UserEntity user, UserEntity targetUser, RoleType targetRole) {
         if (user.hasRole(RoleType.PLATFORM_ADMIN)) {
