@@ -35,7 +35,7 @@ public class ScheduleService {
     @Autowired
     private CourseRepository courseRepository;
 
-    public void createSchedule(CreateScheduleDto createScheduleDTO) {
+    public Schedule createSchedule(CreateScheduleDto createScheduleDTO) {
         Optional<ClassEntity> classEntityOpt = classRepository.findById(createScheduleDTO.getClassId());
         Optional<Course> courseOpt = courseRepository.findById(createScheduleDTO.getCourseId());
 
@@ -55,7 +55,7 @@ public class ScheduleService {
         schedule.setEndTime(createScheduleDTO.getEndTime());
         schedule.setRoomNumber(createScheduleDTO.getRoomNumber());
 
-        scheduleRepository.save(schedule);
+        return scheduleRepository.save(schedule);
     }
 
     public List<Schedule> getAllSchedules() {

@@ -153,7 +153,7 @@ public class CourseService {
         schoolRepository.save(school);
     }
 
-    public ResponseEntity<String> createCourse(CreateCourseDto courseDto, UserEntity user) {
+    public ResponseEntity<?> createCourse(CreateCourseDto courseDto, UserEntity user) {
         School school = schoolRepository.findById(courseDto.getSchoolId())
                 .orElseGet(() -> user.getSchool());
 
@@ -171,8 +171,7 @@ public class CourseService {
             course.setTeachers(teachers);
         }
         try {
-            courseRepository.save(course);
-            return new ResponseEntity<>("Course created", HttpStatus.CREATED);
+            return new ResponseEntity<>(courseRepository.save(course), HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>("Unable to create course", HttpStatus.INTERNAL_SERVER_ERROR);
         }

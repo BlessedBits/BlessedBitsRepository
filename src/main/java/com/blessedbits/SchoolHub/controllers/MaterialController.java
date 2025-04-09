@@ -35,7 +35,7 @@ public class MaterialController {
     }
 
     @PostMapping("")
-    public ResponseEntity<String> createMaterial(
+    public ResponseEntity<?> createMaterial(
             @RequestBody CreateMaterialDto createMaterialDto,
             @AuthenticationPrincipal UserEntity user
     ) {
@@ -49,8 +49,7 @@ public class MaterialController {
         material.setUrl(createMaterialDto.getUrl());
         material.setModule(moduleEntity);
         try {
-            materialRepository.save(material);
-            return new ResponseEntity<>("Material created", HttpStatus.CREATED);
+            return new ResponseEntity<>(materialRepository.save(material), HttpStatus.CREATED);
         } catch (Exception e) {
             System.out.println(e.getMessage());
             return new ResponseEntity<>("Unable to create material", HttpStatus.INTERNAL_SERVER_ERROR);

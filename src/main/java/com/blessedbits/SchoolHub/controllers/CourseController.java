@@ -44,7 +44,7 @@ public class CourseController {
     }
 
     @PostMapping("")
-    public ResponseEntity<String> createCourse(
+    public ResponseEntity<?> createCourse(
             @RequestBody CreateCourseDto courseDto,
             @AuthenticationPrincipal UserEntity user
     ) {

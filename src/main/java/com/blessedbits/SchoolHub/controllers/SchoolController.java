@@ -62,13 +62,12 @@ public class SchoolController {
     }
 
     @PostMapping("")
-    public ResponseEntity<String> createSchool(@RequestBody CreateSchoolDto schoolDto) {
+    public ResponseEntity<?> createSchool(@RequestBody CreateSchoolDto schoolDto) {
         School school = new School();
         school.setName(schoolDto.getName());
         school.setAddress(schoolDto.getAddress());
         try {
-            schoolRepository.save(school);
-            return new ResponseEntity<>("School created", HttpStatus.CREATED);
+            return new ResponseEntity<>(schoolRepository.save(school), HttpStatus.CREATED);
         } catch (Exception e) {
             System.out.println(e.getMessage());
             return new ResponseEntity<>("Unable to create school", HttpStatus.BAD_REQUEST);

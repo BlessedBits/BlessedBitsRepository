@@ -34,7 +34,7 @@ public class SubmissionController {
     }
 
     @PostMapping("")
-    public ResponseEntity<String> createSubmission(
+    public ResponseEntity<?> createSubmission(
             @RequestBody CreateSubmissionDto submissionDto,
             @AuthenticationPrincipal UserEntity user
     ) {
@@ -48,8 +48,7 @@ public class SubmissionController {
         submission.setStudent(user);
         submission.setAssignment(assignment);
         try {
-            submissionRepository.save(submission);
-            return new ResponseEntity<>("Submission created", HttpStatus.CREATED);
+            return new ResponseEntity<>(submissionRepository.save(submission), HttpStatus.CREATED);
         } catch (Exception e) {
             System.out.println(e.getMessage());
             return new ResponseEntity<>("Unable to create submission", HttpStatus.INTERNAL_SERVER_ERROR);
