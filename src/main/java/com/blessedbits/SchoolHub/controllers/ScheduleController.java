@@ -19,14 +19,13 @@ public class ScheduleController {
     private ScheduleService scheduleService;
 
     @PostMapping("")
-    public ResponseEntity<String> createSchedule(@RequestBody CreateScheduleDto createScheduleDto) {
+    public ResponseEntity<?> createSchedule(@RequestBody CreateScheduleDto createScheduleDto) {
         try 
         {
-            scheduleService.createSchedule(createScheduleDto);
-            return new ResponseEntity<String>("Schedule was successfully created!", HttpStatus.CREATED);
+            return new ResponseEntity<>(scheduleService.createSchedule(createScheduleDto), HttpStatus.CREATED);
         } catch (Exception e) 
         {
-            return new ResponseEntity<String>("Error " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>("Error " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

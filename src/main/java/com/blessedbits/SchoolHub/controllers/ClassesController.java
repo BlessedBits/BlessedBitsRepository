@@ -63,7 +63,7 @@ public class ClassesController {
     }
 
     @PostMapping("")
-    public ResponseEntity<String> createClass(
+    public ResponseEntity<?> createClass(
             @RequestBody CreateClassDto classDto,
             @AuthenticationPrincipal UserEntity user
     ) {
@@ -80,8 +80,7 @@ public class ClassesController {
         classEntity.setHomeroomTeacher(teacher);
         classEntity.setSchool(school);
         try {
-            classRepository.save(classEntity);
-            return new ResponseEntity<>("Class created", HttpStatus.CREATED);
+            return new ResponseEntity<>(classRepository.save(classEntity), HttpStatus.CREATED);
         } catch (Exception e) {
             System.out.println(e.getMessage());
             return new ResponseEntity<>(

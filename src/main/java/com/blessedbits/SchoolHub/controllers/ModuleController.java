@@ -37,7 +37,7 @@ public class ModuleController {
     }
 
     @PostMapping("")
-    public ResponseEntity<String> createModule(
+    public ResponseEntity<?> createModule(
             @RequestBody CreateModuleDto createModuleDto,
             @AuthenticationPrincipal UserEntity user
     ) {
@@ -49,8 +49,8 @@ public class ModuleController {
         moduleEntity.setName(createModuleDto.getName());
         moduleEntity.setCourse(course);
         try {
-            moduleRepository.save(moduleEntity);
-            return new ResponseEntity<>("Module created", HttpStatus.CREATED);
+            
+            return new ResponseEntity<>(moduleRepository.save(moduleEntity), HttpStatus.CREATED);
         } catch (Exception e) {
             System.out.println(e.getMessage());
             return new ResponseEntity<>("Unable to create module", HttpStatus.INTERNAL_SERVER_ERROR);

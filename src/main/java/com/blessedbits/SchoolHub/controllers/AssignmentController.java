@@ -41,7 +41,7 @@ public class AssignmentController {
     }
 
     @PostMapping("")
-    public ResponseEntity<String> createAssignment(
+    public ResponseEntity<?> createAssignment(
             @RequestBody CreateAssignmentDto assignmentDto,
             @AuthenticationPrincipal UserEntity user
     ) {
@@ -56,11 +56,10 @@ public class AssignmentController {
         assignment.setDueDate(assignmentDto.getDueDate());
         assignment.setModule(moduleEntity);
         try {
-            assignmentRepository.save(assignment);
-            return new ResponseEntity<>("Assignment created", HttpStatus.CREATED);
+            return new ResponseEntity<>(assignmentRepository.save(assignment), HttpStatus.CREATED);
         } catch (Exception e) {
             System.out.println(e.getMessage());
-            return new ResponseEntity<>("Unable to create assignment", HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>("Error: Unable to create assignment!", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
