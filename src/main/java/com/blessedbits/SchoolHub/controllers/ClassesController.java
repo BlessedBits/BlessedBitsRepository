@@ -80,7 +80,8 @@ public class ClassesController {
         classEntity.setHomeroomTeacher(teacher);
         classEntity.setSchool(school);
         try {
-            return new ResponseEntity<>(classRepository.save(classEntity), HttpStatus.CREATED);
+            classRepository.save(classEntity);
+            return new ResponseEntity<>(ClassMapper.INSTANCE.toClassDto(classEntity, List.of("homeroomTeacher")), HttpStatus.CREATED);
         } catch (Exception e) {
             System.out.println(e.getMessage());
             return new ResponseEntity<>(
